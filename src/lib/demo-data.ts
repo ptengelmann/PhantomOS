@@ -1,0 +1,319 @@
+// Demo data for "Shadowfall Chronicles" - a fictional indie action RPG
+// This represents what real fragmented sales data looks like after aggregation
+
+export const demoPublisher = {
+  id: 'demo-publisher-001',
+  name: 'Indie Forge Studios',
+  slug: 'indie-forge-studios',
+  subscriptionTier: 'growth' as const,
+};
+
+export const demoGameIP = {
+  id: 'demo-ip-001',
+  name: 'Shadowfall Chronicles',
+  slug: 'shadowfall-chronicles',
+  genre: 'Action RPG',
+  releaseDate: '2023-06-15',
+  platforms: ['PC', 'PlayStation 5', 'Xbox Series X'],
+  description: 'A dark fantasy action RPG with 2.5M copies sold and a passionate fan community.',
+};
+
+// Characters/Assets with realistic performance data
+export const demoAssets = [
+  {
+    id: 'asset-001',
+    name: 'Kira Nightblade',
+    type: 'character',
+    description: 'The protagonist - a shadow assassin with a tragic past',
+    imageUrl: '/demo/kira.jpg',
+    score: 94,
+    trend: 'rising' as const,
+    revenue: 285420,
+    units: 12847,
+    growth: 28.5,
+    products: 45,
+    topRegion: 'North America',
+    sentiment: 0.92,
+    insights: ['Fan favorite protagonist', 'High demand for premium collectibles', 'Strong in NA and EU markets'],
+  },
+  {
+    id: 'asset-002',
+    name: 'Lord Malachar',
+    type: 'character',
+    description: 'The main antagonist - a fallen king corrupted by shadow magic',
+    imageUrl: '/demo/malachar.jpg',
+    score: 87,
+    trend: 'rising' as const,
+    revenue: 198750,
+    units: 8234,
+    growth: 42.3,
+    products: 28,
+    topRegion: 'Europe',
+    sentiment: 0.88,
+    insights: ['Villain merch trending up', 'Strong in collector segment', 'Emerging demand in APAC'],
+  },
+  {
+    id: 'asset-003',
+    name: 'Shadowfall Emblem',
+    type: 'logo',
+    description: 'The iconic game logo featuring crossed shadow blades',
+    imageUrl: '/demo/emblem.jpg',
+    score: 82,
+    trend: 'stable' as const,
+    revenue: 156890,
+    units: 15420,
+    growth: 8.2,
+    products: 62,
+    topRegion: 'Global',
+    sentiment: 0.85,
+    insights: ['High volume, lower margin items', 'Strong brand recognition', 'Best for apparel'],
+  },
+  {
+    id: 'asset-004',
+    name: 'The Void Dragon',
+    type: 'character',
+    description: 'A legendary boss - the guardian of the shadow realm',
+    imageUrl: '/demo/dragon.jpg',
+    score: 76,
+    trend: 'rising' as const,
+    revenue: 124500,
+    units: 3240,
+    growth: 65.8,
+    products: 12,
+    topRegion: 'Asia Pacific',
+    sentiment: 0.91,
+    insights: ['EXPLOSIVE growth in Asia', 'Premium collectible opportunity', 'Limited product line - expand'],
+  },
+  {
+    id: 'asset-005',
+    name: 'Elder Sage Theron',
+    type: 'character',
+    description: 'The wise mentor figure who guides the hero',
+    imageUrl: '/demo/theron.jpg',
+    score: 58,
+    trend: 'declining' as const,
+    revenue: 42300,
+    units: 2180,
+    growth: -12.4,
+    products: 18,
+    topRegion: 'North America',
+    sentiment: 0.72,
+    insights: ['Declining interest', 'Consider promotional bundle', 'Evaluate product line reduction'],
+  },
+];
+
+// Revenue data showing growth trajectory
+export const demoRevenueData = [
+  { date: 'Jan', revenue: 45200, orders: 1820, units: 2450 },
+  { date: 'Feb', revenue: 52800, orders: 2140, units: 2890 },
+  { date: 'Mar', revenue: 48500, orders: 1960, units: 2640 },
+  { date: 'Apr', revenue: 67300, orders: 2720, units: 3680 },
+  { date: 'May', revenue: 78900, orders: 3190, units: 4310 },
+  { date: 'Jun', revenue: 92400, orders: 3740, units: 5050 },
+  { date: 'Jul', revenue: 105200, orders: 4250, units: 5740 },
+  { date: 'Aug', revenue: 118600, orders: 4800, units: 6480 },
+  { date: 'Sep', revenue: 134800, orders: 5450, units: 7360 },
+  { date: 'Oct', revenue: 156200, orders: 6320, units: 8530 },
+  { date: 'Nov', revenue: 189400, orders: 7660, units: 10340 },
+  { date: 'Dec', revenue: 245000, orders: 9910, units: 13380 },
+];
+
+// Category breakdown with clear insights
+export const demoCategoryData = [
+  { name: 'Apparel', value: 425000, percentage: 35.2, units: 28400, avgPrice: 14.96, growth: 22.5 },
+  { name: 'Collectibles', value: 385000, percentage: 31.9, units: 8200, avgPrice: 46.95, growth: 38.4 },
+  { name: 'Accessories', value: 198000, percentage: 16.4, units: 15600, avgPrice: 12.69, growth: 15.2 },
+  { name: 'Home & Living', value: 124000, percentage: 10.3, units: 6800, avgPrice: 18.24, growth: 8.7 },
+  { name: 'Digital', value: 75000, percentage: 6.2, units: 4200, avgPrice: 17.86, growth: 45.2 },
+];
+
+// Regional performance
+export const demoRegionalData = [
+  { region: 'North America', revenue: 524000, percentage: 43.4, growth: 28.5, topAsset: 'Kira Nightblade' },
+  { region: 'Europe', revenue: 385000, percentage: 31.9, growth: 22.3, topAsset: 'Lord Malachar' },
+  { region: 'Asia Pacific', revenue: 198000, percentage: 16.4, growth: 52.8, topAsset: 'The Void Dragon' },
+  { region: 'Latin America', revenue: 68000, percentage: 5.6, growth: 18.4, topAsset: 'Shadowfall Emblem' },
+  { region: 'Rest of World', revenue: 32000, percentage: 2.7, growth: 12.1, topAsset: 'Kira Nightblade' },
+];
+
+// Connected data sources showing fragmentation
+export const demoConnectors = [
+  {
+    id: 'conn-001',
+    type: 'shopify' as const,
+    name: 'Official Store (Shopify)',
+    status: 'connected',
+    lastSync: '2 minutes ago',
+    products: 156,
+    orders: 28450,
+    revenue: 542000,
+    syncHealth: 100,
+  },
+  {
+    id: 'conn-002',
+    type: 'amazon' as const,
+    name: 'Amazon US Marketplace',
+    status: 'connected',
+    lastSync: '15 minutes ago',
+    products: 89,
+    orders: 18920,
+    revenue: 385000,
+    syncHealth: 98,
+  },
+  {
+    id: 'conn-003',
+    type: 'amazon' as const,
+    name: 'Amazon EU (DE, UK, FR)',
+    status: 'syncing',
+    lastSync: 'Syncing...',
+    products: 72,
+    orders: 12840,
+    revenue: 245000,
+    syncHealth: 95,
+  },
+  {
+    id: 'conn-004',
+    type: 'woocommerce' as const,
+    name: 'Japanese Partner Store',
+    status: 'connected',
+    lastSync: '1 hour ago',
+    products: 34,
+    orders: 4250,
+    revenue: 98000,
+    syncHealth: 92,
+  },
+];
+
+// AI-Generated Insights - these should be specific, actionable, and compelling
+export const demoInsights = [
+  {
+    id: 'insight-001',
+    type: 'opportunity' as const,
+    priority: 'high',
+    title: 'Void Dragon demand surging +66% in Asia Pacific',
+    description: 'Analysis of 4,250 orders from Japan and South Korea shows explosive demand for The Void Dragon merchandise, but only 12 products available. This is a clear untapped market signal.',
+    confidence: 94,
+    potentialRevenue: 185000,
+    recommendations: [
+      'Launch premium Void Dragon statue ($199 MSRP) for APAC market',
+      'Partner with Japanese manufacturer for regional exclusives',
+      'Increase inventory allocation by 200% before Q1 anime convention season',
+    ],
+    asset: 'The Void Dragon',
+    region: 'Asia Pacific',
+    dataPoints: ['66% YoY growth', '3,240 units sold', '$38.42 avg order value', '91% positive sentiment'],
+    createdAt: '2 hours ago',
+  },
+  {
+    id: 'insight-002',
+    type: 'opportunity' as const,
+    priority: 'high',
+    title: 'Lord Malachar villain merch outperforming hero ratio 2:1 in EU',
+    description: 'European customers are purchasing villain merchandise at double the rate of typical hero-to-villain ratios. Sentiment analysis of 8,400 reviews shows demand for "dark aesthetic" and "collector editions".',
+    confidence: 91,
+    potentialRevenue: 142000,
+    recommendations: [
+      'Fast-track Malachar Premium Collection for EU launch',
+      'Test "Dark Lords Bundle" with 20% price premium',
+      'Create Malachar vs Kira dual-pack for collector segment',
+    ],
+    asset: 'Lord Malachar',
+    region: 'Europe',
+    dataPoints: ['42% growth rate', '2:1 villain preference ratio', '€52 avg order value', '88% sentiment score'],
+    createdAt: '5 hours ago',
+  },
+  {
+    id: 'insight-003',
+    type: 'warning' as const,
+    priority: 'medium',
+    title: 'Elder Sage Theron line underperforming - consider sunset',
+    description: 'Sales velocity for Theron merchandise has declined 12.4% over 90 days despite stable traffic. Low conversion rate (1.2% vs 3.8% average) suggests product-market misfit.',
+    confidence: 87,
+    potentialRevenue: -28000,
+    recommendations: [
+      'Run 40% clearance sale to clear inventory',
+      'Bundle remaining stock with high-performers',
+      'Reduce product line from 18 to 6 best-sellers',
+    ],
+    asset: 'Elder Sage Theron',
+    region: 'Global',
+    dataPoints: ['-12.4% sales velocity', '1.2% conversion rate', '$19.41 avg order value', '72% sentiment'],
+    createdAt: '1 day ago',
+  },
+  {
+    id: 'insight-004',
+    type: 'insight' as const,
+    priority: 'medium',
+    title: 'Digital products showing 45% growth with highest margins',
+    description: 'Wallpapers, digital art packs, and soundtracks are generating $75K revenue at 92% margin. NLP analysis shows demand for "exclusive", "limited", and "digital collectible" keywords.',
+    confidence: 89,
+    potentialRevenue: 95000,
+    recommendations: [
+      'Launch exclusive digital art series ($15-25 price point)',
+      'Create NFT-style numbered digital collectibles',
+      'Bundle digital extras with physical premium items',
+    ],
+    asset: 'Multiple',
+    region: 'Global',
+    dataPoints: ['45% growth', '92% gross margin', '4,200 units', 'High repeat purchase rate'],
+    createdAt: '3 hours ago',
+  },
+  {
+    id: 'insight-005',
+    type: 'opportunity' as const,
+    priority: 'high',
+    title: 'Shadowfall anniversary (June 15) - prep for demand spike',
+    description: 'Historical data shows 180% revenue spike during game anniversaries. Combined with DLC announcement rumors, predicted 250% increase. Current inventory will sell out in 3 days.',
+    confidence: 96,
+    potentialRevenue: 320000,
+    recommendations: [
+      'Order 3x normal inventory for top 10 SKUs NOW',
+      'Prepare limited "Anniversary Edition" premium bundle',
+      'Coordinate with production for rush orders',
+      'Pre-schedule email campaign for existing customers',
+    ],
+    asset: 'All',
+    region: 'Global',
+    dataPoints: ['Historical 180% spike', 'DLC announcement expected', '14 days until anniversary', 'Low current stock'],
+    createdAt: '30 minutes ago',
+  },
+];
+
+// Recent orders for the activity feed
+export const demoRecentOrders = [
+  { id: 'ORD-78421', product: 'Kira Nightblade Premium Statue', customer: 'Marcus J.', amount: 249.99, status: 'shipped', region: 'US', date: '2 min ago' },
+  { id: 'ORD-78420', product: 'Void Dragon Art Print Bundle', customer: 'Yuki T.', amount: 89.99, status: 'processing', region: 'JP', date: '5 min ago' },
+  { id: 'ORD-78419', product: 'Shadowfall Emblem Hoodie XL', customer: 'Sarah M.', amount: 64.99, status: 'delivered', region: 'UK', date: '12 min ago' },
+  { id: 'ORD-78418', product: 'Lord Malachar Collector Figure', customer: 'Hans K.', amount: 179.99, status: 'shipped', region: 'DE', date: '18 min ago' },
+  { id: 'ORD-78417', product: 'Kira & Malachar Poster Set', customer: 'Alex R.', amount: 34.99, status: 'delivered', region: 'US', date: '25 min ago' },
+  { id: 'ORD-78416', product: 'Digital Soundtrack + Artbook', customer: 'Chen W.', amount: 29.99, status: 'delivered', region: 'CN', date: '32 min ago' },
+  { id: 'ORD-78415', product: 'Shadowfall Complete Merch Bundle', customer: 'Emma L.', amount: 399.99, status: 'processing', region: 'CA', date: '45 min ago' },
+];
+
+// Summary stats
+export const demoSummaryStats = {
+  totalRevenue: 1207000,
+  revenueGrowth: 34.2,
+  totalOrders: 64460,
+  ordersGrowth: 28.5,
+  avgOrderValue: 18.72,
+  aovGrowth: 4.4,
+  conversionRate: 3.84,
+  conversionGrowth: 0.52,
+  activeCustomers: 42850,
+  customerGrowth: 22.3,
+  productCount: 351,
+  connectedSources: 4,
+  phantomDemandScore: 87,
+  aiInsightsCount: 12,
+  predictionAccuracy: 91,
+};
+
+// 30-day forecast by category
+export const demoDemandForecast = [
+  { name: 'Collectibles', value: 195000, percentage: 38, confidence: 94 },
+  { name: 'Apparel', value: 165000, percentage: 32, confidence: 91 },
+  { name: 'Accessories', value: 78000, percentage: 15, confidence: 88 },
+  { name: 'Home & Living', value: 52000, percentage: 10, confidence: 85 },
+  { name: 'Digital', value: 26000, percentage: 5, confidence: 92 },
+];

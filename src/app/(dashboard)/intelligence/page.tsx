@@ -1,63 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Brain, Sparkles, TrendingUp, AlertCircle, Filter, Download, RefreshCw } from 'lucide-react';
+import { Brain, Sparkles, TrendingUp, AlertCircle, TrendingDown, Target, DollarSign, RefreshCw, ChevronRight, Globe, Zap } from 'lucide-react';
 import { Header, StatsCard } from '@/components/dashboard';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui';
-import { AssetPerformanceChart, CategoryBreakdown } from '@/components/charts';
-
-// Mock insights data
-const aiInsights = [
-  {
-    id: 1,
-    type: 'opportunity',
-    title: 'Master Chief demand spike predicted',
-    description: 'Based on upcoming Halo anniversary and social sentiment analysis, we predict a 40% increase in Master Chief merchandise demand in the next 30 days.',
-    confidence: 92,
-    recommendations: ['Increase inventory by 35%', 'Prepare limited edition drop', 'Alert production partners'],
-    asset: 'Master Chief',
-    createdAt: '2 hours ago',
-  },
-  {
-    id: 2,
-    type: 'warning',
-    title: 'Ezio product line underperforming',
-    description: 'Sales velocity for Assassins Creed Ezio merchandise has declined 23% over the past 60 days, despite stable traffic.',
-    confidence: 87,
-    recommendations: ['Consider promotional pricing', 'Test new designs', 'Evaluate product-market fit'],
-    asset: 'Ezio',
-    createdAt: '5 hours ago',
-  },
-  {
-    id: 3,
-    type: 'insight',
-    title: 'Vintage aesthetic trending for Geralt products',
-    description: 'NLP analysis of 15,000+ reviews shows strong preference for "vintage", "worn", and "authentic" styling in Witcher merchandise.',
-    confidence: 78,
-    recommendations: ['Brief design team on trend', 'Test distressed prints', 'Consider aged metal finishes'],
-    asset: 'Geralt',
-    createdAt: '1 day ago',
-  },
-];
-
-const assetScorecard = [
-  { name: 'Master Chief', score: 94, trend: 'rising', revenue: 285000, growth: 24, products: 45 },
-  { name: 'Kratos', score: 88, trend: 'rising', revenue: 215000, growth: 18, products: 32 },
-  { name: 'Geralt', score: 82, trend: 'stable', revenue: 178000, growth: 12, products: 28 },
-  { name: 'Link', score: 76, trend: 'stable', revenue: 156000, growth: 5, products: 38 },
-  { name: 'Ezio', score: 54, trend: 'declining', revenue: 98000, growth: -3, products: 22 },
-];
-
-const demandForecast = [
-  { name: 'Apparel', value: 185000, percentage: 38 },
-  { name: 'Collectibles', value: 145000, percentage: 30 },
-  { name: 'Accessories', value: 78000, percentage: 16 },
-  { name: 'Home', value: 52000, percentage: 11 },
-  { name: 'Digital', value: 24000, percentage: 5 },
-];
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui';
+import { CategoryBreakdown } from '@/components/charts';
+import {
+  demoAssets,
+  demoInsights,
+  demoDemandForecast,
+  demoSummaryStats,
+  demoGameIP
+} from '@/lib/demo-data';
 
 export default function IntelligencePage() {
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedInsight, setSelectedInsight] = useState<string | null>(null);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -66,9 +24,17 @@ export default function IntelligencePage() {
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'opportunity': return <Sparkles className="w-4 h-4 text-[#22c55e]" />;
-      case 'warning': return <AlertCircle className="w-4 h-4 text-[#eab308]" />;
-      default: return <Brain className="w-4 h-4 text-[#0a0a0a]" />;
+      case 'opportunity': return <Sparkles className="w-5 h-5 text-[#22c55e]" />;
+      case 'warning': return <AlertCircle className="w-5 h-5 text-[#eab308]" />;
+      default: return <Brain className="w-5 h-5 text-[#0a0a0a]" />;
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'high': return <Badge variant="error" className="bg-[#0a0a0a] text-white border-0">High Priority</Badge>;
+      case 'medium': return <Badge variant="warning">Medium</Badge>;
+      default: return <Badge>Low</Badge>;
     }
   };
 
@@ -78,19 +44,26 @@ export default function IntelligencePage() {
     return 'text-[#ef4444]';
   };
 
-  const getTrendBadge = (trend: string) => {
+  const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'rising': return <Badge variant="success">Rising</Badge>;
-      case 'declining': return <Badge variant="error">Declining</Badge>;
-      default: return <Badge>Stable</Badge>;
+      case 'rising': return <TrendingUp className="w-4 h-4 text-[#22c55e]" />;
+      case 'declining': return <TrendingDown className="w-4 h-4 text-[#ef4444]" />;
+      default: return <Target className="w-4 h-4 text-[#737373]" />;
     }
   };
+
+  // Transform forecast data
+  const forecastData = demoDemandForecast.map(item => ({
+    name: item.name,
+    value: item.value,
+    percentage: item.percentage,
+  }));
 
   return (
     <div>
       <Header
         title="Fan Intelligence Hub"
-        description="AI-powered insights to reveal phantom demand"
+        description={`${demoGameIP.name} • AI-powered demand intelligence`}
         action={{ label: 'Export Report', onClick: () => console.log('Export') }}
       />
 
@@ -99,79 +72,136 @@ export default function IntelligencePage() {
         <div className="grid grid-cols-4 gap-4">
           <StatsCard
             title="Phantom Demand Score"
-            value="87"
+            value={demoSummaryStats.phantomDemandScore.toString()}
             change={4.2}
             icon={<Brain className="w-5 h-5" />}
           />
           <StatsCard
             title="Active Insights"
-            value="12"
+            value={demoInsights.length.toString()}
             change={3}
             icon={<Sparkles className="w-5 h-5" />}
           />
           <StatsCard
-            title="Data Sources"
-            value="5"
-            icon={<Filter className="w-5 h-5" />}
+            title="Revenue Opportunity"
+            value={`$${(demoInsights.filter(i => i.type === 'opportunity').reduce((sum, i) => sum + i.potentialRevenue, 0) / 1000).toFixed(0)}K`}
+            icon={<DollarSign className="w-5 h-5" />}
           />
           <StatsCard
             title="Prediction Accuracy"
-            value="89%"
+            value={`${demoSummaryStats.predictionAccuracy}%`}
             change={2.1}
-            icon={<TrendingUp className="w-5 h-5" />}
+            icon={<Target className="w-5 h-5" />}
           />
         </div>
 
-        {/* AI Insights */}
+        {/* AI Insights - The Star of the Show */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>AI-Generated Insights</CardTitle>
-              <CardDescription>Real-time analysis of your sales data and market signals</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                AI-Powered Insights
+              </CardTitle>
+              <CardDescription>Real-time analysis revealing hidden demand signals and opportunities</CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              Refresh Analysis
             </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {aiInsights.map((insight) => (
+              {demoInsights.map((insight) => (
                 <div
                   key={insight.id}
-                  className="p-4 bg-[#fafafa] border border-[#e5e5e5] hover:border-[#0a0a0a] transition-colors"
+                  className={`border transition-all ${
+                    selectedInsight === insight.id
+                      ? 'border-[#0a0a0a] bg-white'
+                      : 'border-[#e5e5e5] bg-[#fafafa] hover:border-[#a3a3a3]'
+                  }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5">{getInsightIcon(insight.type)}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-[#0a0a0a]">{insight.title}</h4>
-                        <Badge variant="outline">{insight.asset}</Badge>
-                        <span className="text-xs text-[#737373]">{insight.createdAt}</span>
-                      </div>
-                      <p className="text-sm text-[#737373] mb-3">{insight.description}</p>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-xs text-[#737373]">Confidence:</span>
-                        <div className="flex-1 max-w-32 h-1.5 bg-[#e5e5e5]">
-                          <div
-                            className="h-full bg-[#0a0a0a]"
-                            style={{ width: `${insight.confidence}%` }}
-                          />
+                  {/* Insight Header */}
+                  <div
+                    className="p-4 cursor-pointer"
+                    onClick={() => setSelectedInsight(selectedInsight === insight.id ? null : insight.id)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="mt-0.5">{getInsightIcon(insight.type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          {getPriorityBadge(insight.priority)}
+                          <Badge variant="outline">{insight.asset}</Badge>
+                          {insight.region && <Badge variant="outline"><Globe className="w-3 h-3 mr-1" />{insight.region}</Badge>}
+                          <span className="text-xs text-[#737373] ml-auto">{insight.createdAt}</span>
                         </div>
-                        <span className="text-xs font-medium">{insight.confidence}%</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {insight.recommendations.map((rec, idx) => (
-                          <span
-                            key={idx}
-                            className="text-xs px-2 py-1 bg-white border border-[#e5e5e5] text-[#737373]"
-                          >
-                            {rec}
-                          </span>
-                        ))}
+                        <h4 className="font-semibold text-[#0a0a0a] mb-1">{insight.title}</h4>
+                        <p className="text-sm text-[#737373]">{insight.description}</p>
+
+                        {/* Quick Stats Row */}
+                        <div className="flex items-center gap-4 mt-3">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-[#737373]">Confidence:</span>
+                            <span className="text-xs font-medium text-[#0a0a0a]">{insight.confidence}%</span>
+                          </div>
+                          {insight.potentialRevenue > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-[#737373]">Potential:</span>
+                              <span className="text-xs font-medium text-[#22c55e]">+${(insight.potentialRevenue / 1000).toFixed(0)}K</span>
+                            </div>
+                          )}
+                          {insight.potentialRevenue < 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-[#737373]">At Risk:</span>
+                              <span className="text-xs font-medium text-[#ef4444]">${(Math.abs(insight.potentialRevenue) / 1000).toFixed(0)}K</span>
+                            </div>
+                          )}
+                          <ChevronRight className={`w-4 h-4 text-[#737373] ml-auto transition-transform ${selectedInsight === insight.id ? 'rotate-90' : ''}`} />
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Expanded Details */}
+                  {selectedInsight === insight.id && (
+                    <div className="border-t border-[#e5e5e5] p-4 bg-white">
+                      <div className="grid grid-cols-2 gap-6">
+                        {/* Data Points */}
+                        <div>
+                          <h5 className="text-sm font-medium text-[#0a0a0a] mb-3">Supporting Data</h5>
+                          <div className="space-y-2">
+                            {insight.dataPoints.map((point, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-sm">
+                                <div className="w-1.5 h-1.5 bg-[#0a0a0a]" />
+                                <span className="text-[#737373]">{point}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Recommendations */}
+                        <div>
+                          <h5 className="text-sm font-medium text-[#0a0a0a] mb-3">Recommended Actions</h5>
+                          <div className="space-y-2">
+                            {insight.recommendations.map((rec, idx) => (
+                              <div key={idx} className="flex items-start gap-2">
+                                <div className="w-5 h-5 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <span className="text-xs font-medium text-[#737373]">{idx + 1}</span>
+                                </div>
+                                <span className="text-sm text-[#0a0a0a]">{rec}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-[#e5e5e5] flex gap-2">
+                        <Button size="sm">Take Action</Button>
+                        <Button variant="outline" size="sm">Dismiss</Button>
+                        <Button variant="ghost" size="sm">Share with Team</Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -180,51 +210,85 @@ export default function IntelligencePage() {
 
         {/* Asset Scorecard & Demand Forecast */}
         <div className="grid grid-cols-2 gap-4">
+          {/* Asset Performance Scorecard - Detailed */}
           <Card>
             <CardHeader>
               <CardTitle>Asset Performance Scorecard</CardTitle>
-              <CardDescription>AI-computed scores based on sales velocity, sentiment, and trends</CardDescription>
+              <CardDescription>AI-computed scores based on sales velocity, sentiment, and market signals</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Asset</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead>Trend</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Growth</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {assetScorecard.map((asset) => (
-                    <TableRow key={asset.name}>
-                      <TableCell className="font-medium">{asset.name}</TableCell>
-                      <TableCell>
-                        <span className={`text-lg font-semibold ${getScoreColor(asset.score)}`}>
+              <div className="space-y-4">
+                {demoAssets.map((asset) => (
+                  <div key={asset.id} className="p-3 bg-[#fafafa] border border-[#e5e5e5] hover:border-[#a3a3a3] transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#e5e5e5] border border-[#d4d4d4] flex items-center justify-center">
+                          <span className="text-xs font-medium text-[#737373]">{asset.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#0a0a0a]">{asset.name}</p>
+                          <p className="text-xs text-[#737373]">{asset.products} products</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {getTrendIcon(asset.trend)}
+                        <span className={`text-2xl font-bold ${getScoreColor(asset.score)}`}>
                           {asset.score}
                         </span>
-                      </TableCell>
-                      <TableCell>{getTrendBadge(asset.trend)}</TableCell>
-                      <TableCell>${(asset.revenue / 1000).toFixed(0)}K</TableCell>
-                      <TableCell>
-                        <span className={asset.growth >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'}>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <span className="text-[#737373]">Revenue</span>
+                        <p className="font-medium text-[#0a0a0a]">${(asset.revenue / 1000).toFixed(0)}K</p>
+                      </div>
+                      <div>
+                        <span className="text-[#737373]">Growth</span>
+                        <p className={`font-medium ${asset.growth >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
                           {asset.growth >= 0 ? '+' : ''}{asset.growth}%
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-[#737373]">Top Region</span>
+                        <p className="font-medium text-[#0a0a0a]">{asset.topRegion}</p>
+                      </div>
+                    </div>
+                    {asset.insights && asset.insights.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-[#e5e5e5]">
+                        <p className="text-xs text-[#737373]">
+                          <Sparkles className="w-3 h-3 inline mr-1" />
+                          {asset.insights[0]}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
           <CategoryBreakdown
-            data={demandForecast}
+            data={forecastData}
             title="30-Day Demand Forecast"
-            description="Predicted demand by category"
+            description="AI-predicted demand by product category"
           />
         </div>
+
+        {/* Methodology Note */}
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <Brain className="w-5 h-5 text-[#737373] mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-[#0a0a0a]">How PhantomOS AI Works</p>
+                <p className="text-sm text-[#737373]">
+                  Our AI analyzes sales velocity, inventory levels, social sentiment, seasonal patterns, and market signals
+                  across all connected data sources. Predictions are updated hourly with a {demoSummaryStats.predictionAccuracy}% historical accuracy rate.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
