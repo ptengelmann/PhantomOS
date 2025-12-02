@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Building, Bell, Shield, CreditCard, Key } from 'lucide-react';
+import { User, Building, Bell, Shield, CreditCard, Key, X, Copy, Check, UserPlus, Mail, Trash2 } from 'lucide-react';
 import { Header } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Badge } from '@/components/ui';
 
@@ -14,8 +14,103 @@ const tabs = [
   { id: 'api', label: 'API Keys', icon: Key },
 ];
 
+interface TeamMember {
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface PendingInvite {
+  email: string;
+  role: string;
+  expiresAt: string;
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteName, setInviteName] = useState('');
+  const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'analyst'>('member');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteSuccess, setInviteSuccess] = useState<{ url: string } | null>(null);
+  const [inviteError, setInviteError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  // Demo team members
+  const [teamMembers] = useState<TeamMember[]>([
+    { name: 'Pedro Oliveira', email: 'pedro@example.com', role: 'Owner' },
+    { name: 'Sarah Chen', email: 'sarah@example.com', role: 'Admin' },
+    { name: 'Mike Johnson', email: 'mike@example.com', role: 'Member' },
+  ]);
+
+  // Demo pending invites
+  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([
+    { email: 'analyst@example.com', role: 'Analyst', expiresAt: '2024-12-09' },
+  ]);
+
+  const handleSendInvite = async () => {
+    if (!inviteEmail || !inviteEmail.includes('@')) {
+      setInviteError('Please enter a valid email address');
+      return;
+    }
+
+    setInviteLoading(true);
+    setInviteError('');
+    setInviteSuccess(null);
+
+    try {
+      const response = await fetch('/api/settings/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: inviteEmail,
+          name: inviteName,
+          role: inviteRole,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setInviteError(data.error || 'Failed to send invitation');
+        setInviteLoading(false);
+        return;
+      }
+
+      setInviteSuccess({ url: data.invitation.inviteUrl });
+      setPendingInvites(prev => [...prev, {
+        email: inviteEmail,
+        role: inviteRole,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      }]);
+    } catch {
+      setInviteError('An error occurred. Please try again.');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (inviteSuccess?.url) {
+      navigator.clipboard.writeText(inviteSuccess.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowInviteModal(false);
+    setInviteEmail('');
+    setInviteName('');
+    setInviteRole('member');
+    setInviteError('');
+    setInviteSuccess(null);
+  };
+
+  const handleRevokeInvite = (email: string) => {
+    setPendingInvites(prev => prev.filter(i => i.email !== email));
+  };
 
   return (
     <div>
@@ -108,11 +203,7 @@ export default function SettingsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {[
-                        { name: 'Pedro Oliveira', email: 'pedro@example.com', role: 'Owner' },
-                        { name: 'Sarah Chen', email: 'sarah@example.com', role: 'Admin' },
-                        { name: 'Mike Johnson', email: 'mike@example.com', role: 'Member' },
-                      ].map((member) => (
+                      {teamMembers.map((member) => (
                         <div key={member.email} className="flex items-center justify-between py-2 border-b border-[#e5e5e5] last:border-0">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
@@ -129,9 +220,41 @@ export default function SettingsPage() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Pending Invites */}
+                    {pendingInvites.length > 0 && (
+                      <div className="mt-6 pt-4 border-t border-[#e5e5e5]">
+                        <p className="text-sm font-medium text-[#0a0a0a] mb-3">Pending Invitations</p>
+                        <div className="space-y-2">
+                          {pendingInvites.map((invite) => (
+                            <div key={invite.email} className="flex items-center justify-between py-2 px-3 bg-[#fafafa] border border-[#e5e5e5]">
+                              <div className="flex items-center gap-3">
+                                <Mail className="w-4 h-4 text-[#a3a3a3]" />
+                                <div>
+                                  <p className="text-sm text-[#0a0a0a]">{invite.email}</p>
+                                  <p className="text-xs text-[#a3a3a3]">Expires {invite.expiresAt}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline">{invite.role}</Badge>
+                                <button
+                                  onClick={() => handleRevokeInvite(invite.email)}
+                                  className="p-1 text-[#a3a3a3] hover:text-red-500 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline">Invite Member</Button>
+                    <Button variant="outline" onClick={() => setShowInviteModal(true)}>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Invite Member
+                    </Button>
                   </CardFooter>
                 </Card>
               </div>
@@ -184,6 +307,87 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 max-w-md w-full mx-4 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[#0a0a0a]">Invite Team Member</h3>
+              <button onClick={handleCloseModal} className="text-[#737373] hover:text-[#0a0a0a]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {inviteSuccess ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-green-50 border border-green-200 text-green-700">
+                  <p className="text-sm font-medium mb-1">Invitation Created!</p>
+                  <p className="text-xs">Share this link with your team member.</p>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={inviteSuccess.url}
+                    readOnly
+                    className="flex-1 h-9 px-3 bg-[#f5f5f5] border border-[#e5e5e5] text-sm font-mono text-[#737373]"
+                  />
+                  <Button variant="outline" size="sm" onClick={handleCopyLink}>
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <Button className="w-full" onClick={handleCloseModal}>Done</Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {inviteError && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+                    {inviteError}
+                  </div>
+                )}
+
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="colleague@company.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                />
+
+                <Input
+                  label="Name (optional)"
+                  type="text"
+                  placeholder="Their name"
+                  value={inviteName}
+                  onChange={(e) => setInviteName(e.target.value)}
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-[#0a0a0a] mb-2">Role</label>
+                  <select
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
+                    className="w-full h-9 px-3 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a]"
+                  >
+                    <option value="admin">Admin - Full access, can invite others</option>
+                    <option value="member">Member - Standard access</option>
+                    <option value="analyst">Analyst - View-only access</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" onClick={handleCloseModal} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSendInvite} className="flex-1" loading={inviteLoading}>
+                    {inviteLoading ? 'Sending...' : 'Send Invitation'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

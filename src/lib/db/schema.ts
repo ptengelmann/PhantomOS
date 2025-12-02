@@ -7,6 +7,8 @@ export const connectorTypeEnum = pgEnum('connector_type', ['shopify', 'amazon', 
 export const productCategoryEnum = pgEnum('product_category', ['apparel', 'collectibles', 'accessories', 'home', 'digital', 'other']);
 export const assetTypeEnum = pgEnum('asset_type', ['character', 'logo', 'scene', 'item', 'theme', 'other']);
 export const mappingStatusEnum = pgEnum('mapping_status', ['unmapped', 'suggested', 'confirmed', 'skipped']);
+export const userRoleEnum = pgEnum('user_role', ['owner', 'admin', 'member', 'analyst']);
+export const inviteStatusEnum = pgEnum('invite_status', ['pending', 'accepted', 'expired', 'revoked']);
 
 // Publishers (Game Studios/Publishers)
 export const publishers = pgTable('publishers', {
@@ -160,6 +162,21 @@ export const aiInsights = pgTable('ai_insights', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Team Invitations
+export const invitations = pgTable('invitations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  token: varchar('token', { length: 256 }).unique().notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }),
+  role: userRoleEnum('role').notNull().default('member'),
+  publisherId: uuid('publisher_id').references(() => publishers.id, { onDelete: 'cascade' }).notNull(),
+  invitedBy: uuid('invited_by').references(() => users.id),
+  status: inviteStatusEnum('status').notNull().default('pending'),
+  expiresAt: timestamp('expires_at').notNull(),
+  acceptedAt: timestamp('accepted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const publishersRelations = relations(publishers, ({ many }) => ({
   users: many(users),
@@ -169,6 +186,18 @@ export const publishersRelations = relations(publishers, ({ many }) => ({
   sales: many(sales),
   analyticsSnapshots: many(analyticsSnapshots),
   aiInsights: many(aiInsights),
+  invitations: many(invitations),
+}));
+
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  publisher: one(publishers, {
+    fields: [invitations.publisherId],
+    references: [publishers.id],
+  }),
+  inviter: one(users, {
+    fields: [invitations.invitedBy],
+    references: [users.id],
+  }),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
