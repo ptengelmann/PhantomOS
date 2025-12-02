@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Check, ArrowRight, ArrowLeft, Loader2, Shield, Zap, BarChart3 } from 'lucide-react';
+import { X, Check, ArrowRight, ArrowLeft, Loader2, Shield, Zap, BarChart3, ExternalLink } from 'lucide-react';
 import { Button, Input, Card, CardContent } from '@/components/ui';
 
 interface ConnectorWizardProps {
@@ -29,6 +29,42 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
   const [syncing, setSyncing] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncComplete, setSyncComplete] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState('');
+
+  const isOAuthConnector = connector.id === 'shopify';
+
+  const handleShopifyOAuth = async () => {
+    if (!storeUrl) {
+      setError('Please enter your store URL');
+      return;
+    }
+
+    setConnecting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/connectors/shopify/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop: storeUrl }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to connect to Shopify');
+        setConnecting(false);
+        return;
+      }
+
+      // Redirect to Shopify OAuth
+      window.location.href = data.authUrl;
+    } catch {
+      setError('Failed to connect. Please try again.');
+      setConnecting(false);
+    }
+  };
 
   const handleNext = () => {
     if (currentStep === steps.length - 2) {
@@ -60,7 +96,11 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
   const canProceed = () => {
     switch (currentStep) {
       case 0: return true;
-      case 1: return storeUrl.length > 0 && apiKey.length > 0;
+      case 1:
+        if (isOAuthConnector) {
+          return storeUrl.length > 0;
+        }
+        return storeUrl.length > 0 && apiKey.length > 0;
       case 2: return true;
       case 3: return syncComplete;
       default: return false;
@@ -145,7 +185,7 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
 
               <div className="bg-[#f5f5f5] border border-[#e5e5e5] p-4">
                 <p className="text-sm text-[#737373]">
-                  <span className="font-medium text-[#0a0a0a]">What we'll access:</span> Product catalog, order history, customer regions, and sales metrics.
+                  <span className="font-medium text-[#0a0a0a]">What we&apos;ll access:</span> Product catalog, order history, customer regions, and sales metrics.
                   We never access payment details or modify your store data.
                 </p>
               </div>
@@ -156,38 +196,67 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="text-center py-2">
-                <h3 className="text-lg font-semibold text-[#0a0a0a] mb-1">Enter your store details</h3>
-                <p className="text-sm text-[#737373]">You can find these in your {connector.name} admin panel</p>
+                <h3 className="text-lg font-semibold text-[#0a0a0a] mb-1">
+                  {isOAuthConnector ? 'Connect your store' : 'Enter your store details'}
+                </h3>
+                <p className="text-sm text-[#737373]">
+                  {isOAuthConnector
+                    ? 'Enter your store URL to begin the secure connection'
+                    : `You can find these in your ${connector.name} admin panel`}
+                </p>
               </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
 
               <div className="space-y-4">
                 <Input
                   label="Store URL"
-                  placeholder="your-store.myshopify.com"
+                  placeholder={connector.id === 'shopify' ? 'your-store.myshopify.com' : 'your-store.com'}
                   value={storeUrl}
                   onChange={(e) => setStoreUrl(e.target.value)}
                 />
-                <Input
-                  label="API Key"
-                  placeholder="shpat_xxxxxxxxxxxxxxxxxxxx"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                />
-                <Input
-                  label="API Secret (optional)"
-                  type="password"
-                  placeholder="Enter API secret for enhanced sync"
-                  value={apiSecret}
-                  onChange={(e) => setApiSecret(e.target.value)}
-                />
+
+                {!isOAuthConnector && (
+                  <>
+                    <Input
+                      label="API Key"
+                      placeholder="Enter your API key"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                    />
+                    <Input
+                      label="API Secret (optional)"
+                      type="password"
+                      placeholder="Enter API secret for enhanced sync"
+                      value={apiSecret}
+                      onChange={(e) => setApiSecret(e.target.value)}
+                    />
+                  </>
+                )}
               </div>
 
-              <div className="bg-[#f5f5f5] border border-[#e5e5e5] p-4">
-                <p className="text-sm text-[#737373]">
-                  <span className="font-medium text-[#0a0a0a]">Need help?</span>{' '}
-                  <a href="#" className="text-[#0a0a0a] underline">View our step-by-step guide</a> for finding your API credentials.
-                </p>
-              </div>
+              {isOAuthConnector && (
+                <div className="bg-[#f5f5f5] border border-[#e5e5e5] p-4">
+                  <p className="text-sm text-[#737373]">
+                    <span className="font-medium text-[#0a0a0a]">Secure OAuth:</span>{' '}
+                    You&apos;ll be redirected to {connector.name} to authorize the connection.
+                    We never see or store your password.
+                  </p>
+                </div>
+              )}
+
+              {!isOAuthConnector && (
+                <div className="bg-[#f5f5f5] border border-[#e5e5e5] p-4">
+                  <p className="text-sm text-[#737373]">
+                    <span className="font-medium text-[#0a0a0a]">Need help?</span>{' '}
+                    <a href="#" className="text-[#0a0a0a] underline">View our step-by-step guide</a> for finding your API credentials.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -291,7 +360,7 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
           <Button
             variant="ghost"
             onClick={() => currentStep > 0 ? setCurrentStep(currentStep - 1) : onClose()}
-            disabled={syncing}
+            disabled={syncing || connecting}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             {currentStep === 0 ? 'Cancel' : 'Back'}
@@ -301,6 +370,20 @@ export function ConnectorWizard({ connector, onClose, onComplete }: ConnectorWiz
             <Button onClick={handleComplete}>
               Go to Dashboard
               <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          ) : isOAuthConnector && currentStep === 1 ? (
+            <Button onClick={handleShopifyOAuth} disabled={!canProceed() || connecting}>
+              {connecting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  Connect with {connector.name}
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </>
+              )}
             </Button>
           ) : (
             <Button onClick={handleNext} disabled={!canProceed() || syncing}>

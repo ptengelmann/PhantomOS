@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import crypto from 'crypto';
+
+// Shopify OAuth configuration
+const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY || '';
+const SHOPIFY_SCOPES = 'read_products,read_orders,read_customers';
+
+// Generate a random nonce for CSRF protection
+function generateNonce(): string {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+// Initiate Shopify OAuth flow
+export async function POST(request: NextRequest) {
+  try {
+    // Get publisherId from session
+    let publisherId: string;
+
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
+    }
+
+    const body = await request.json();
+    const { shop } = body as { shop: string };
+
+    if (!shop) {
+      return NextResponse.json(
+        { error: 'Shop domain is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate shop domain format
+    const shopDomain = shop.includes('.myshopify.com')
+      ? shop
+      : `${shop}.myshopify.com`;
+
+    if (!SHOPIFY_API_KEY) {
+      return NextResponse.json(
+        { error: 'Shopify API key not configured. Please set SHOPIFY_API_KEY environment variable.' },
+        { status: 500 }
+      );
+    }
+
+    // Generate nonce and store in state (includes publisherId for callback)
+    const nonce = generateNonce();
+    const state = Buffer.from(JSON.stringify({
+      nonce,
+      publisherId,
+      shop: shopDomain,
+    })).toString('base64');
+
+    // Build OAuth URL
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/connectors/shopify/callback`;
+    const authUrl = new URL(`https://${shopDomain}/admin/oauth/authorize`);
+    authUrl.searchParams.set('client_id', SHOPIFY_API_KEY);
+    authUrl.searchParams.set('scope', SHOPIFY_SCOPES);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    authUrl.searchParams.set('state', state);
+
+    return NextResponse.json({
+      authUrl: authUrl.toString(),
+      state,
+    });
+  } catch (error) {
+    console.error('Shopify auth error:', error);
+    return NextResponse.json(
+      { error: 'Failed to initiate Shopify authentication' },
+      { status: 500 }
+    );
+  }
+}

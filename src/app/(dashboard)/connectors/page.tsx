@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, Trash2, ExternalLink, ShoppingBag, Package } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, ExternalLink, ShoppingBag, Package, Upload, FileSpreadsheet, Download, X, Loader2 } from 'lucide-react';
 import { Header, ConnectorWizard } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@/components/ui';
 import { demoConnectors } from '@/lib/demo-data';
@@ -39,10 +39,28 @@ const availableConnectors = [
   },
 ];
 
+interface ImportResult {
+  success: boolean;
+  imported: number;
+  total: number;
+  parseErrors?: Array<{ row: number; error: string }>;
+  insertErrors?: Array<{ product?: string; order?: string; error: string }>;
+  unmatchedProducts?: string[];
+  skippedNoProduct?: number;
+}
+
 export default function ConnectorsPage() {
-  const [connecting, setConnecting] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<typeof availableConnectors[0] | null>(null);
+
+  // CSV Import state
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importType, setImportType] = useState<'products' | 'sales'>('products');
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [importError, setImportError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleConnect = (connector: typeof availableConnectors[0]) => {
     setSelectedConnector(connector);
@@ -53,6 +71,93 @@ export default function ConnectorsPage() {
     console.log('Connected with config:', config);
     setWizardOpen(false);
     setSelectedConnector(null);
+  };
+
+  const handleFileSelect = async (file: File) => {
+    if (!file.name.endsWith('.csv')) {
+      setImportError('Please upload a CSV file');
+      return;
+    }
+
+    setImporting(true);
+    setImportError('');
+    setImportResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const endpoint = importType === 'products'
+        ? '/api/products/import'
+        : '/api/sales/import';
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setImportError(data.error || 'Import failed');
+      } else {
+        setImportResult(data);
+      }
+    } catch (err) {
+      setImportError('Failed to upload file. Please try again.');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const downloadTemplate = (type: 'products' | 'sales') => {
+    let csvContent = '';
+    let filename = '';
+
+    if (type === 'products') {
+      csvContent = 'name,sku,description,category,price,vendor,tags\n';
+      csvContent += '"Shadow Phantom T-Shirt",SKU-001,"Premium cotton t-shirt featuring Shadow character",apparel,29.99,"MerchCo","character,apparel,shadow"\n';
+      csvContent += '"Eclipse Mug",SKU-002,"Ceramic mug with Eclipse logo",home,14.99,"MerchCo","logo,home,eclipse"\n';
+      csvContent += '"Neon Rider Figure",SKU-003,"Collectible 6-inch figure",collectibles,49.99,"ToyWorks","figure,collectible,character"';
+      filename = 'phantomos-products-template.csv';
+    } else {
+      csvContent = 'product_name,sku,order_id,quantity,revenue,cost,region,channel,date\n';
+      csvContent += '"Shadow Phantom T-Shirt",SKU-001,ORD-1001,2,59.98,20.00,"United States","Online Store","2024-01-15"\n';
+      csvContent += '"Eclipse Mug",SKU-002,ORD-1002,1,14.99,5.00,"United Kingdom","Amazon","2024-01-16"\n';
+      csvContent += '"Neon Rider Figure",SKU-003,ORD-1003,3,149.97,60.00,"Germany","Online Store","2024-01-17"';
+      filename = 'phantomos-sales-template.csv';
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const resetImportModal = () => {
+    setImportModalOpen(false);
+    setImportResult(null);
+    setImportError('');
+    setImportType('products');
   };
 
   const getStatusBadge = (status: string) => {
@@ -254,6 +359,40 @@ export default function ConnectorsPage() {
           </div>
         </div>
 
+        {/* CSV Import Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-[#0a0a0a]">Manual Import</h2>
+          <Card>
+            <CardContent className="py-6">
+              <div className="flex items-start gap-6">
+                <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+                  <FileSpreadsheet className="w-6 h-6 text-[#737373]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#0a0a0a] mb-1">CSV Import</h3>
+                  <p className="text-sm text-[#737373] mb-4">
+                    Upload your product catalog or sales data directly via CSV files. Perfect for getting started quickly or importing data from unsupported platforms.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button onClick={() => setImportModalOpen(true)}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import CSV
+                    </Button>
+                    <Button variant="outline" onClick={() => downloadTemplate('products')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Products Template
+                    </Button>
+                    <Button variant="outline" onClick={() => downloadTemplate('sales')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Sales Template
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Custom Integration CTA */}
         <Card>
           <CardContent className="py-8">
@@ -276,6 +415,172 @@ export default function ConnectorsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* CSV Import Modal */}
+      {importModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 max-w-lg w-full mx-4 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-[#0a0a0a]">Import CSV</h3>
+              <button onClick={resetImportModal} className="text-[#737373] hover:text-[#0a0a0a]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Import Type Toggle */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setImportType('products')}
+                className={`flex-1 py-2 px-4 text-sm font-medium border transition-colors ${
+                  importType === 'products'
+                    ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                    : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#a3a3a3]'
+                }`}
+              >
+                Products
+              </button>
+              <button
+                onClick={() => setImportType('sales')}
+                className={`flex-1 py-2 px-4 text-sm font-medium border transition-colors ${
+                  importType === 'sales'
+                    ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                    : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#a3a3a3]'
+                }`}
+              >
+                Sales Data
+              </button>
+            </div>
+
+            {/* Result Display */}
+            {importResult ? (
+              <div className="space-y-4">
+                <div className={`p-4 border ${importResult.success ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Check className="w-5 h-5 text-green-600" />
+                    <span className="font-medium text-green-800">Import Complete</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    Successfully imported {importResult.imported} of {importResult.total} {importType}.
+                  </p>
+                  {importResult.skippedNoProduct && importResult.skippedNoProduct > 0 && (
+                    <p className="text-sm text-yellow-700 mt-1">
+                      {importResult.skippedNoProduct} sales skipped (product not found)
+                    </p>
+                  )}
+                </div>
+
+                {importResult.unmatchedProducts && importResult.unmatchedProducts.length > 0 && (
+                  <div className="p-4 bg-yellow-50 border border-yellow-200">
+                    <p className="text-sm font-medium text-yellow-800 mb-2">Unmatched Products:</p>
+                    <ul className="text-xs text-yellow-700 space-y-1 max-h-24 overflow-y-auto">
+                      {importResult.unmatchedProducts.slice(0, 5).map((p, i) => (
+                        <li key={i}>{p}</li>
+                      ))}
+                      {importResult.unmatchedProducts.length > 5 && (
+                        <li>...and {importResult.unmatchedProducts.length - 5} more</li>
+                      )}
+                    </ul>
+                    <p className="text-xs text-yellow-600 mt-2">
+                      Import products first, then re-import sales to match them.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={resetImportModal}>
+                    Close
+                  </Button>
+                  <Button className="flex-1" onClick={() => {
+                    setImportResult(null);
+                    setImportError('');
+                  }}>
+                    Import More
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Drop Zone */}
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  className={`border-2 border-dashed p-8 text-center transition-colors ${
+                    dragOver
+                      ? 'border-[#0a0a0a] bg-[#f5f5f5]'
+                      : 'border-[#e5e5e5] hover:border-[#a3a3a3]'
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                    }}
+                  />
+
+                  {importing ? (
+                    <div className="py-4">
+                      <Loader2 className="w-8 h-8 animate-spin text-[#737373] mx-auto mb-2" />
+                      <p className="text-sm text-[#737373]">Importing {importType}...</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-[#a3a3a3] mx-auto mb-2" />
+                      <p className="text-sm text-[#737373] mb-1">
+                        Drag and drop your CSV file here, or
+                      </p>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-sm text-[#0a0a0a] font-medium hover:underline"
+                      >
+                        browse to upload
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {importError && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+                    {importError}
+                  </div>
+                )}
+
+                {/* Template Download */}
+                <div className="mt-4 pt-4 border-t border-[#e5e5e5]">
+                  <p className="text-xs text-[#737373] mb-2">
+                    Need a template? Download our sample CSV:
+                  </p>
+                  <button
+                    onClick={() => downloadTemplate(importType)}
+                    className="text-sm text-[#0a0a0a] font-medium hover:underline flex items-center gap-1"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download {importType === 'products' ? 'Products' : 'Sales'} Template
+                  </button>
+                </div>
+
+                {/* Column Info */}
+                <div className="mt-4 pt-4 border-t border-[#e5e5e5]">
+                  <p className="text-xs font-medium text-[#737373] mb-2">Expected columns:</p>
+                  {importType === 'products' ? (
+                    <p className="text-xs text-[#a3a3a3]">
+                      name (required), sku, description, category, price, vendor, tags
+                    </p>
+                  ) : (
+                    <p className="text-xs text-[#a3a3a3]">
+                      product_name or sku (to match), quantity, revenue, date (required), cost, region, channel
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
