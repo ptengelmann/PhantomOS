@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,6 +42,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back to Home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm text-[#737373] hover:text-[#0a0a0a] transition-colors mb-8"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to home
+        </Link>
+
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <Image

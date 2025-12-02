@@ -28,6 +28,7 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   publisherId: uuid('publisher_id').references(() => publishers.id),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  passwordHash: text('password_hash'), // bcrypt hashed password
   name: varchar('name', { length: 255 }),
   avatar: text('avatar'),
   role: varchar('role', { length: 50 }).default('member'),

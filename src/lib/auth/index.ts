@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import bcrypt from 'bcrypt';
 import { db } from '@/lib/db';
 import { users, publishers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
@@ -66,14 +67,18 @@ export const authOptions: NextAuthOptions = {
           .limit(1);
 
         if (!user) {
-          // For demo purposes, create a demo user if not found
-          // In production, this would verify password hash
           return null;
         }
 
-        // In production: verify password with bcrypt
-        // const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        // if (!isValid) return null;
+        // Verify password with bcrypt
+        if (!user.passwordHash) {
+          return null;
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        if (!isValid) {
+          return null;
+        }
 
         return {
           id: user.id,

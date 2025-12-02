@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
 import {
   LayoutDashboard,
   Brain,
@@ -35,6 +35,21 @@ const bottomNavigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  // Get user initials for avatar
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const userName = session?.user?.name || 'User';
+  const userInitials = getInitials(userName);
+  const planName = 'Growth Plan'; // Could be derived from subscription tier
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-[#e5e5e5] flex flex-col">
@@ -116,11 +131,11 @@ export function Sidebar() {
       <div className="border-t border-[#e5e5e5] p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
-            <span className="text-xs font-medium text-[#737373]">PO</span>
+            <span className="text-xs font-medium text-[#737373]">{userInitials}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#0a0a0a] truncate">Pedro Oliveira</p>
-            <p className="text-xs text-[#737373] truncate">Growth Plan</p>
+            <p className="text-sm font-medium text-[#0a0a0a] truncate">{userName}</p>
+            <p className="text-xs text-[#737373] truncate">{planName}</p>
           </div>
         </div>
       </div>
