@@ -12,13 +12,15 @@ import {
   Users,
   Settings,
   Plug,
-  LogOut
+  LogOut,
+  Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Overview', href: '/overview', icon: LayoutDashboard },
   { name: 'Fan Intelligence', href: '/intelligence', icon: Brain },
+  { name: 'Asset Tagging', href: '/products', icon: Tag },
   { name: 'Merch Studio', href: '/studio', icon: Palette, badge: 'Soon' },
   { name: 'Production', href: '/production', icon: Factory, badge: 'Soon' },
   { name: 'Storefront', href: '/storefront', icon: Store, badge: 'Soon' },

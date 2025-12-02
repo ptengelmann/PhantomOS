@@ -6,6 +6,7 @@ export const subscriptionTierEnum = pgEnum('subscription_tier', ['starter', 'gro
 export const connectorTypeEnum = pgEnum('connector_type', ['shopify', 'amazon', 'woocommerce', 'bigcommerce', 'custom']);
 export const productCategoryEnum = pgEnum('product_category', ['apparel', 'collectibles', 'accessories', 'home', 'digital', 'other']);
 export const assetTypeEnum = pgEnum('asset_type', ['character', 'logo', 'scene', 'item', 'theme', 'other']);
+export const mappingStatusEnum = pgEnum('mapping_status', ['unmapped', 'suggested', 'confirmed', 'skipped']);
 
 // Publishers (Game Studios/Publishers)
 export const publishers = pgTable('publishers', {
@@ -95,6 +96,12 @@ export const products = pgTable('products', {
   vendor: varchar('vendor', { length: 255 }),
   tags: jsonb('tags').default([]),
   metadata: jsonb('metadata').default({}),
+  // Asset Mapping Fields
+  mappingStatus: mappingStatusEnum('mapping_status').default('unmapped'),
+  aiSuggestedAssets: jsonb('ai_suggested_assets').default([]), // [{assetId, confidence, reason}]
+  mappedBy: uuid('mapped_by').references(() => users.id),
+  mappedAt: timestamp('mapped_at'),
+  totalRevenue: decimal('total_revenue', { precision: 12, scale: 2 }).default('0'), // Cached for sorting
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

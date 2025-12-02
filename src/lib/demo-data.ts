@@ -317,3 +317,182 @@ export const demoDemandForecast = [
   { name: 'Home & Living', value: 52000, percentage: 10, confidence: 85 },
   { name: 'Digital', value: 26000, percentage: 5, confidence: 92 },
 ];
+
+// ============================================
+// ASSET TAGGING WORKBENCH DATA
+// ============================================
+
+// Unmapped products - these simulate what comes from Shopify/Amazon
+// Notice: titles are generic, no IP asset info - this is the problem we solve
+export const demoUnmappedProducts = [
+  {
+    id: 'prod-unmapped-001',
+    name: 'Black Hoodie - Shadow Print XL',
+    description: 'Premium cotton hoodie featuring the iconic shadow design from our bestselling game. Dark villain aesthetic.',
+    sku: 'APP-HOD-BLK-XL',
+    category: 'apparel',
+    imageUrl: '/demo/products/hoodie-black.jpg',
+    price: 64.99,
+    source: 'Shopify',
+    totalRevenue: 12450,
+    totalOrders: 192,
+    lastOrderDate: '2 hours ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-002', assetName: 'Lord Malachar', confidence: 89, reason: 'Description mentions "villain" and "shadow" - matches Malachar character' },
+      { assetId: 'asset-003', assetName: 'Shadowfall Emblem', confidence: 45, reason: 'Generic shadow reference could be logo' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-002',
+    name: 'Collector Statue 12" - Limited Edition',
+    description: 'Hand-painted resin statue. Female warrior with dual blades. Numbered edition of 2000.',
+    sku: 'COL-STAT-LE-001',
+    category: 'collectibles',
+    imageUrl: '/demo/products/statue-warrior.jpg',
+    price: 249.99,
+    source: 'Official Store',
+    totalRevenue: 47500,
+    totalOrders: 190,
+    lastOrderDate: '45 min ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-001', assetName: 'Kira Nightblade', confidence: 94, reason: 'Female warrior with dual blades matches Kira character exactly' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-003',
+    name: 'Dragon Art Print Set (3 Pack)',
+    description: 'Museum quality giclee prints. Features the legendary beast from the shadow realm.',
+    sku: 'ART-PRT-DRG-3PK',
+    category: 'accessories',
+    imageUrl: '/demo/products/dragon-prints.jpg',
+    price: 89.99,
+    source: 'Amazon US',
+    totalRevenue: 8100,
+    totalOrders: 90,
+    lastOrderDate: '3 hours ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-004', assetName: 'The Void Dragon', confidence: 96, reason: 'Dragon + shadow realm directly references Void Dragon' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-004',
+    name: 'Premium T-Shirt - Game Logo Black',
+    description: 'Soft cotton tee with embroidered game logo. Unisex fit.',
+    sku: 'APP-TEE-LOGO-BLK',
+    category: 'apparel',
+    imageUrl: '/demo/products/tshirt-logo.jpg',
+    price: 34.99,
+    source: 'Shopify',
+    totalRevenue: 22750,
+    totalOrders: 650,
+    lastOrderDate: '30 min ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-003', assetName: 'Shadowfall Emblem', confidence: 92, reason: 'Explicitly mentions game logo' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-005',
+    name: 'Character Keychain Set',
+    description: 'Metal keychains featuring all main characters. Set of 5.',
+    sku: 'ACC-KEY-SET-5',
+    category: 'accessories',
+    imageUrl: '/demo/products/keychains.jpg',
+    price: 24.99,
+    source: 'Amazon EU',
+    totalRevenue: 6250,
+    totalOrders: 250,
+    lastOrderDate: '1 hour ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-001', assetName: 'Kira Nightblade', confidence: 75, reason: 'Main character likely included' },
+      { assetId: 'asset-002', assetName: 'Lord Malachar', confidence: 75, reason: 'Main character likely included' },
+      { assetId: 'asset-005', assetName: 'Elder Sage Theron', confidence: 60, reason: 'Set of 5 may include supporting characters' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-006',
+    name: 'Vinyl Figure Blind Box',
+    description: 'Mystery collectible figure. Random character from game. 3 inch tall.',
+    sku: 'COL-VNL-BLIND',
+    category: 'collectibles',
+    imageUrl: '/demo/products/blind-box.jpg',
+    price: 14.99,
+    source: 'Shopify',
+    totalRevenue: 18735,
+    totalOrders: 1250,
+    lastOrderDate: '15 min ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [], // No clear suggestion - multiple characters possible
+  },
+  {
+    id: 'prod-unmapped-007',
+    name: 'Mug - Villain Quote Edition',
+    description: '"The shadows are my kingdom" - Ceramic mug with wraparound villain artwork.',
+    sku: 'HOM-MUG-VIL-QT',
+    category: 'home',
+    imageUrl: '/demo/products/mug-villain.jpg',
+    price: 19.99,
+    source: 'Official Store',
+    totalRevenue: 3598,
+    totalOrders: 180,
+    lastOrderDate: '4 hours ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-002', assetName: 'Lord Malachar', confidence: 97, reason: 'Quote "shadows are my kingdom" is Malachar\'s signature line' },
+    ],
+  },
+  {
+    id: 'prod-unmapped-008',
+    name: 'Mousepad XL Gaming - Dark Theme',
+    description: 'Extended desk pad with dark fantasy artwork. 900x400mm.',
+    sku: 'ACC-PAD-XL-DRK',
+    category: 'accessories',
+    imageUrl: '/demo/products/mousepad.jpg',
+    price: 29.99,
+    source: 'Amazon US',
+    totalRevenue: 5398,
+    totalOrders: 180,
+    lastOrderDate: '2 hours ago',
+    mappingStatus: 'unmapped' as const,
+    aiSuggestions: [
+      { assetId: 'asset-003', assetName: 'Shadowfall Emblem', confidence: 55, reason: 'Generic dark theme, possibly logo-based' },
+    ],
+  },
+];
+
+// Products already mapped (for showing the contrast)
+export const demoMappedProducts = [
+  {
+    id: 'prod-mapped-001',
+    name: 'Kira Nightblade Premium Statue',
+    mappedAssets: ['asset-001'],
+    mappingStatus: 'confirmed' as const,
+    totalRevenue: 47500,
+    mappedBy: 'Pedro Oliveira',
+    mappedAt: '3 days ago',
+  },
+  {
+    id: 'prod-mapped-002',
+    name: 'Lord Malachar Collector Figure',
+    mappedAssets: ['asset-002'],
+    mappingStatus: 'confirmed' as const,
+    totalRevenue: 35800,
+    mappedBy: 'Pedro Oliveira',
+    mappedAt: '3 days ago',
+  },
+];
+
+// Asset tagging stats
+export const demoMappingStats = {
+  totalProducts: 351,
+  mappedProducts: 287,
+  unmappedProducts: 56,
+  suggestedProducts: 8,
+  unmappedRevenue: 124781,
+  avgConfidence: 82,
+  mappingRate: 81.8,
+};
