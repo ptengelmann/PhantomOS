@@ -22,8 +22,43 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type } = body;
 
-    // Fetch relevant data for analysis
-    const recentSales = await db.execute(sql`
+    // Fetch ALL products (not just ones with sales)
+    const productsData = await db.execute(sql`
+      SELECT
+        p.id,
+        p.name,
+        p.category,
+        p.price,
+        p.sku,
+        p.created_at,
+        COALESCE(
+          (SELECT json_agg(ia.name)
+           FROM product_assets pa
+           JOIN ip_assets ia ON ia.id = pa.asset_id
+           WHERE pa.product_id = p.id),
+          '[]'
+        ) as tagged_assets
+      FROM products p
+      WHERE p.publisher_id = ${publisherId}
+      ORDER BY p.created_at DESC
+      LIMIT 50
+    `);
+
+    // Fetch IP assets
+    const ipAssetsData = await db.execute(sql`
+      SELECT
+        ia.id,
+        ia.name,
+        ia.asset_type,
+        gi.name as game_ip,
+        (SELECT COUNT(*) FROM product_assets pa WHERE pa.asset_id = ia.id) as product_count
+      FROM ip_assets ia
+      JOIN game_ips gi ON gi.id = ia.game_ip_id
+      WHERE gi.publisher_id = ${publisherId}
+    `);
+
+    // Fetch sales data if any
+    const salesData = await db.execute(sql`
       SELECT
         p.name as product_name,
         p.category,
@@ -42,32 +77,55 @@ export async function POST(request: NextRequest) {
       LIMIT 20
     `);
 
-    const previousPeriodSales = await db.execute(sql`
+    // Calculate tagging stats
+    const taggingStats = await db.execute(sql`
       SELECT
-        SUM(revenue) as total_revenue,
-        COUNT(*) as total_orders
-      FROM sales
-      WHERE publisher_id = ${publisherId}
-        AND order_date >= NOW() - INTERVAL '60 days'
-        AND order_date < NOW() - INTERVAL '30 days'
+        COUNT(*) as total_products,
+        COUNT(CASE WHEN EXISTS (SELECT 1 FROM product_assets pa WHERE pa.product_id = p.id) THEN 1 END) as tagged_products
+      FROM products p
+      WHERE p.publisher_id = ${publisherId}
     `);
 
-    // Generate AI insights
-    const context = `Gaming merchandise sales data for a publisher.
-    Analyze trends, opportunities, and risks. Focus on:
-    1. Demand patterns for specific characters/assets
-    2. Category performance
-    3. Growth opportunities
-    4. Potential concerns`;
+    const stats = taggingStats.rows[0] as { total_products: number; tagged_products: number } | undefined;
+    const totalProducts = Number(stats?.total_products || 0);
+    const taggedProducts = Number(stats?.tagged_products || 0);
+    const untaggedProducts = totalProducts - taggedProducts;
+
+    // Build rich context for AI
+    const context = `You are analyzing a gaming merchandise catalog for PhantomOS.
+
+CATALOG SUMMARY:
+- Total products: ${totalProducts}
+- Tagged with IP assets: ${taggedProducts}
+- Untagged (need mapping): ${untaggedProducts}
+- IP Assets created: ${ipAssetsData.rows.length}
+
+Your job is to provide SPECIFIC, ACTIONABLE insights based on the actual products and data.
+Be specific about product names, categories, and characters when making recommendations.
+Focus on practical merchandising opportunities.`;
 
     const insights = await generateInsights({
       context,
       data: {
-        recentSales: recentSales.rows,
-        previousPeriod: previousPeriodSales.rows[0],
+        products: productsData.rows.slice(0, 30), // Top 30 products
+        ipAssets: ipAssetsData.rows,
+        recentSales: salesData.rows,
+        taggingProgress: {
+          total: totalProducts,
+          tagged: taggedProducts,
+          untagged: untaggedProducts,
+          percentComplete: totalProducts > 0 ? Math.round((taggedProducts / totalProducts) * 100) : 0,
+        },
         analysisType: type || 'general',
       },
-      question: 'What are the top 3-5 actionable insights from this sales data? Focus on opportunities and risks.',
+      question: `Analyze this merchandise catalog and provide 3-5 specific, actionable insights:
+1. If products exist but are untagged, identify specific products that should be prioritized for tagging
+2. Look at product names/categories to suggest which IP assets they might belong to
+3. Identify gaps in the product catalog (e.g., "You have Mario products but no Luigi")
+4. Spot pricing optimization opportunities
+5. Recommend specific next actions
+
+Be SPECIFIC - mention actual product names and categories from the data. No generic advice.`,
     });
 
     return NextResponse.json({ insights });

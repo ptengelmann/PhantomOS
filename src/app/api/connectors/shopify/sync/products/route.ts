@@ -143,30 +143,23 @@ export async function POST(request: NextRequest) {
           ? shopifyProduct.tags.split(',').map((t) => t.trim())
           : [];
 
-        const [inserted] = await db
-          .insert(products)
-          .values({
-            publisherId,
-            connectorId,
-            externalId: String(shopifyProduct.id),
-            name: shopifyProduct.title,
-            description: shopifyProduct.body_html?.replace(/<[^>]*>/g, '') || null,
-            category,
-            price: variant?.price || null,
-            sku: variant?.sku || null,
-            vendor: shopifyProduct.vendor || null,
-            imageUrl: shopifyProduct.images[0]?.src || null,
-            tags,
-            mappingStatus: 'unmapped',
-            metadata: {
-              shopifyId: shopifyProduct.id,
-              productType: shopifyProduct.product_type,
-              variantCount: shopifyProduct.variants.length,
-            },
-          })
-          .onConflictDoUpdate({
-            target: [products.connectorId, products.externalId],
-            set: {
+        // Check if product exists
+        const [existing] = await db
+          .select({ id: products.id })
+          .from(products)
+          .where(
+            and(
+              eq(products.connectorId, connectorId),
+              eq(products.externalId, String(shopifyProduct.id))
+            )
+          )
+          .limit(1);
+
+        if (existing) {
+          // Update existing product
+          await db
+            .update(products)
+            .set({
               name: shopifyProduct.title,
               description: shopifyProduct.body_html?.replace(/<[^>]*>/g, '') || null,
               category,
@@ -176,11 +169,35 @@ export async function POST(request: NextRequest) {
               imageUrl: shopifyProduct.images[0]?.src || null,
               tags,
               updatedAt: new Date(),
-            },
-          })
-          .returning();
-
-        insertedProducts.push(inserted);
+            })
+            .where(eq(products.id, existing.id));
+          insertedProducts.push(existing);
+        } else {
+          // Insert new product
+          const [inserted] = await db
+            .insert(products)
+            .values({
+              publisherId,
+              connectorId,
+              externalId: String(shopifyProduct.id),
+              name: shopifyProduct.title,
+              description: shopifyProduct.body_html?.replace(/<[^>]*>/g, '') || null,
+              category,
+              price: variant?.price || null,
+              sku: variant?.sku || null,
+              vendor: shopifyProduct.vendor || null,
+              imageUrl: shopifyProduct.images[0]?.src || null,
+              tags,
+              mappingStatus: 'unmapped',
+              metadata: {
+                shopifyId: shopifyProduct.id,
+                productType: shopifyProduct.product_type,
+                variantCount: shopifyProduct.variants.length,
+              },
+            })
+            .returning();
+          insertedProducts.push(inserted);
+        }
       } catch (err) {
         errors.push({
           product: shopifyProduct.title,

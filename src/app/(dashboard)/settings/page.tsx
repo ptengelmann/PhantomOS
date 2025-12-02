@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Building, Bell, Shield, CreditCard, Key, X, Copy, Check, UserPlus, Mail, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Building, Bell, Shield, CreditCard, Key, X, Copy, Check, UserPlus, Mail, Trash2, Loader2 } from 'lucide-react';
 import { Header } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Badge } from '@/components/ui';
 
@@ -15,13 +15,17 @@ const tabs = [
 ];
 
 interface TeamMember {
+  id: string;
   name: string;
   email: string;
   role: string;
+  avatar?: string;
 }
 
 interface PendingInvite {
+  id: string;
   email: string;
+  name?: string;
   role: string;
   expiresAt: string;
 }
@@ -37,17 +41,30 @@ export default function SettingsPage() {
   const [inviteError, setInviteError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Demo team members
-  const [teamMembers] = useState<TeamMember[]>([
-    { name: 'Pedro Oliveira', email: 'pedro@example.com', role: 'Owner' },
-    { name: 'Sarah Chen', email: 'sarah@example.com', role: 'Admin' },
-    { name: 'Mike Johnson', email: 'mike@example.com', role: 'Member' },
-  ]);
+  // Team members from database
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
 
-  // Demo pending invites
-  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([
-    { email: 'analyst@example.com', role: 'Analyst', expiresAt: '2024-12-09' },
-  ]);
+  // Load team members from API
+  useEffect(() => {
+    loadTeamMembers();
+  }, []);
+
+  const loadTeamMembers = async () => {
+    try {
+      const response = await fetch('/api/settings/team');
+      if (response.ok) {
+        const data = await response.json();
+        setTeamMembers(data.members || []);
+        setPendingInvites(data.pendingInvites || []);
+      }
+    } catch (error) {
+      console.error('Failed to load team:', error);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
 
   const handleSendInvite = async () => {
     if (!inviteEmail || !inviteEmail.includes('@')) {
@@ -79,11 +96,8 @@ export default function SettingsPage() {
       }
 
       setInviteSuccess({ url: data.invitation.inviteUrl });
-      setPendingInvites(prev => [...prev, {
-        email: inviteEmail,
-        role: inviteRole,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      }]);
+      // Reload team members to get fresh data
+      loadTeamMembers();
     } catch {
       setInviteError('An error occurred. Please try again.');
     } finally {
@@ -202,24 +216,36 @@ export default function SettingsPage() {
                     <CardDescription>Manage who has access to your PhantomOS workspace</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {teamMembers.map((member) => (
-                        <div key={member.email} className="flex items-center justify-between py-2 border-b border-[#e5e5e5] last:border-0">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
-                              <span className="text-xs font-medium text-[#737373]">
-                                {member.name.split(' ').map(n => n[0]).join('')}
-                              </span>
+                    {loadingTeam ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-[#737373]" />
+                      </div>
+                    ) : teamMembers.length === 0 ? (
+                      <div className="text-center py-8">
+                        <User className="w-10 h-10 text-[#e5e5e5] mx-auto mb-3" />
+                        <p className="text-sm text-[#737373]">No team members yet</p>
+                        <p className="text-xs text-[#a3a3a3] mt-1">Invite your first team member to get started</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {teamMembers.map((member) => (
+                          <div key={member.id} className="flex items-center justify-between py-2 border-b border-[#e5e5e5] last:border-0">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
+                                <span className="text-xs font-medium text-[#737373]">
+                                  {member.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-[#0a0a0a]">{member.name}</p>
+                                <p className="text-xs text-[#737373]">{member.email}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-sm font-medium text-[#0a0a0a]">{member.name}</p>
-                              <p className="text-xs text-[#737373]">{member.email}</p>
-                            </div>
+                            <Badge variant={member.role === 'owner' ? 'default' : 'outline'} className="capitalize">{member.role}</Badge>
                           </div>
-                          <Badge variant={member.role === 'Owner' ? 'default' : 'outline'}>{member.role}</Badge>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Pending Invites */}
                     {pendingInvites.length > 0 && (

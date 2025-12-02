@@ -54,12 +54,20 @@ Only return valid JSON, no other text.`,
     throw new Error('Unexpected response type');
   }
 
+  // Strip markdown code blocks if present
+  let text = content.text.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*\n?/, '');
+    text = text.replace(/\n?```\s*$/, '');
+  }
+
   try {
-    return JSON.parse(content.text);
+    return JSON.parse(text);
   } catch {
+    // If parsing fails, return the text as a single insight
     return [{
       title: 'Analysis Complete',
-      description: content.text,
+      description: text.substring(0, 1000), // Limit length
       confidence: 0.7,
       recommendations: [],
     }];
@@ -107,7 +115,14 @@ Only return valid JSON.`,
     throw new Error('Unexpected response type');
   }
 
-  return JSON.parse(content.text);
+  // Strip markdown code blocks if present
+  let text = content.text.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*\n?/, '');
+    text = text.replace(/\n?```\s*$/, '');
+  }
+
+  return JSON.parse(text);
 }
 
 export async function analyzeAssetPerformance(
@@ -150,7 +165,14 @@ Only return valid JSON.`,
     throw new Error('Unexpected response type');
   }
 
-  return JSON.parse(content.text);
+  // Strip markdown code blocks if present
+  let text = content.text.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*\n?/, '');
+    text = text.replace(/\n?```\s*$/, '');
+  }
+
+  return JSON.parse(text);
 }
 
 export { anthropic };

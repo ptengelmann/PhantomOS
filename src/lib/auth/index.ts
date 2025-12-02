@@ -136,8 +136,11 @@ export async function requireAuth() {
 }
 
 // Demo mode helper - returns demo publisherId for testing without auth
+// Using a fixed UUID for demo mode
+const DEMO_PUBLISHER_ID = '00000000-0000-0000-0000-000000000001';
+
 export function getDemoPublisherId() {
-  return 'demo-publisher-001';
+  return DEMO_PUBLISHER_ID;
 }
 
 // Check if running in demo mode (no real auth)

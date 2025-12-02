@@ -37,10 +37,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate shop domain format
-    const shopDomain = shop.includes('.myshopify.com')
-      ? shop
-      : `${shop}.myshopify.com`;
+    // Sanitize and validate shop domain format
+    let shopDomain = shop
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, '') // Remove http:// or https://
+      .replace(/\/$/, ''); // Remove trailing slash
+
+    // Add .myshopify.com if not present
+    if (!shopDomain.includes('.myshopify.com')) {
+      shopDomain = `${shopDomain}.myshopify.com`;
+    }
 
     if (!SHOPIFY_API_KEY) {
       return NextResponse.json(

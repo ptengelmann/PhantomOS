@@ -1,0 +1,18 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f9909bc247c6f6b91c92464ae71d0cac"
+name = "PhantomOS"
+application_url = "http://localhost:3000"
+embedded = false
+
+[webhooks]
+api_version = "2024-01"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,read_orders,read_customers"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "http://localhost:3000/api/connectors/shopify/callback" ]

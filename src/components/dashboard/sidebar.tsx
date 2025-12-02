@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   Brain,
@@ -38,16 +39,16 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-[#e5e5e5] flex flex-col">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-[#e5e5e5]">
-        <Link href="/overview" className="flex items-center gap-3">
+      <div className="h-16 flex items-center justify-center border-b border-[#e5e5e5]">
+        <Link href="/overview" className="flex items-center justify-center">
           <Image
             src="/logo.png"
             alt="PhantomOS"
-            width={32}
-            height={32}
-            className="w-8 h-8 object-contain"
+            width={200}
+            height={48}
+            className="h-12 w-auto object-contain"
+            priority
           />
-          <span className="text-lg font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
         </Link>
       </div>
 
@@ -102,7 +103,10 @@ export function Sidebar() {
             </Link>
           );
         })}
-        <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa] transition-colors">
+        <button
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
+        >
           <LogOut className="w-4 h-4" />
           <span>Sign Out</span>
         </button>

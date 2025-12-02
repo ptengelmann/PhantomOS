@@ -1,10 +1,24 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, ExternalLink, ShoppingBag, Package, Upload, FileSpreadsheet, Download, X, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, ExternalLink, ShoppingBag, Package, Upload, FileSpreadsheet, Download, X, Loader2, Clock, Trash2, AlertTriangle } from 'lucide-react';
 import { Header, ConnectorWizard } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@/components/ui';
-import { demoConnectors } from '@/lib/demo-data';
+
+interface Connector {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  lastSyncAt: string | null;
+  config: { shop?: string };
+}
+
+interface ConnectorStats {
+  products: number;
+  orders: number;
+  revenue: number;
+}
 
 const availableConnectors = [
   {
@@ -14,6 +28,7 @@ const availableConnectors = [
     icon: <ShoppingBag className="w-6 h-6 text-[#96bf48]" />,
     category: 'E-commerce',
     popular: true,
+    available: true,
   },
   {
     id: 'amazon',
@@ -22,6 +37,7 @@ const availableConnectors = [
     icon: <Package className="w-6 h-6 text-[#ff9900]" />,
     category: 'Marketplace',
     popular: true,
+    available: false,
   },
   {
     id: 'woocommerce',
@@ -29,6 +45,7 @@ const availableConnectors = [
     description: 'Sync data from your WooCommerce WordPress store',
     icon: <ShoppingBag className="w-6 h-6 text-[#7f54b3]" />,
     category: 'E-commerce',
+    available: false,
   },
   {
     id: 'bigcommerce',
@@ -36,6 +53,7 @@ const availableConnectors = [
     description: 'Connect your BigCommerce store for unified analytics',
     icon: <ShoppingBag className="w-6 h-6 text-[#34313f]" />,
     category: 'E-commerce',
+    available: false,
   },
 ];
 
@@ -52,6 +70,10 @@ interface ImportResult {
 export default function ConnectorsPage() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<typeof availableConnectors[0] | null>(null);
+  const [connectors, setConnectors] = useState<Connector[]>([]);
+  const [connectorStats, setConnectorStats] = useState<Record<string, ConnectorStats>>({});
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState<string | null>(null);
 
   // CSV Import state
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -62,15 +84,96 @@ export default function ConnectorsPage() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Connector Settings Modal
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [selectedConnectorForSettings, setSelectedConnectorForSettings] = useState<Connector | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Load connectors from database
+  useEffect(() => {
+    loadConnectors();
+  }, []);
+
+  const loadConnectors = async () => {
+    try {
+      const response = await fetch('/api/connectors');
+      if (response.ok) {
+        const data = await response.json();
+        setConnectors(data.connectors || []);
+        // TODO: Load stats for each connector
+      }
+    } catch (error) {
+      console.error('Failed to load connectors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleConnect = (connector: typeof availableConnectors[0]) => {
+    if (!connector.available) return;
     setSelectedConnector(connector);
     setWizardOpen(true);
   };
 
-  const handleWizardComplete = (config: Record<string, string>) => {
-    console.log('Connected with config:', config);
+  const handleWizardComplete = () => {
     setWizardOpen(false);
     setSelectedConnector(null);
+    loadConnectors(); // Reload connectors
+  };
+
+  const handleOpenSettings = (connector: Connector) => {
+    setSelectedConnectorForSettings(connector);
+    setSettingsModalOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setSettingsModalOpen(false);
+    setSelectedConnectorForSettings(null);
+  };
+
+  const handleDeleteConnector = async () => {
+    if (!selectedConnectorForSettings) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/connectors/${selectedConnectorForSettings.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        handleCloseSettings();
+        loadConnectors();
+      }
+    } catch (error) {
+      console.error('Failed to delete connector:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleSync = async (connectorId: string, type: string) => {
+    setSyncing(connectorId);
+    try {
+      // Sync products first
+      await fetch(`/api/connectors/${type}/sync/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connectorId }),
+      });
+
+      // Then sync orders
+      await fetch(`/api/connectors/${type}/sync/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connectorId }),
+      });
+
+      loadConnectors();
+    } catch (error) {
+      console.error('Sync failed:', error);
+    } finally {
+      setSyncing(null);
+    }
   };
 
   const handleFileSelect = async (file: File) => {
@@ -162,34 +265,52 @@ export default function ConnectorsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'connected':
+      case 'active':
         return <Badge variant="success"><Check className="w-3 h-3 mr-1" />Connected</Badge>;
       case 'syncing':
         return <Badge variant="warning"><RefreshCw className="w-3 h-3 mr-1 animate-spin" />Syncing</Badge>;
       case 'error':
         return <Badge variant="error"><AlertCircle className="w-3 h-3 mr-1" />Error</Badge>;
       default:
-        return <Badge>Disconnected</Badge>;
+        return <Badge>Pending</Badge>;
     }
   };
 
-  const getHealthColor = (health: number) => {
-    if (health >= 95) return 'bg-[#22c55e]';
-    if (health >= 80) return 'bg-[#eab308]';
-    return 'bg-[#ef4444]';
+  const formatLastSync = (lastSyncAt: string | null) => {
+    if (!lastSyncAt) return 'Never synced';
+    const date = new Date(lastSyncAt);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
+    return date.toLocaleDateString();
   };
 
-  // Calculate totals from connected sources
-  const totalProducts = demoConnectors.reduce((sum, c) => sum + c.products, 0);
-  const totalOrders = demoConnectors.reduce((sum, c) => sum + c.orders, 0);
-  const totalRevenue = demoConnectors.reduce((sum, c) => sum + c.revenue, 0);
+  const getConnectorIcon = (type: string) => {
+    switch (type) {
+      case 'shopify':
+        return <ShoppingBag className="w-6 h-6 text-[#96bf48]" />;
+      case 'amazon':
+        return <Package className="w-6 h-6 text-[#ff9900]" />;
+      case 'woocommerce':
+        return <ShoppingBag className="w-6 h-6 text-[#7f54b3]" />;
+      default:
+        return <Plug className="w-6 h-6 text-[#737373]" />;
+    }
+  };
+
+  const isConnectorConnected = (connectorId: string) => {
+    return connectors.some(c => c.type === connectorId);
+  };
 
   return (
     <div>
       <Header
         title="Data Connectors"
         description="Connect your sales channels to aggregate revenue data"
-        action={{ label: 'Add Source', onClick: () => {} }}
       />
 
       {/* Wizard Modal */}
@@ -219,137 +340,154 @@ export default function ConnectorsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-[#737373]">Revenue Aggregation Engine</p>
-                  <p className="text-2xl font-semibold text-[#0a0a0a]">{demoConnectors.length} sources connected</p>
+                  <p className="text-2xl font-semibold text-[#0a0a0a]">
+                    {loading ? '...' : connectors.length === 0 ? 'No sources connected' : `${connectors.length} source${connectors.length > 1 ? 's' : ''} connected`}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-8">
-                <div className="text-right">
-                  <p className="text-sm text-[#737373]">Total Products</p>
-                  <p className="text-xl font-semibold text-[#0a0a0a]">{totalProducts.toLocaleString()}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-[#737373]">Total Orders</p>
-                  <p className="text-xl font-semibold text-[#0a0a0a]">{totalOrders.toLocaleString()}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-[#737373]">Aggregated Revenue</p>
-                  <p className="text-xl font-semibold text-[#22c55e]">${(totalRevenue / 1000).toFixed(0)}K</p>
-                </div>
-              </div>
+              {connectors.length === 0 && !loading && (
+                <p className="text-sm text-[#737373] max-w-xs text-right">
+                  Connect a data source or import CSV to get started with real data
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
 
         {/* Connected Sources */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-[#0a0a0a]">Connected Sources</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {demoConnectors.map((source) => (
-              <Card key={source.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
-                        {source.type === 'shopify' && <ShoppingBag className="w-6 h-6 text-[#96bf48]" />}
-                        {source.type === 'amazon' && <Package className="w-6 h-6 text-[#ff9900]" />}
-                        {source.type === 'woocommerce' && <ShoppingBag className="w-6 h-6 text-[#7f54b3]" />}
+        {connectors.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-[#0a0a0a]">Connected Sources</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {connectors.map((connector) => (
+                <Card key={connector.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
+                          {getConnectorIcon(connector.type)}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-[#0a0a0a]">{connector.name}</h3>
+                          <p className="text-sm text-[#737373] capitalize">{connector.type}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium text-[#0a0a0a]">{source.name}</h3>
-                        <p className="text-sm text-[#737373] capitalize">{source.type}</p>
+                      {syncing === connector.id ? (
+                        <Badge variant="warning"><RefreshCw className="w-3 h-3 mr-1 animate-spin" />Syncing</Badge>
+                      ) : (
+                        getStatusBadge(connector.status)
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-[#e5e5e5]">
+                      <span className="text-xs text-[#737373]">
+                        Last sync: {formatLastSync(connector.lastSyncAt)}
+                      </span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSync(connector.id, connector.type)}
+                          disabled={syncing === connector.id}
+                        >
+                          <RefreshCw className={`w-4 h-4 ${syncing === connector.id ? 'animate-spin' : ''}`} />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenSettings(connector)}>
+                          <Settings className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    {getStatusBadge(source.status)}
-                  </div>
-
-                  {/* Sync Health Bar */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-[#737373]">Sync Health</span>
-                      <span className="text-xs font-medium text-[#0a0a0a]">{source.syncHealth}%</span>
-                    </div>
-                    <div className="h-1.5 bg-[#e5e5e5]">
-                      <div
-                        className={`h-full ${getHealthColor(source.syncHealth)} transition-all`}
-                        style={{ width: `${source.syncHealth}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <p className="text-xs text-[#737373]">Products</p>
-                      <p className="text-lg font-semibold">{source.products}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#737373]">Orders</p>
-                      <p className="text-lg font-semibold">{source.orders.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#737373]">Revenue</p>
-                      <p className="text-lg font-semibold">${(source.revenue / 1000).toFixed(0)}K</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-[#e5e5e5]">
-                    <span className="text-xs text-[#737373]">Last sync: {source.lastSync}</span>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
-                        <RefreshCw className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Empty State */}
+        {connectors.length === 0 && !loading && (
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-4">
+                  <Plug className="w-8 h-8 text-[#a3a3a3]" />
+                </div>
+                <h3 className="font-semibold text-[#0a0a0a] mb-2">No data sources connected</h3>
+                <p className="text-sm text-[#737373] mb-6 max-w-md mx-auto">
+                  Connect your Shopify store or import a CSV file to start analyzing your merchandise revenue and fan demand signals.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button onClick={() => handleConnect(availableConnectors[0])}>
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    Connect Shopify
+                  </Button>
+                  <Button variant="outline" onClick={() => setImportModalOpen(true)}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Import CSV
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Available Connectors */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-[#0a0a0a]">Add More Sources</h2>
+          <h2 className="text-lg font-semibold text-[#0a0a0a]">Available Connectors</h2>
           <div className="grid grid-cols-2 gap-4">
             {availableConnectors.map((connector) => {
-              const isConnected = demoConnectors.some(s => s.type === connector.id);
+              const isConnected = isConnectorConnected(connector.id);
 
               return (
-                <Card key={connector.id} hover={!isConnected}>
+                <Card key={connector.id} hover={connector.available && !isConnected}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+                      <div className={`w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0 ${!connector.available ? 'opacity-50' : ''}`}>
                         {connector.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-[#0a0a0a]">{connector.name}</h3>
-                          {connector.popular && <Badge variant="outline">Popular</Badge>}
-                          <Badge variant="outline">{connector.category}</Badge>
-                        </div>
-                        <p className="text-sm text-[#737373] mb-4">{connector.description}</p>
-                        <Button
-                          variant={isConnected ? 'ghost' : 'default'}
-                          size="sm"
-                          disabled={isConnected}
-                          onClick={() => handleConnect(connector)}
-                        >
-                          {isConnected ? (
-                            <>
-                              <Check className="w-4 h-4 mr-1" />
-                              Connected
-                            </>
-                          ) : (
-                            <>
-                              <Plus className="w-4 h-4 mr-1" />
-                              Connect
-                            </>
+                          <h3 className={`font-medium ${connector.available ? 'text-[#0a0a0a]' : 'text-[#a3a3a3]'}`}>
+                            {connector.name}
+                          </h3>
+                          {connector.popular && connector.available && (
+                            <Badge variant="outline">Popular</Badge>
                           )}
-                        </Button>
+                          {!connector.available && (
+                            <Badge variant="outline" className="text-[#a3a3a3] border-[#e5e5e5]">
+                              <Clock className="w-3 h-3 mr-1" />
+                              Coming Soon
+                            </Badge>
+                          )}
+                        </div>
+                        <p className={`text-sm mb-4 ${connector.available ? 'text-[#737373]' : 'text-[#a3a3a3]'}`}>
+                          {connector.description}
+                        </p>
+                        {connector.available ? (
+                          <Button
+                            variant={isConnected ? 'ghost' : 'default'}
+                            size="sm"
+                            disabled={isConnected}
+                            onClick={() => handleConnect(connector)}
+                          >
+                            {isConnected ? (
+                              <>
+                                <Check className="w-4 h-4 mr-1" />
+                                Connected
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-4 h-4 mr-1" />
+                                Connect
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="sm" disabled>
+                            <Clock className="w-4 h-4 mr-1" />
+                            Notify Me
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -578,6 +716,95 @@ export default function ConnectorsPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Connector Settings Modal */}
+      {settingsModalOpen && selectedConnectorForSettings && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 max-w-md w-full mx-4 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-[#0a0a0a]">Connector Settings</h3>
+              <button onClick={handleCloseSettings} className="text-[#737373] hover:text-[#0a0a0a]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Connector Info */}
+              <div className="flex items-center gap-4 p-4 bg-[#f5f5f5] border border-[#e5e5e5]">
+                <div className="w-12 h-12 bg-white border border-[#e5e5e5] flex items-center justify-center">
+                  {getConnectorIcon(selectedConnectorForSettings.type)}
+                </div>
+                <div>
+                  <h4 className="font-medium text-[#0a0a0a]">{selectedConnectorForSettings.name}</h4>
+                  <p className="text-sm text-[#737373] capitalize">{selectedConnectorForSettings.type}</p>
+                </div>
+              </div>
+
+              {/* Connection Details */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#737373]">Status</span>
+                  <span className="capitalize text-[#0a0a0a]">{selectedConnectorForSettings.status}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#737373]">Last Synced</span>
+                  <span className="text-[#0a0a0a]">{formatLastSync(selectedConnectorForSettings.lastSyncAt)}</span>
+                </div>
+                {selectedConnectorForSettings.config?.shop && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#737373]">Shop URL</span>
+                    <span className="text-[#0a0a0a] font-mono text-xs">{selectedConnectorForSettings.config.shop}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 border-t border-[#e5e5e5] space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    handleSync(selectedConnectorForSettings.id, selectedConnectorForSettings.type);
+                    handleCloseSettings();
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Sync Now
+                </Button>
+              </div>
+
+              {/* Danger Zone */}
+              <div className="pt-4 border-t border-[#e5e5e5]">
+                <div className="p-3 bg-red-50 border border-red-200">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-red-800">Danger Zone</p>
+                      <p className="text-xs text-red-600 mt-1">
+                        Disconnecting will remove all synced products and sales data from this source.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={handleDeleteConnector}
+                        disabled={deleting}
+                      >
+                        {deleting ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        {deleting ? 'Disconnecting...' : 'Disconnect'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
