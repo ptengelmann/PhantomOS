@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { getServerSession, isDemoMode } from '@/lib/auth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -31,6 +32,14 @@ interface TagSuggestion {
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Verify user is authenticated
+    if (!isDemoMode()) {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
     const { product, assets, gameIp } = body as {
       product: Product;

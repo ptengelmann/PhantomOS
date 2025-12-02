@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui';
 
 export default function LoginPage() {
@@ -11,15 +12,30 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
-    // For now, just redirect to dashboard (will add auth later)
-    setTimeout(() => {
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+        setLoading(false);
+      } else {
+        router.push('/overview');
+      }
+    } catch {
+      // Demo mode: just redirect
       router.push('/overview');
-    }, 1000);
+    }
   };
 
   return (
@@ -44,6 +60,11 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
               <Input
                 label="Email"
                 type="email"

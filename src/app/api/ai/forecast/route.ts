@@ -2,15 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { predictDemand } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { publisherId, productId, assetId } = body;
+    // SECURITY: Get publisherId from session, not request body
+    let publisherId: string;
 
-    if (!publisherId) {
-      return NextResponse.json({ error: 'Publisher ID is required' }, { status: 400 });
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
     }
+
+    const body = await request.json();
+    const { productId, assetId } = body;
 
     // Build the query based on whether we're forecasting for a product or asset
     let salesQuery;

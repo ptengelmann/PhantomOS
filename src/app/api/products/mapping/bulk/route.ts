@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products, productAssets } from '@/lib/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+
+// Helper to get and verify publisherId
+async function getPublisherId() {
+  if (isDemoMode()) {
+    return getDemoPublisherId();
+  }
+  const session = await getServerSession();
+  if (!session?.user?.publisherId) {
+    return null;
+  }
+  return session.user.publisherId;
+}
 
 interface BulkMapping {
   productId: string;
@@ -11,11 +24,14 @@ interface BulkMapping {
 // Bulk confirm product-asset mappings
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { mappings, userId } = body as {
-      mappings: BulkMapping[];
-      userId?: string;
-    };
+    const { mappings } = body as { mappings: BulkMapping[] };
 
     if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
       return NextResponse.json(
@@ -24,13 +40,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get userId from session for audit trail
+    const session = await getServerSession();
+    const userId = session?.user?.id || null;
+
     const results = {
       successful: 0,
       failed: 0,
       errors: [] as Array<{ productId: string; error: string }>,
     };
 
-    // Process mappings in a transaction-like manner
+    // Process mappings
     for (const mapping of mappings) {
       try {
         const { productId, assetIds } = mapping;
@@ -41,12 +61,25 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
+        // SECURITY: Verify product belongs to this publisher
+        const [product] = await db
+          .select({ id: products.id })
+          .from(products)
+          .where(and(eq(products.id, productId), eq(products.publisherId, publisherId)))
+          .limit(1);
+
+        if (!product) {
+          results.errors.push({ productId, error: 'Product not found or access denied' });
+          results.failed++;
+          continue;
+        }
+
         // Update product mapping status
         await db
           .update(products)
           .set({
             mappingStatus: 'confirmed',
-            mappedBy: userId || null,
+            mappedBy: userId,
             mappedAt: new Date(),
             updatedAt: new Date(),
           })
@@ -93,11 +126,14 @@ export async function POST(request: NextRequest) {
 // Bulk skip products
 export async function PUT(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { productIds, userId } = body as {
-      productIds: string[];
-      userId?: string;
-    };
+    const { productIds } = body as { productIds: string[] };
 
     if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
       return NextResponse.json(
@@ -106,16 +142,23 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update all products to skipped
+    // Get userId from session for audit trail
+    const session = await getServerSession();
+    const userId = session?.user?.id || null;
+
+    // SECURITY: Only update products that belong to this publisher
     await db
       .update(products)
       .set({
         mappingStatus: 'skipped',
-        mappedBy: userId || null,
+        mappedBy: userId,
         mappedAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(inArray(products.id, productIds));
+      .where(and(
+        inArray(products.id, productIds),
+        eq(products.publisherId, publisherId)
+      ));
 
     return NextResponse.json({
       success: true,
@@ -133,12 +176,14 @@ export async function PUT(request: NextRequest) {
 // Apply AI suggestions as bulk mappings
 export async function PATCH(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { productIds, minConfidence = 80, userId } = body as {
-      productIds?: string[];
-      minConfidence?: number;
-      userId?: string;
-    };
+    const { minConfidence = 80 } = body as { minConfidence?: number };
 
     // This endpoint would:
     // 1. Get products with AI suggestions above the confidence threshold

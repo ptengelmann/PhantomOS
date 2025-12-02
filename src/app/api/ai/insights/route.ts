@@ -2,15 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateInsights } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { publisherId, type } = body;
+    // SECURITY: Get publisherId from session, not request body
+    let publisherId: string;
 
-    if (!publisherId) {
-      return NextResponse.json({ error: 'Publisher ID is required' }, { status: 400 });
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
     }
+
+    const body = await request.json();
+    const { type } = body;
 
     // Fetch relevant data for analysis
     const recentSales = await db.execute(sql`

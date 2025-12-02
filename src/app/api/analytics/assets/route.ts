@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const publisherId = searchParams.get('publisherId');
-    const gameIpId = searchParams.get('gameIpId');
+    // SECURITY: Get publisherId from session, not query params
+    let publisherId: string;
 
-    if (!publisherId) {
-      return NextResponse.json({ error: 'Publisher ID is required' }, { status: 400 });
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
     }
+
+    const { searchParams } = new URL(request.url);
+    const gameIpId = searchParams.get('gameIpId');
 
     // Asset performance scorecard
     const assetPerformance = await db.execute(sql`

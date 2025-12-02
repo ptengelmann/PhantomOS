@@ -1,13 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products, productAssets } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+
+// Helper to get and verify publisherId
+async function getPublisherId() {
+  if (isDemoMode()) {
+    return getDemoPublisherId();
+  }
+  const session = await getServerSession();
+  if (!session?.user?.publisherId) {
+    return null;
+  }
+  return session.user.publisherId;
+}
 
 // Confirm product-asset mapping
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { productId, assetIds, userId } = body;
+    const { productId, assetIds } = body;
 
     if (!productId || !assetIds || !Array.isArray(assetIds)) {
       return NextResponse.json(
@@ -16,12 +35,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY: Verify product belongs to this publisher
+    const [product] = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(and(eq(products.id, productId), eq(products.publisherId, publisherId)))
+      .limit(1);
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found or access denied' },
+        { status: 404 }
+      );
+    }
+
+    // Get userId from session for audit trail
+    const session = await getServerSession();
+    const userId = session?.user?.id || null;
+
     // Update product mapping status
     await db
       .update(products)
       .set({
         mappingStatus: 'confirmed',
-        mappedBy: userId || null,
+        mappedBy: userId,
         mappedAt: new Date(),
         updatedAt: new Date(),
       })
@@ -59,8 +96,14 @@ export async function POST(request: NextRequest) {
 // Skip product mapping
 export async function PUT(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { productId, userId } = body;
+    const { productId } = body;
 
     if (!productId) {
       return NextResponse.json(
@@ -69,11 +112,29 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // SECURITY: Verify product belongs to this publisher
+    const [product] = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(and(eq(products.id, productId), eq(products.publisherId, publisherId)))
+      .limit(1);
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found or access denied' },
+        { status: 404 }
+      );
+    }
+
+    // Get userId from session for audit trail
+    const session = await getServerSession();
+    const userId = session?.user?.id || null;
+
     await db
       .update(products)
       .set({
         mappingStatus: 'skipped',
-        mappedBy: userId || null,
+        mappedBy: userId,
         mappedAt: new Date(),
         updatedAt: new Date(),
       })
@@ -96,33 +157,29 @@ export async function PUT(request: NextRequest) {
 // Get unmapped products with pagination
 export async function GET(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session, not query params
+    const publisherId = await getPublisherId();
+    if (!publisherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
-    const publisherId = searchParams.get('publisherId');
     const status = searchParams.get('status') || 'unmapped';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = (page - 1) * limit;
-
-    if (!publisherId) {
-      return NextResponse.json(
-        { error: 'Publisher ID is required' },
-        { status: 400 }
-      );
-    }
 
     // Build query based on status
     let statusFilter;
     if (status === 'all') {
       statusFilter = undefined;
     } else if (status === 'pending') {
-      // Pending includes unmapped and suggested
       statusFilter = ['unmapped', 'suggested'];
     } else {
       statusFilter = [status];
     }
 
     // For now, return demo data structure
-    // In production, this would query the database
+    // In production, this would query the database with publisherId filter
     const result = {
       products: [],
       pagination: {

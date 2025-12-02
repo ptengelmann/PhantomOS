@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 interface CSVProduct {
   name: string;
@@ -16,14 +17,26 @@ interface CSVProduct {
 // Import products from CSV
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session, not form data
+    let publisherId: string;
+
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const publisherId = formData.get('publisherId') as string;
     const connectorId = formData.get('connectorId') as string | null;
 
-    if (!file || !publisherId) {
+    if (!file) {
       return NextResponse.json(
-        { error: 'CSV file and publisher ID are required' },
+        { error: 'CSV file is required' },
         { status: 400 }
       );
     }

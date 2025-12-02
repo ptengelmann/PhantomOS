@@ -2,18 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sales, products, ipAssets, gameIps } from '@/lib/db/schema';
 import { sql, desc, eq, and, gte, lte } from 'drizzle-orm';
+import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
+    // SECURITY: Get publisherId from session, not query params
+    let publisherId: string;
+
+    if (isDemoMode()) {
+      publisherId = getDemoPublisherId();
+    } else {
+      const session = await getServerSession();
+      if (!session?.user?.publisherId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      publisherId = session.user.publisherId;
+    }
+
     const { searchParams } = new URL(request.url);
-    const publisherId = searchParams.get('publisherId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const groupBy = searchParams.get('groupBy') || 'day'; // day, week, month
-
-    if (!publisherId) {
-      return NextResponse.json({ error: 'Publisher ID is required' }, { status: 400 });
-    }
 
     // Get date range (default to last 30 days)
     const end = endDate ? new Date(endDate) : new Date();
