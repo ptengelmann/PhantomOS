@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -36,10 +37,14 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-[#e5e5e5] flex flex-col">
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-[#e5e5e5]">
-        <Link href="/overview" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#0a0a0a] flex items-center justify-center">
-            <span className="text-white text-lg font-bold">P</span>
-          </div>
+        <Link href="/overview" className="flex items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt="PhantomOS"
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain"
+          />
           <span className="text-lg font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
         </Link>
       </div>

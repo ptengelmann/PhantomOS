@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui';
 
@@ -25,10 +26,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-[#0a0a0a] flex items-center justify-center">
-            <span className="text-white text-xl font-bold">P</span>
-          </div>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <Image
+            src="/logo.png"
+            alt="PhantomOS"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
+          />
           <span className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
         </div>
 
