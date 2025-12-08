@@ -471,8 +471,8 @@ export default function OverviewPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentOrders.slice(0, 10).map((order) => (
-                    <TableRow key={order.id}>
+                  {recentOrders.slice(0, 10).map((order, index) => (
+                    <TableRow key={`${order.id}-${index}`}>
                       <TableCell className="font-mono text-xs">{order.id}</TableCell>
                       <TableCell className="max-w-[200px] truncate">{order.product}</TableCell>
                       <TableCell>

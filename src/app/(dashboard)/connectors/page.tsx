@@ -374,6 +374,54 @@ export default function ConnectorsPage() {
     return connectors.some(c => c.type === connectorId);
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div>
+        <Header
+          title="Data Connectors"
+          description="Connect your sales channels to aggregate revenue data"
+        />
+        <div className="p-6 space-y-6">
+          {/* Skeleton for aggregation summary */}
+          <Card>
+            <CardContent className="py-6">
+              <div className="flex items-center gap-6">
+                <div className="w-12 h-12 bg-[#f5f5f5] animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-[#e5e5e5] animate-pulse"></div>
+                  <div className="h-6 w-48 bg-[#f5f5f5] animate-pulse"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Skeleton for connector cards */}
+          <div className="space-y-4">
+            <div className="h-5 w-40 bg-[#e5e5e5] animate-pulse"></div>
+            <div className="grid grid-cols-2 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-[#f5f5f5] animate-pulse rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-24 bg-[#e5e5e5] animate-pulse"></div>
+                        <div className="h-3 w-full bg-[#f5f5f5] animate-pulse"></div>
+                        <div className="h-3 w-3/4 bg-[#f5f5f5] animate-pulse"></div>
+                        <div className="h-8 w-20 bg-[#e5e5e5] animate-pulse mt-2"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Header
