@@ -150,13 +150,119 @@ export default function OverviewPage() {
     }
   };
 
-  // Loading state
+  // Loading state with skeleton UI
   if (loading) {
     return (
       <div>
-        <Header title="Overview" description="Loading..." />
-        <div className="p-6 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#737373]" />
+        <Header title="Overview" description="Your merchandise command center" />
+        <div className="p-6 space-y-6">
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="pt-6">
+                  <div className="animate-pulse">
+                    <div className="h-4 w-24 bg-[#e5e5e5] mb-3"></div>
+                    <div className="h-8 w-20 bg-[#f5f5f5] mb-2"></div>
+                    <div className="h-3 w-16 bg-[#f5f5f5]"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Charts Row Skeleton */}
+          <div className="grid grid-cols-3 gap-6">
+            {/* Revenue Chart Skeleton */}
+            <Card className="col-span-2">
+              <CardHeader>
+                <div className="animate-pulse">
+                  <div className="h-5 w-32 bg-[#e5e5e5] mb-2"></div>
+                  <div className="h-3 w-48 bg-[#f5f5f5]"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] bg-[#fafafa] animate-pulse flex items-end justify-around gap-2 p-4">
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-[#e5e5e5] w-full"
+                      style={{ height: `${30 + Math.random() * 60}%` }}
+                    ></div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Category Breakdown Skeleton */}
+            <Card>
+              <CardHeader>
+                <div className="animate-pulse">
+                  <div className="h-5 w-36 bg-[#e5e5e5] mb-2"></div>
+                  <div className="h-3 w-40 bg-[#f5f5f5]"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center animate-pulse">
+                  <div className="w-32 h-32 bg-[#f5f5f5] rounded-full mb-4"></div>
+                  <div className="space-y-2 w-full">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="h-3 w-20 bg-[#e5e5e5]"></div>
+                        <div className="h-3 w-12 bg-[#f5f5f5]"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Asset Performance Skeleton */}
+          <Card>
+            <CardHeader>
+              <div className="animate-pulse">
+                <div className="h-5 w-40 bg-[#e5e5e5] mb-2"></div>
+                <div className="h-3 w-56 bg-[#f5f5f5]"></div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[250px] bg-[#fafafa] animate-pulse flex items-end justify-around gap-4 p-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center gap-2 flex-1">
+                    <div
+                      className="bg-[#e5e5e5] w-full"
+                      style={{ height: `${40 + Math.random() * 50}%` }}
+                    ></div>
+                    <div className="h-3 w-16 bg-[#f5f5f5]"></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Orders Skeleton */}
+          <Card>
+            <CardHeader>
+              <div className="animate-pulse">
+                <div className="h-5 w-32 bg-[#e5e5e5] mb-2"></div>
+                <div className="h-3 w-44 bg-[#f5f5f5]"></div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 animate-pulse">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 py-2 border-b border-[#f5f5f5]">
+                    <div className="h-4 w-20 bg-[#e5e5e5]"></div>
+                    <div className="h-4 w-40 bg-[#f5f5f5] flex-1"></div>
+                    <div className="h-4 w-24 bg-[#f5f5f5]"></div>
+                    <div className="h-4 w-16 bg-[#e5e5e5]"></div>
+                    <div className="h-4 w-20 bg-[#f5f5f5]"></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );

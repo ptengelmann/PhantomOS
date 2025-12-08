@@ -154,12 +154,74 @@ export default function ProductsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  // Loading state
+  // Loading state with skeleton UI
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-64px)]">
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#737373]" />
+        <div className="flex-1">
+          <Header title="Products" description="Manage and tag your product catalog" />
+          <div className="p-6 space-y-6">
+            {/* Stats Row Skeleton */}
+            <div className="grid grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="pt-6">
+                    <div className="animate-pulse">
+                      <div className="h-4 w-20 bg-[#e5e5e5] mb-2"></div>
+                      <div className="h-8 w-16 bg-[#f5f5f5]"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Search and Filters Skeleton */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-10 bg-[#f5f5f5] animate-pulse"></div>
+              <div className="h-10 w-32 bg-[#e5e5e5] animate-pulse"></div>
+              <div className="h-10 w-28 bg-[#e5e5e5] animate-pulse"></div>
+            </div>
+
+            {/* Products Table Skeleton */}
+            <Card>
+              <CardHeader>
+                <div className="animate-pulse flex items-center justify-between">
+                  <div>
+                    <div className="h-5 w-32 bg-[#e5e5e5] mb-2"></div>
+                    <div className="h-3 w-48 bg-[#f5f5f5]"></div>
+                  </div>
+                  <div className="h-9 w-24 bg-[#e5e5e5]"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 animate-pulse">
+                  {/* Table Header */}
+                  <div className="flex items-center gap-4 py-2 border-b border-[#e5e5e5]">
+                    <div className="w-12"></div>
+                    <div className="h-3 w-32 bg-[#e5e5e5] flex-1"></div>
+                    <div className="h-3 w-20 bg-[#e5e5e5]"></div>
+                    <div className="h-3 w-20 bg-[#e5e5e5]"></div>
+                    <div className="h-3 w-24 bg-[#e5e5e5]"></div>
+                    <div className="h-3 w-16 bg-[#e5e5e5]"></div>
+                  </div>
+                  {/* Table Rows */}
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 py-3 border-b border-[#f5f5f5]">
+                      <div className="w-12 h-12 bg-[#f5f5f5]"></div>
+                      <div className="flex-1">
+                        <div className="h-4 w-48 bg-[#e5e5e5] mb-2"></div>
+                        <div className="h-3 w-24 bg-[#f5f5f5]"></div>
+                      </div>
+                      <div className="h-4 w-20 bg-[#f5f5f5]"></div>
+                      <div className="h-4 w-20 bg-[#f5f5f5]"></div>
+                      <div className="h-6 w-20 bg-[#e5e5e5]"></div>
+                      <div className="h-8 w-16 bg-[#f5f5f5]"></div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
