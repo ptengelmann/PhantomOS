@@ -65,7 +65,7 @@ const tiers: Array<{
       { name: 'Up to 10 team members', included: true },
       { name: 'Fan Intelligence Hub', included: true, detail: 'Real-time data' },
       { name: 'AI Insights Engine', included: true },
-      { name: 'Amazon Connector', included: true },
+      { name: 'Amazon Connector', included: false, detail: 'Coming Q1 2026' },
       { name: 'Email Support', included: true },
       { name: 'API Access', included: false },
     ],
@@ -119,7 +119,7 @@ const faqs = [
   },
   {
     question: 'Is my data secure?',
-    answer: 'Yes, we take security seriously. All data is encrypted at rest and in transit. We\'re SOC 2 Type II compliant and follow industry best practices for data protection.',
+    answer: 'Yes, we take security seriously. All data is encrypted in transit using TLS. We follow industry best practices for data protection and are working toward SOC 2 certification.',
   },
 ];
 
@@ -270,9 +270,9 @@ export default function PricingPage() {
                 </tr>
                 <tr>
                   <td className="p-4 text-sm text-[#737373]">Amazon Connector</td>
-                  <td className="p-4 text-center"><X className="w-4 h-4 text-[#a3a3a3] mx-auto" /></td>
-                  <td className="p-4 text-center bg-[#fafafa]"><Check className="w-4 h-4 text-green-600 mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="w-4 h-4 text-green-600 mx-auto" /></td>
+                  <td className="p-4 text-center text-xs text-[#a3a3a3]">Coming Soon</td>
+                  <td className="p-4 text-center bg-[#fafafa] text-xs text-[#a3a3a3]">Coming Soon</td>
+                  <td className="p-4 text-center text-xs text-[#a3a3a3]">Coming Soon</td>
                 </tr>
                 <tr>
                   <td className="p-4 text-sm text-[#737373]">AI Auto-Tagging</td>

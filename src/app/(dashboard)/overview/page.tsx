@@ -543,19 +543,21 @@ export default function OverviewPage() {
               </CardContent>
             </Card>
           </Link>
-          <Card hover>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-[#737373]" />
+          <Link href="/settings">
+            <Card hover>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
+                    <Users className="w-5 h-5 text-[#737373]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#0a0a0a]">Team</p>
+                    <p className="text-sm text-[#737373]">Manage members</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-[#0a0a0a]">Demand Score</p>
-                  <p className="text-sm text-[#22c55e] font-medium">Coming soon</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
     </div>

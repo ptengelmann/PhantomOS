@@ -95,13 +95,13 @@ export function MarketingNavbar() {
           </div>
 
           <Link
-            href="/pricing"
+            href="/faq"
             className={cn(
               'text-sm transition-colors',
-              pathname === '/pricing' ? 'text-[#0a0a0a] font-medium' : 'text-[#737373] hover:text-[#0a0a0a]'
+              pathname === '/faq' ? 'text-[#0a0a0a] font-medium' : 'text-[#737373] hover:text-[#0a0a0a]'
             )}
           >
-            Pricing
+            FAQ
           </Link>
 
           <Link
@@ -124,10 +124,10 @@ export function MarketingNavbar() {
             Sign in
           </Link>
           <Link
-            href="/register"
+            href="/waitlist"
             className="px-4 py-2 bg-[#0a0a0a] text-white text-sm font-medium hover:bg-[#171717] transition-colors"
           >
-            Start Free Audit
+            Join Waitlist
           </Link>
         </div>
 
@@ -159,11 +159,11 @@ export function MarketingNavbar() {
             </div>
             <div className="border-t border-[#e5e5e5] pt-4">
               <Link
-                href="/pricing"
+                href="/faq"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block py-2 text-sm text-[#737373] hover:text-[#0a0a0a]"
               >
-                Pricing
+                FAQ
               </Link>
               <Link
                 href="/roadmap"
@@ -182,11 +182,11 @@ export function MarketingNavbar() {
                 Sign in
               </Link>
               <Link
-                href="/register"
+                href="/waitlist"
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-center py-2 bg-[#0a0a0a] text-white text-sm font-medium"
               >
-                Start Free Audit
+                Join Waitlist
               </Link>
             </div>
           </div>

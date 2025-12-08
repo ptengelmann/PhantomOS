@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(dir:*)",
+      "WebSearch",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(npx dotenv:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_aLVzUD2uPgh5@ep-square-shadow-abgcaciu-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require\" npx drizzle-kit:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

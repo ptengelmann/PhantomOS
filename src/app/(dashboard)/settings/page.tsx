@@ -8,10 +8,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, 
 const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'organization', label: 'Organization', icon: Building },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'billing', label: 'Billing', icon: CreditCard },
-  { id: 'api', label: 'API Keys', icon: Key },
+  // Temporarily hidden until implemented:
+  // { id: 'notifications', label: 'Notifications', icon: Bell },
+  // { id: 'security', label: 'Security', icon: Shield },
+  // { id: 'billing', label: 'Billing', icon: CreditCard },
+  // { id: 'api', label: 'API Keys', icon: Key },
 ];
 
 interface TeamMember {
@@ -286,50 +287,7 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {activeTab === 'api' && (
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>API Keys</CardTitle>
-                    <CardDescription>Manage API keys for integrations</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-4 bg-[#f5f5f5] border border-[#e5e5e5]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Production Key</span>
-                        <Badge variant="success">Active</Badge>
-                      </div>
-                      <code className="text-sm text-[#737373] font-mono">pk_live_••••••••••••••••</code>
-                      <div className="mt-2 flex gap-2">
-                        <Button variant="outline" size="sm">Reveal</Button>
-                        <Button variant="outline" size="sm">Regenerate</Button>
-                      </div>
-                    </div>
-                    <div className="p-4 bg-[#f5f5f5] border border-[#e5e5e5]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Test Key</span>
-                        <Badge>Test Mode</Badge>
-                      </div>
-                      <code className="text-sm text-[#737373] font-mono">pk_test_••••••••••••••••</code>
-                      <div className="mt-2 flex gap-2">
-                        <Button variant="outline" size="sm">Reveal</Button>
-                        <Button variant="outline" size="sm">Regenerate</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {(activeTab === 'notifications' || activeTab === 'security' || activeTab === 'billing') && (
-              <Card>
-                <CardContent className="py-12">
-                  <div className="text-center">
-                    <p className="text-[#737373]">Coming soon</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* API Keys, Notifications, Security, Billing tabs temporarily hidden until implemented */}
           </div>
         </div>
       </div>

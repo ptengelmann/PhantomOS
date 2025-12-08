@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Brain,
   Tag,
@@ -57,7 +58,7 @@ const mainFeatures = [
     icon: Tag,
     name: 'AI Asset Tagging',
     tagline: 'From Weeks to Minutes',
-    description: 'Stop wasting time manually categorizing thousands of products. Our AI analyzes product names, descriptions, and images to automatically map them to your IP assets.',
+    description: 'Stop wasting time manually categorizing thousands of products. Our AI analyzes product names and descriptions to suggest IP asset mappings with confidence scores.',
     benefits: [
       'AI suggests mappings with confidence scores',
       'Accept or reject suggestions with one click',
@@ -142,39 +143,39 @@ const mainFeatures = [
     description: 'Connect your e-commerce platforms and import data from any source. PhantomOS automatically syncs your products and sales data.',
     benefits: [
       'One-click Shopify OAuth connection',
-      'Amazon Seller Central integration',
       'CSV import for any data source',
       'Automatic sync and updates',
+      'Amazon & more connectors coming 2026',
     ],
     illustration: (
       <div className="flex flex-col items-center gap-4 p-4 bg-white border border-[#e5e5e5]">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-[#96bf48] rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white text-xl font-bold">S</span>
+          <div className="w-14 h-14 bg-[#96bf48] rounded-lg flex items-center justify-center shadow-sm p-2">
+            <Image src="/logos/shopify.svg" alt="Shopify" width={36} height={36} className="object-contain" />
           </div>
           <div className="flex flex-col items-center gap-1">
             <div className="w-8 h-px bg-[#0a0a0a]" />
             <Zap className="w-4 h-4 text-green-500" />
             <div className="w-8 h-px bg-[#0a0a0a]" />
           </div>
-          <div className="w-14 h-14 bg-[#0a0a0a] rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white text-xl font-bold">P</span>
+          <div className="w-14 h-14 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+            <Image src="/PhantomOSIcon.svg" alt="PhantomOS" width={56} height={56} className="object-contain" />
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-[#ff9900] rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white text-xl font-bold">A</span>
+          <div className="w-14 h-14 bg-[#f5f5f5] rounded-lg flex items-center justify-center shadow-sm p-2 border border-[#e5e5e5]">
+            <span className="text-2xl font-bold text-[#a3a3a3]">CSV</span>
           </div>
           <div className="flex flex-col items-center gap-1">
             <div className="w-8 h-px bg-[#0a0a0a]" />
             <Zap className="w-4 h-4 text-green-500" />
             <div className="w-8 h-px bg-[#0a0a0a]" />
           </div>
-          <div className="w-14 h-14 bg-[#0a0a0a] rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white text-xl font-bold">P</span>
+          <div className="w-14 h-14 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+            <Image src="/PhantomOSIcon.svg" alt="PhantomOS" width={56} height={56} className="object-contain" />
           </div>
         </div>
-        <p className="text-xs text-[#737373] mt-2">Connected & Syncing</p>
+        <p className="text-xs text-[#737373] mt-2">Shopify & CSV Available Now</p>
       </div>
     ),
   },
@@ -188,13 +189,13 @@ const additionalFeatures = [
   },
   {
     icon: Clock,
-    name: 'Real-time Sync',
-    description: 'Data updates automatically as sales come in',
+    name: 'On-Demand Sync',
+    description: 'Sync your data whenever you need the latest updates',
   },
   {
     icon: Shield,
     name: 'Secure & Private',
-    description: 'SOC 2 compliant with enterprise-grade security',
+    description: 'Data encrypted in transit with enterprise-grade security',
   },
   {
     icon: Users,
@@ -204,12 +205,12 @@ const additionalFeatures = [
   {
     icon: Zap,
     name: 'Fast Performance',
-    description: 'Lightning-fast queries on millions of records',
+    description: 'Optimized queries for quick data analysis',
   },
   {
     icon: Sparkles,
-    name: 'AI-First Design',
-    description: 'AI assistance throughout the entire platform',
+    name: 'AI-Powered Insights',
+    description: 'AI-generated recommendations and analysis',
   },
 ];
 
@@ -338,10 +339,10 @@ export default function FeaturesPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/pricing"
+              href="/faq"
               className="w-full sm:w-auto px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-[#fafafa] transition-colors text-center"
             >
-              View Pricing
+              Learn More
             </Link>
           </div>
         </div>

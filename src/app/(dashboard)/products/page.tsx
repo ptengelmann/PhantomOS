@@ -51,6 +51,8 @@ export default function ProductsPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ imported: number; total: number } | null>(null);
+  const [autoTagging, setAutoTagging] = useState(false);
+  const [autoTagResult, setAutoTagResult] = useState<{ tagged: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -102,6 +104,33 @@ export default function ProductsPage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleAutoTagAll = async () => {
+    setAutoTagging(true);
+    setAutoTagResult(null);
+
+    try {
+      const response = await fetch('/api/products/auto-tag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 50 }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setAutoTagResult({ tagged: result.tagged, total: result.total });
+        loadProducts();
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => setAutoTagResult(null), 5000);
+      } else {
+        alert(result.error || 'Auto-tagging failed');
+      }
+    } catch (error) {
+      alert('Failed to auto-tag products');
+    } finally {
+      setAutoTagging(false);
     }
   };
 
@@ -249,6 +278,19 @@ export default function ProductsPage() {
           </div>
         </div>
 
+        {/* Auto-Tag Result Toast */}
+        {autoTagResult && (
+          <div className="absolute top-4 right-4 z-50 p-4 bg-green-50 border border-green-200 shadow-lg">
+            <div className="flex items-center gap-2">
+              <Check className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="font-medium text-green-800">Auto-tagging complete</p>
+                <p className="text-sm text-green-600">Tagged {autoTagResult.tagged} of {autoTagResult.total} products</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search & Filter */}
         <div className="p-4 border-b border-[#e5e5e5] flex gap-2">
           <div className="flex-1 relative">
@@ -270,6 +312,21 @@ export default function ProductsPage() {
             <option value="mapped">Mapped</option>
             <option value="unmapped">Unmapped</option>
           </select>
+          {stats.unmapped > 0 && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleAutoTagAll}
+              disabled={autoTagging}
+            >
+              {autoTagging ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-1" />
+              )}
+              {autoTagging ? 'Tagging...' : `Auto-Tag ${stats.unmapped}`}
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
             <Upload className="w-4 h-4 mr-1" />
             Import
@@ -392,6 +449,13 @@ interface LinkedAsset extends Asset {
   isPrimary: boolean;
 }
 
+interface AISuggestion {
+  assetId: string;
+  assetName: string;
+  confidence: number;
+  reason: string;
+}
+
 // Product Detail Panel
 function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate: () => void }) {
   const [linkedAssets, setLinkedAssets] = useState<LinkedAsset[]>([]);
@@ -403,9 +467,15 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
   const [newGameIpName, setNewGameIpName] = useState('');
   const [selectedGameIp, setSelectedGameIp] = useState<string>('');
   const [saving, setSaving] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [showAISuggestions, setShowAISuggestions] = useState(false);
 
   useEffect(() => {
     loadAssets();
+    // Reset AI suggestions when product changes
+    setAiSuggestions([]);
+    setShowAISuggestions(false);
   }, [product.id]);
 
   const loadAssets = async () => {
@@ -430,6 +500,68 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
     } finally {
       setLoadingAssets(false);
     }
+  };
+
+  const getAISuggestions = async () => {
+    // Need at least one game IP with assets to get suggestions
+    const allAssets = availableGameIps.flatMap(gip =>
+      gip.assets.map(a => ({
+        id: a.id,
+        name: a.name,
+        type: a.assetType,
+      }))
+    );
+
+    if (allAssets.length === 0) {
+      alert('Please create at least one IP asset first before using AI suggestions.');
+      return;
+    }
+
+    setLoadingAI(true);
+    setShowAISuggestions(true);
+
+    try {
+      const response = await fetch('/api/ai/tagging', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product: {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            sku: product.sku,
+            category: product.category,
+          },
+          assets: allAssets,
+          gameIp: availableGameIps.length > 0 ? {
+            name: availableGameIps[0].name,
+          } : undefined,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAiSuggestions(data.suggestions || []);
+      } else {
+        console.error('AI tagging failed');
+        setAiSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Failed to get AI suggestions:', error);
+      setAiSuggestions([]);
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
+  const handleAcceptSuggestion = async (suggestion: AISuggestion) => {
+    await handleAddAsset(suggestion.assetId);
+    // Remove from suggestions
+    setAiSuggestions(prev => prev.filter(s => s.assetId !== suggestion.assetId));
+  };
+
+  const handleDismissSuggestion = (assetId: string) => {
+    setAiSuggestions(prev => prev.filter(s => s.assetId !== assetId));
   };
 
   const handleAddAsset = async (assetId: string) => {
@@ -573,15 +705,30 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
               <CardTitle className="text-base">IP Asset Mapping</CardTitle>
               <CardDescription>Tag this product with characters/IPs for analytics</CardDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAssetPicker(!showAssetPicker)}
-              disabled={loadingAssets}
-            >
-              <Tag className="w-4 h-4 mr-1" />
-              Add Tag
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={getAISuggestions}
+                disabled={loadingAssets || loadingAI}
+              >
+                {loadingAI ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-1" />
+                )}
+                AI Suggest
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAssetPicker(!showAssetPicker)}
+                disabled={loadingAssets}
+              >
+                <Tag className="w-4 h-4 mr-1" />
+                Add Tag
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {loadingAssets ? (
@@ -623,6 +770,81 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* AI Suggestions */}
+            {showAISuggestions && (
+              <div className="mt-4 border border-purple-200 bg-purple-50">
+                <div className="p-3 border-b border-purple-200 bg-purple-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-900">AI Suggestions</span>
+                  </div>
+                  <button
+                    onClick={() => setShowAISuggestions(false)}
+                    className="text-purple-400 hover:text-purple-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                {loadingAI ? (
+                  <div className="p-6 text-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-500 mx-auto mb-2" />
+                    <p className="text-sm text-purple-700">Analyzing product...</p>
+                  </div>
+                ) : aiSuggestions.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className="text-sm text-purple-700">No matching assets found.</p>
+                    <p className="text-xs text-purple-500 mt-1">Try creating more assets or check the product name.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-purple-200">
+                    {aiSuggestions.map((suggestion) => (
+                      <div key={suggestion.assetId} className="p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className="w-8 h-8 bg-purple-200 flex items-center justify-center text-purple-700 text-xs font-medium flex-shrink-0">
+                              {suggestion.assetName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-medium text-purple-900">{suggestion.assetName}</p>
+                                <span className={`text-xs px-1.5 py-0.5 ${
+                                  suggestion.confidence >= 80
+                                    ? 'bg-green-100 text-green-700'
+                                    : suggestion.confidence >= 60
+                                      ? 'bg-yellow-100 text-yellow-700'
+                                      : 'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {suggestion.confidence}%
+                                </span>
+                              </div>
+                              <p className="text-xs text-purple-600">{suggestion.reason}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button
+                              onClick={() => handleAcceptSuggestion(suggestion)}
+                              disabled={saving}
+                              className="p-1.5 bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                              title="Accept"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDismissSuggestion(suggestion.assetId)}
+                              className="p-1.5 bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+                              title="Dismiss"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

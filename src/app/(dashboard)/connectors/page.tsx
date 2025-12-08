@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, ExternalLink, ShoppingBag, Package, Upload, FileSpreadsheet, Download, X, Loader2, Clock, Trash2, AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Plug, Plus, Check, AlertCircle, RefreshCw, Settings, ExternalLink, ShoppingBag, Package, Upload, FileSpreadsheet, Download, X, Loader2, Clock, Trash2, AlertTriangle, Code } from 'lucide-react';
 import { Header, ConnectorWizard } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@/components/ui';
 
@@ -20,12 +22,23 @@ interface ConnectorStats {
   revenue: number;
 }
 
+interface SyncResult {
+  success: boolean;
+  type: 'products' | 'orders';
+  synced: number;
+  total?: number;
+  errors?: Array<{ product?: string; order?: string; error: string }>;
+  skippedProducts?: number;
+  unmatchedProducts?: string[];
+}
+
 const availableConnectors = [
   {
     id: 'shopify',
     name: 'Shopify',
     description: 'Connect your Shopify store to sync products, orders, and customer data',
-    icon: <ShoppingBag className="w-6 h-6 text-[#96bf48]" />,
+    logo: '/logos/shopify.svg',
+    bgColor: 'bg-[#96bf48]',
     category: 'E-commerce',
     popular: true,
     available: true,
@@ -34,7 +47,8 @@ const availableConnectors = [
     id: 'amazon',
     name: 'Amazon Seller',
     description: 'Import sales data from Amazon Seller Central across all marketplaces',
-    icon: <Package className="w-6 h-6 text-[#ff9900]" />,
+    logo: '/logos/amazon.svg',
+    bgColor: 'bg-[#232f3e]',
     category: 'Marketplace',
     popular: true,
     available: false,
@@ -43,7 +57,8 @@ const availableConnectors = [
     id: 'woocommerce',
     name: 'WooCommerce',
     description: 'Sync data from your WooCommerce WordPress store',
-    icon: <ShoppingBag className="w-6 h-6 text-[#7f54b3]" />,
+    logo: '/logos/woocommerce.svg',
+    bgColor: 'bg-[#96588a]',
     category: 'E-commerce',
     available: false,
   },
@@ -51,7 +66,8 @@ const availableConnectors = [
     id: 'bigcommerce',
     name: 'BigCommerce',
     description: 'Connect your BigCommerce store for unified analytics',
-    icon: <ShoppingBag className="w-6 h-6 text-[#34313f]" />,
+    logo: '/logos/bigcommerce.svg',
+    bgColor: 'bg-[#121118]',
     category: 'E-commerce',
     available: false,
   },
@@ -88,6 +104,9 @@ export default function ConnectorsPage() {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [selectedConnectorForSettings, setSelectedConnectorForSettings] = useState<Connector | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Sync result state
+  const [syncResult, setSyncResult] = useState<{ success: boolean; message: string; details?: string } | null>(null);
 
   // Load connectors from database
   useEffect(() => {
@@ -153,26 +172,74 @@ export default function ConnectorsPage() {
 
   const handleSync = async (connectorId: string, type: string) => {
     setSyncing(connectorId);
+    setSyncResult(null);
+
     try {
       // Sync products first
-      await fetch(`/api/connectors/${type}/sync/products`, {
+      const productsRes = await fetch(`/api/connectors/${type}/sync/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectorId }),
       });
 
+      const productsData = await productsRes.json();
+
+      if (!productsRes.ok) {
+        setSyncResult({
+          success: false,
+          message: 'Product sync failed',
+          details: productsData.error || 'Unknown error occurred',
+        });
+        return;
+      }
+
       // Then sync orders
-      await fetch(`/api/connectors/${type}/sync/orders`, {
+      const ordersRes = await fetch(`/api/connectors/${type}/sync/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectorId }),
+      });
+
+      const ordersData = await ordersRes.json();
+
+      if (!ordersRes.ok) {
+        setSyncResult({
+          success: false,
+          message: 'Order sync failed',
+          details: ordersData.error || 'Unknown error occurred',
+        });
+        return;
+      }
+
+      // Show success message
+      const details = [];
+      if (productsData.synced > 0) {
+        details.push(`${productsData.synced} products`);
+      }
+      if (ordersData.synced > 0) {
+        details.push(`${ordersData.synced} orders`);
+      }
+
+      setSyncResult({
+        success: true,
+        message: 'Sync completed successfully',
+        details: details.length > 0
+          ? `Synced ${details.join(' and ')}`
+          : 'No new data to sync',
       });
 
       loadConnectors();
     } catch (error) {
       console.error('Sync failed:', error);
+      setSyncResult({
+        success: false,
+        message: 'Sync failed',
+        details: 'Network error or server unavailable',
+      });
     } finally {
       setSyncing(null);
+      // Auto-dismiss success message after 5 seconds
+      setTimeout(() => setSyncResult(null), 5000);
     }
   };
 
@@ -241,9 +308,9 @@ export default function ConnectorsPage() {
       filename = 'phantomos-products-template.csv';
     } else {
       csvContent = 'product_name,sku,order_id,quantity,revenue,cost,region,channel,date\n';
-      csvContent += '"Shadow Phantom T-Shirt",SKU-001,ORD-1001,2,59.98,20.00,"United States","Online Store","2024-01-15"\n';
-      csvContent += '"Eclipse Mug",SKU-002,ORD-1002,1,14.99,5.00,"United Kingdom","Amazon","2024-01-16"\n';
-      csvContent += '"Neon Rider Figure",SKU-003,ORD-1003,3,149.97,60.00,"Germany","Online Store","2024-01-17"';
+      csvContent += '"Shadow Phantom T-Shirt",SKU-001,ORD-1001,2,59.98,20.00,"United States","Online Store","2025-11-15"\n';
+      csvContent += '"Eclipse Mug",SKU-002,ORD-1002,1,14.99,5.00,"United Kingdom","Amazon","2025-11-16"\n';
+      csvContent += '"Neon Rider Figure",SKU-003,ORD-1003,3,149.97,60.00,"Germany","Online Store","2025-11-17"';
       filename = 'phantomos-sales-template.csv';
     }
 
@@ -290,16 +357,17 @@ export default function ConnectorsPage() {
   };
 
   const getConnectorIcon = (type: string) => {
-    switch (type) {
-      case 'shopify':
-        return <ShoppingBag className="w-6 h-6 text-[#96bf48]" />;
-      case 'amazon':
-        return <Package className="w-6 h-6 text-[#ff9900]" />;
-      case 'woocommerce':
-        return <ShoppingBag className="w-6 h-6 text-[#7f54b3]" />;
-      default:
-        return <Plug className="w-6 h-6 text-[#737373]" />;
+    const logoMap: Record<string, string> = {
+      shopify: '/logos/shopify.svg',
+      amazon: '/logos/amazon.svg',
+      woocommerce: '/logos/woocommerce.svg',
+      bigcommerce: '/logos/bigcommerce.svg',
+    };
+
+    if (logoMap[type]) {
+      return <Image src={logoMap[type]} alt={type} width={24} height={24} className="object-contain" />;
     }
+    return <Plug className="w-6 h-6 text-[#737373]" />;
   };
 
   const isConnectorConnected = (connectorId: string) => {
@@ -319,7 +387,7 @@ export default function ConnectorsPage() {
           connector={{
             id: selectedConnector.id,
             name: selectedConnector.name,
-            icon: selectedConnector.icon,
+            icon: <Image src={selectedConnector.logo} alt={selectedConnector.name} width={24} height={24} className="object-contain" />,
           }}
           onClose={() => {
             setWizardOpen(false);
@@ -327,6 +395,39 @@ export default function ConnectorsPage() {
           }}
           onComplete={handleWizardComplete}
         />
+      )}
+
+      {/* Sync Result Toast */}
+      {syncResult && (
+        <div className={`fixed top-4 right-4 z-50 p-4 shadow-lg border ${
+          syncResult.success
+            ? 'bg-green-50 border-green-200'
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <div className="flex items-start gap-3">
+            {syncResult.success ? (
+              <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            )}
+            <div>
+              <p className={`font-medium ${syncResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                {syncResult.message}
+              </p>
+              {syncResult.details && (
+                <p className={`text-sm mt-1 ${syncResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                  {syncResult.details}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setSyncResult(null)}
+              className={`ml-2 ${syncResult.success ? 'text-green-600 hover:text-green-800' : 'text-red-600 hover:text-red-800'}`}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       )}
 
       <div className="p-6 space-y-6">
@@ -442,8 +543,8 @@ export default function ConnectorsPage() {
                 <Card key={connector.id} hover={connector.available && !isConnected}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0 ${!connector.available ? 'opacity-50' : ''}`}>
-                        {connector.icon}
+                      <div className={`w-12 h-12 ${connector.bgColor} rounded-lg flex items-center justify-center flex-shrink-0 p-2 ${!connector.available ? 'opacity-50' : ''}`}>
+                        <Image src={connector.logo} alt={connector.name} width={28} height={28} className="object-contain" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -531,23 +632,28 @@ export default function ConnectorsPage() {
           </Card>
         </div>
 
-        {/* Custom Integration CTA */}
+        {/* More Connectors Coming Soon */}
         <Card>
           <CardContent className="py-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-6 h-6 text-[#737373]" />
               </div>
-              <h3 className="font-medium text-[#0a0a0a] mb-1">Need a Custom Integration?</h3>
+              <h3 className="font-medium text-[#0a0a0a] mb-1">More Connectors Coming in 2026</h3>
               <p className="text-sm text-[#737373] mb-4 max-w-md mx-auto">
-                Connect any data source using our REST API or contact us for enterprise integrations with your existing systems.
+                Amazon Seller Central, WooCommerce, BigCommerce, and custom API integrations are on our roadmap. Use CSV import in the meantime to bring in data from any source.
               </p>
               <div className="flex gap-2 justify-center">
-                <Button variant="outline">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View API Docs
+                <Link href="/roadmap">
+                  <Button variant="outline">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Roadmap
+                  </Button>
+                </Link>
+                <Button onClick={() => setImportModalOpen(true)}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import CSV Now
                 </Button>
-                <Button>Contact Sales</Button>
               </div>
             </div>
           </CardContent>

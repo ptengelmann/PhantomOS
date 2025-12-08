@@ -1,47 +1,48 @@
 import Link from 'next/link';
-import { Plug, ArrowRight, RefreshCw, Shield, Zap, Clock, Database, FileSpreadsheet } from 'lucide-react';
+import Image from 'next/image';
+import { Plug, ArrowRight, RefreshCw, Shield, Zap, Clock, Database, FileSpreadsheet, Code } from 'lucide-react';
 
 const connectors = [
   {
     name: 'Shopify',
-    logo: 'S',
+    logo: '/logos/shopify.svg',
     color: 'bg-[#96bf48]',
     status: 'Available',
-    description: 'Connect your Shopify store with one-click OAuth. Products and orders sync automatically.',
-  },
-  {
-    name: 'Amazon',
-    logo: 'A',
-    color: 'bg-[#ff9900]',
-    status: 'Available',
-    description: 'Connect Amazon Seller Central to import your marketplace data.',
+    description: 'Connect your Shopify store with one-click OAuth. Products sync automatically.',
   },
   {
     name: 'CSV Import',
-    logo: 'CSV',
-    color: 'bg-[#0a0a0a]',
+    logo: '/logos/csv.svg',
+    color: 'bg-[#f5f5f5]',
     status: 'Available',
     description: 'Import data from any source using our CSV template.',
   },
   {
+    name: 'Amazon',
+    logo: '/logos/amazon.svg',
+    color: 'bg-[#232f3e]',
+    status: 'Coming Soon',
+    description: 'Amazon Seller Central integration coming Q1 2026.',
+  },
+  {
     name: 'WooCommerce',
-    logo: 'W',
+    logo: '/logos/woocommerce.svg',
     color: 'bg-[#96588a]',
     status: 'Coming Soon',
     description: 'WordPress WooCommerce integration for self-hosted stores.',
   },
   {
     name: 'BigCommerce',
-    logo: 'B',
+    logo: '/logos/bigcommerce.svg',
     color: 'bg-[#121118]',
     status: 'Coming Soon',
     description: 'Enterprise e-commerce platform integration.',
   },
   {
     name: 'Custom API',
-    logo: 'API',
+    logo: null, // Uses icon instead
     color: 'bg-[#737373]',
-    status: 'Enterprise',
+    status: 'Coming Soon',
     description: 'Build custom integrations with our REST API.',
   },
 ];
@@ -93,8 +94,18 @@ export default function ConnectorsFeaturePage() {
             {connectors.map((connector) => (
               <div key={connector.name} className="bg-white border border-[#e5e5e5] p-6 hover:border-[#0a0a0a] transition-colors">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 ${connector.color} rounded-lg flex items-center justify-center`}>
-                    <span className="text-white font-bold text-sm">{connector.logo}</span>
+                  <div className={`w-12 h-12 ${connector.color} rounded-lg flex items-center justify-center overflow-hidden`}>
+                    {connector.logo ? (
+                      <Image
+                        src={connector.logo}
+                        alt={connector.name}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <Code className="w-6 h-6 text-white" />
+                    )}
                   </div>
                   <span className={`text-xs px-2 py-1 ${
                     connector.status === 'Available'
@@ -170,14 +181,26 @@ export default function ConnectorsFeaturePage() {
               <div className="flex flex-col items-center gap-6">
                 {/* Sources */}
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-[#96bf48] rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-white text-xl font-bold">S</span>
+                  <div className="w-16 h-16 bg-[#96bf48] rounded-lg flex items-center justify-center shadow-sm p-2">
+                    <Image
+                      src="/logos/shopify.svg"
+                      alt="Shopify"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
                   </div>
-                  <div className="w-16 h-16 bg-[#ff9900] rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-white text-xl font-bold">A</span>
+                  <div className="w-16 h-16 bg-[#f5f5f5] rounded-lg flex items-center justify-center shadow-sm p-2 border border-[#e5e5e5]">
+                    <FileSpreadsheet className="w-8 h-8 text-[#737373]" />
                   </div>
-                  <div className="w-16 h-16 bg-[#0a0a0a] rounded-lg flex items-center justify-center shadow-sm">
-                    <FileSpreadsheet className="w-6 h-6 text-white" />
+                  <div className="w-16 h-16 bg-[#232f3e] rounded-lg flex items-center justify-center shadow-sm p-2 opacity-50">
+                    <Image
+                      src="/logos/amazon.svg"
+                      alt="Amazon (Coming Soon)"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
                   </div>
                 </div>
 
@@ -192,8 +215,14 @@ export default function ConnectorsFeaturePage() {
 
                 {/* Destination */}
                 <div className="w-full max-w-xs p-4 bg-[#fafafa] border border-[#e5e5e5] text-center">
-                  <div className="w-12 h-12 bg-[#0a0a0a] rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white text-lg font-bold">P</span>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                    <Image
+                      src="/PhantomOSIcon.svg"
+                      alt="PhantomOS"
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
                   </div>
                   <p className="font-medium text-[#0a0a0a]">PhantomOS</p>
                   <p className="text-xs text-[#737373] mt-1">All data in one place</p>
@@ -202,7 +231,7 @@ export default function ConnectorsFeaturePage() {
                 {/* Status */}
                 <div className="flex items-center gap-2 text-sm text-green-600">
                   <RefreshCw className="w-4 h-4" />
-                  <span>Last sync: 5 minutes ago</span>
+                  <span>Shopify & CSV available now</span>
                 </div>
               </div>
             </div>

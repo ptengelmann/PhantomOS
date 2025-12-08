@@ -163,6 +163,25 @@ export const aiInsights = pgTable('ai_insights', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Waitlist Entries (Pilot Program)
+export const waitlistStatusEnum = pgEnum('waitlist_status', ['pending', 'approved', 'rejected', 'converted']);
+
+export const waitlist = pgTable('waitlist', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  companyName: varchar('company_name', { length: 255 }),
+  companyWebsite: text('company_website'),
+  revenueRange: varchar('revenue_range', { length: 100 }), // e.g., "Under $100K", "$100K-$500K", etc.
+  primaryChannel: varchar('primary_channel', { length: 100 }), // e.g., "Shopify", "Amazon", "Both"
+  notes: text('notes'), // Internal notes from admin
+  status: waitlistStatusEnum('status').default('pending'),
+  approvedAt: timestamp('approved_at'),
+  approvedBy: uuid('approved_by').references(() => users.id),
+  inviteToken: varchar('invite_token', { length: 256 }), // Token sent when approved
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Team Invitations
 export const invitations = pgTable('invitations', {
   id: uuid('id').primaryKey().defaultRandom(),

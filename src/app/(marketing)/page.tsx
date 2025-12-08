@@ -2,7 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+
+// Pilot mode - change this to '/register' when ready for public signup
+const SIGNUP_URL = '/waitlist';
+const SIGNUP_CTA = 'Join the Pilot Program';
 
 // Hero Illustration Component
 function HeroIllustration() {
@@ -158,23 +162,6 @@ function HowItWorksStep({
   );
 }
 
-// Testimonial Card
-function TestimonialCard({ quote, author, role, company }: { quote: string; author: string; role: string; company: string }) {
-  return (
-    <div className="bg-white border border-[#e5e5e5] p-8">
-      <p className="text-lg text-[#0a0a0a] leading-relaxed mb-6">&ldquo;{quote}&rdquo;</p>
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] rounded-full flex items-center justify-center">
-          <span className="text-sm font-medium text-[#737373]">{author.split(' ').map(n => n[0]).join('')}</span>
-        </div>
-        <div>
-          <p className="font-medium text-[#0a0a0a]">{author}</p>
-          <p className="text-sm text-[#737373]">{role}, {company}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function LandingPage() {
   return (
@@ -211,10 +198,10 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
-                  href="/register"
+                  href={SIGNUP_URL}
                   className="w-full sm:w-auto px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
                 >
-                  Start Your Free Revenue Audit
+                  {SIGNUP_CTA}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
@@ -238,17 +225,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social Proof Bar */}
-      <section className="py-12 border-y border-[#e5e5e5] bg-[#fafafa]">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-center text-sm text-[#737373] mb-8">Trusted by gaming publishers worldwide</p>
-          <div className="flex flex-wrap items-center justify-center gap-12 opacity-50">
-            {['Publisher 1', 'Publisher 2', 'Publisher 3', 'Publisher 4', 'Publisher 5'].map((name) => (
-              <div key={name} className="h-8 w-32 bg-[#e5e5e5] rounded-sm" />
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Problem/Solution Section */}
       <section className="py-24 lg:py-32">
@@ -394,15 +370,15 @@ export default function LandingPage() {
             <FeatureCard
               icon={Plug}
               title="Data Connectors"
-              description="Connect your Shopify, Amazon, and other e-commerce platforms. Import CSVs. All your data in one place."
+              description="Connect your Shopify store or import CSVs. All your data in one place. More connectors coming 2026."
               illustration={
                 <div className="flex items-center justify-center gap-4">
-                  <div className="w-12 h-12 bg-[#96bf48] rounded-sm flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">S</span>
+                  <div className="w-12 h-12 bg-[#96bf48] rounded-sm flex items-center justify-center p-2">
+                    <Image src="/logos/shopify.svg" alt="Shopify" width={32} height={32} className="object-contain" />
                   </div>
                   <div className="w-8 h-px bg-[#e5e5e5]" />
-                  <div className="w-12 h-12 bg-[#ff9900] rounded-sm flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">A</span>
+                  <div className="w-12 h-12 bg-[#f5f5f5] rounded-sm flex items-center justify-center border border-[#e5e5e5]">
+                    <span className="text-[#737373] text-xs font-bold">CSV</span>
                   </div>
                   <div className="w-8 h-px bg-[#e5e5e5]" />
                   <div className="w-12 h-12 bg-[#e5e5e5] rounded-sm flex items-center justify-center">
@@ -446,7 +422,7 @@ export default function LandingPage() {
                 <HowItWorksStep
                   step={2}
                   title="AI Tags Your Products"
-                  description="Our AI analyzes product names, descriptions, and images to map them to your IP assets. Review and approve with one click."
+                  description="Our AI analyzes product names and descriptions to suggest IP asset mappings. Review suggestions and approve with one click."
                 />
                 <HowItWorksStep
                   step={3}
@@ -463,8 +439,8 @@ export default function LandingPage() {
                 {/* Step 1 Illustration */}
                 <div className="bg-white border border-[#e5e5e5] p-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-10 h-10 bg-[#96bf48] rounded-sm flex items-center justify-center">
-                      <span className="text-white font-bold">S</span>
+                    <div className="w-10 h-10 bg-[#96bf48] rounded-sm flex items-center justify-center p-1.5">
+                      <Image src="/logos/shopify.svg" alt="Shopify" width={28} height={28} className="object-contain" />
                     </div>
                     <ArrowRight className="w-4 h-4 text-[#e5e5e5]" />
                     <div className="flex-1 h-2 bg-[#e5e5e5] rounded-full overflow-hidden">
@@ -517,40 +493,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
-              Publishers Love PhantomOS
-            </h2>
-            <p className="text-lg text-[#737373] leading-relaxed">
-              See what gaming publishers are saying about their revenue insights.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <TestimonialCard
-              quote="We finally know which characters actually drive sales. PhantomOS paid for itself in the first month."
-              author="Sarah Chen"
-              role="Head of Licensing"
-              company="Indie Game Studio"
-            />
-            <TestimonialCard
-              quote="The AI tagging saved us weeks of manual work. Now we can focus on strategy instead of spreadsheets."
-              author="Marcus Johnson"
-              role="Merch Director"
-              company="Mobile Gaming Co"
-            />
-            <TestimonialCard
-              quote="Game-changer for our licensing negotiations. We now have data to back up our character value."
-              author="Emily Rodriguez"
-              role="VP Commercial"
-              company="AAA Publisher"
-            />
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-24 lg:py-32">
@@ -564,25 +506,21 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/register"
+              href={SIGNUP_URL}
               className="w-full sm:w-auto px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
             >
-              Start Your Free Revenue Audit
+              {SIGNUP_CTA}
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/pricing"
+              href="/faq"
               className="w-full sm:w-auto px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-[#fafafa] transition-colors text-center"
             >
-              View Pricing
+              Learn More
             </Link>
           </div>
 
           <div className="flex items-center justify-center gap-8 mt-12 text-sm text-[#737373]">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>SOC 2 Compliant</span>
-            </div>
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4" />
               <span>5-minute setup</span>

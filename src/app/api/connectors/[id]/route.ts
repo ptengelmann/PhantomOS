@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { connectors, products, sales } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { connectors, products, sales, productAssets } from '@/lib/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
 // DELETE - Disconnect/delete a connector and its associated data
@@ -34,17 +34,39 @@ export async function DELETE(
       return NextResponse.json({ error: 'Connector not found' }, { status: 404 });
     }
 
-    // Delete sales from this connector
+    // Get all product IDs from this connector first
+    const connectorProducts = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.connectorId, connectorId));
+
+    const productIds = connectorProducts.map(p => p.id);
+
+    // Delete in correct order to respect foreign key constraints:
+
+    // 1. Delete sales that reference these products (by productId)
+    if (productIds.length > 0) {
+      await db
+        .delete(sales)
+        .where(inArray(sales.productId, productIds));
+
+      // 2. Delete product-asset mappings for these products
+      await db
+        .delete(productAssets)
+        .where(inArray(productAssets.productId, productIds));
+    }
+
+    // 3. Also delete any sales directly linked to this connector (in case of orphans)
     await db
       .delete(sales)
       .where(eq(sales.connectorId, connectorId));
 
-    // Delete products from this connector
+    // 4. Delete products from this connector
     await db
       .delete(products)
       .where(eq(products.connectorId, connectorId));
 
-    // Delete the connector
+    // 5. Delete the connector
     await db
       .delete(connectors)
       .where(eq(connectors.id, connectorId));
