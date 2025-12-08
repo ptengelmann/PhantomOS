@@ -183,11 +183,11 @@ export default function OverviewPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-[300px] bg-[#fafafa] animate-pulse flex items-end justify-around gap-2 p-4">
-                  {[...Array(12)].map((_, i) => (
+                  {[40, 65, 55, 80, 45, 70, 60, 85, 50, 75, 55, 68].map((height, i) => (
                     <div
                       key={i}
                       className="bg-[#e5e5e5] w-full"
-                      style={{ height: `${30 + Math.random() * 60}%` }}
+                      style={{ height: `${height}%` }}
                     ></div>
                   ))}
                 </div>
@@ -228,11 +228,11 @@ export default function OverviewPage() {
             </CardHeader>
             <CardContent>
               <div className="h-[250px] bg-[#fafafa] animate-pulse flex items-end justify-around gap-4 p-4">
-                {[...Array(6)].map((_, i) => (
+                {[75, 60, 85, 50, 70, 55].map((height, i) => (
                   <div key={i} className="flex flex-col items-center gap-2 flex-1">
                     <div
                       className="bg-[#e5e5e5] w-full"
-                      style={{ height: `${40 + Math.random() * 50}%` }}
+                      style={{ height: `${height}%` }}
                     ></div>
                     <div className="h-3 w-16 bg-[#f5f5f5]"></div>
                   </div>
