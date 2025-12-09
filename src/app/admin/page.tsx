@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Button } from '@/components/ui';
-import { Check, X, Copy, CheckCheck, Loader2, Clock, UserCheck, UserX } from 'lucide-react';
+import { Card, CardContent, Badge, Button } from '@/components/ui';
+import { Check, X, Copy, CheckCheck, Loader2, Clock, UserCheck, UserX, ArrowUpRight } from 'lucide-react';
 
 interface WaitlistEntry {
   id: string;
@@ -20,7 +20,7 @@ interface WaitlistEntry {
 export default function AdminPage() {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, converted: 0 });
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,13 +84,13 @@ export default function AdminPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge variant="outline" className="bg-[#fafafa] text-[#0a0a0a] border-[#e5e5e5]"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'approved':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><UserCheck className="w-3 h-3 mr-1" />Approved</Badge>;
+        return <Badge variant="outline" className="bg-[#f5f5f5] text-[#0a0a0a] border-[#e5e5e5]"><UserCheck className="w-3 h-3 mr-1" />Approved</Badge>;
       case 'rejected':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><UserX className="w-3 h-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="outline" className="bg-[#fafafa] text-[#737373] border-[#e5e5e5]"><UserX className="w-3 h-3 mr-1" />Rejected</Badge>;
       case 'converted':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200"><CheckCheck className="w-3 h-3 mr-1" />Registered</Badge>;
+        return <Badge variant="outline" className="bg-[#0a0a0a] text-white border-[#0a0a0a]"><CheckCheck className="w-3 h-3 mr-1" />Registered</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -98,120 +98,174 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafafa]">
-        <div className="border-b border-[#e5e5e5] bg-white px-6 py-8">
-          <h1 className="text-2xl font-bold text-[#0a0a0a]">Waitlist Management</h1>
-          <p className="text-[#737373] mt-2">Review and approve pilot program applications</p>
-        </div>
-        <div className="p-6 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#737373]" />
+      <div className="min-h-screen bg-white">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
+
+        <div className="relative">
+          <div className="max-w-7xl mx-auto px-6 py-16">
+            <div className="mb-2">
+              <div className="inline-block px-3 py-1 bg-[#f5f5f5] border border-[#e5e5e5] text-xs font-medium text-[#737373] tracking-wide">
+                ADMIN
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-[#0a0a0a] mb-3 tracking-tight">
+              Waitlist <span className="italic font-light">Management</span>
+            </h1>
+            <p className="text-lg text-[#737373] max-w-2xl">
+              Review and approve pilot program applications
+            </p>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-6 py-24 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#737373]" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <div className="border-b border-[#e5e5e5] bg-white px-6 py-8">
-        <h1 className="text-2xl font-bold text-[#0a0a0a]">Waitlist Management</h1>
-        <p className="text-[#737373] mt-2">Review and approve pilot program applications</p>
-      </div>
+    <div className="min-h-screen bg-white">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
 
-      <div className="p-6 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-[#0a0a0a] mb-1">{stats.total}</div>
-              <div className="text-sm text-[#737373]">Total Applications</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600 mb-1">{stats.pending}</div>
-              <div className="text-sm text-[#737373]">Pending Review</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600 mb-1">{stats.approved}</div>
-              <div className="text-sm text-[#737373]">Approved</div>
-            </CardContent>
-          </Card>
+      <div className="relative">
+        {/* Hero Header */}
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="mb-2">
+            <div className="inline-block px-3 py-1 bg-[#f5f5f5] border border-[#e5e5e5] text-xs font-medium text-[#737373] tracking-wide">
+              ADMIN
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-[#0a0a0a] mb-3 tracking-tight">
+            Waitlist <span className="italic font-light">Management</span>
+          </h1>
+          <p className="text-lg text-[#737373] max-w-2xl">
+            Review and approve pilot program applications
+          </p>
         </div>
 
-        {/* Entries Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Applications</CardTitle>
-            <CardDescription>Review and manage waitlist entries</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {entries.length === 0 ? (
-              <div className="py-12 text-center text-[#737373]">
-                No waitlist entries yet
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Channel</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {entries.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="font-medium">{entry.email}</TableCell>
-                      <TableCell>
-                        {entry.companyName || '-'}
-                        {entry.companyWebsite && (
-                          <a
-                            href={entry.companyWebsite}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="ml-2 text-xs text-[#737373] hover:text-[#0a0a0a]"
-                          >
-                            ↗
-                          </a>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-sm text-[#737373]">
-                        {entry.revenueRange?.replace(/_/g, ' ') || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm text-[#737373]">
-                        {entry.primaryChannel || '-'}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(entry.status)}</TableCell>
-                      <TableCell className="text-sm text-[#737373]">
-                        {new Date(entry.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+        {/* Content */}
+        <div className="max-w-7xl mx-auto px-6 pb-24 space-y-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-5 gap-4">
+            <Card className="border-[#e5e5e5]">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-3xl font-bold text-[#0a0a0a] mb-2 tracking-tight">{stats.total}</div>
+                <div className="text-sm text-[#737373] tracking-wide">TOTAL</div>
+              </CardContent>
+            </Card>
+            <Card className="border-[#e5e5e5]">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-3xl font-bold text-[#0a0a0a] mb-2 tracking-tight">{stats.pending}</div>
+                <div className="text-sm text-[#737373] tracking-wide">PENDING</div>
+              </CardContent>
+            </Card>
+            <Card className="border-[#e5e5e5]">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-3xl font-bold text-[#0a0a0a] mb-2 tracking-tight">{stats.approved}</div>
+                <div className="text-sm text-[#737373] tracking-wide">APPROVED</div>
+              </CardContent>
+            </Card>
+            <Card className="border-[#e5e5e5]">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-3xl font-bold text-[#737373] mb-2 tracking-tight">{stats.rejected}</div>
+                <div className="text-sm text-[#737373] tracking-wide">REJECTED</div>
+              </CardContent>
+            </Card>
+            <Card className="border-[#e5e5e5]">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-3xl font-bold text-[#0a0a0a] mb-2 tracking-tight">{stats.converted}</div>
+                <div className="text-sm text-[#737373] tracking-wide">REGISTERED</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Applications List */}
+          <Card className="border-[#e5e5e5]">
+            <CardContent className="p-0">
+              {entries.length === 0 ? (
+                <div className="py-24 text-center">
+                  <div className="text-6xl text-[#f5f5f5] mb-4">—</div>
+                  <p className="text-[#737373]">No applications yet</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-[#e5e5e5]">
+                  {entries.map((entry, index) => (
+                    <div
+                      key={entry.id}
+                      className={`p-6 hover:bg-[#fafafa] transition-colors ${index === 0 ? 'rounded-t-lg' : ''} ${index === entries.length - 1 ? 'rounded-b-lg' : ''}`}
+                    >
+                      <div className="flex items-start justify-between gap-6">
+                        {/* Left: Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="font-semibold text-[#0a0a0a] text-lg">{entry.email}</h3>
+                            {getStatusBadge(entry.status)}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-x-8 gap-y-2 mb-3">
+                            {entry.companyName && (
+                              <div>
+                                <div className="text-xs text-[#a3a3a3] mb-1 tracking-wide">COMPANY</div>
+                                <div className="text-sm text-[#0a0a0a] flex items-center gap-2">
+                                  {entry.companyName}
+                                  {entry.companyWebsite && (
+                                    <a
+                                      href={entry.companyWebsite}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[#737373] hover:text-[#0a0a0a] transition-colors"
+                                    >
+                                      <ArrowUpRight className="w-3 h-3" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                            {entry.revenueRange && (
+                              <div>
+                                <div className="text-xs text-[#a3a3a3] mb-1 tracking-wide">REVENUE</div>
+                                <div className="text-sm text-[#0a0a0a]">{entry.revenueRange.replace(/_/g, ' - ')}</div>
+                              </div>
+                            )}
+                            {entry.primaryChannel && (
+                              <div>
+                                <div className="text-xs text-[#a3a3a3] mb-1 tracking-wide">CHANNEL</div>
+                                <div className="text-sm text-[#0a0a0a] capitalize">{entry.primaryChannel}</div>
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-xs text-[#a3a3a3] mb-1 tracking-wide">SUBMITTED</div>
+                              <div className="text-sm text-[#0a0a0a]">
+                                {new Date(entry.createdAt).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: Actions */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           {entry.status === 'pending' && (
                             <>
                               <Button
                                 size="sm"
-                                variant="outline"
                                 onClick={() => handleApprove(entry)}
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                className="bg-[#0a0a0a] text-white hover:bg-[#262626]"
                               >
-                                <Check className="w-4 h-4 mr-1" />
+                                <Check className="w-4 h-4 mr-2" />
                                 Approve
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleReject(entry)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="border-[#e5e5e5] text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa]"
                               >
-                                <X className="w-4 h-4 mr-1" />
-                                Reject
+                                <X className="w-4 h-4" />
                               </Button>
                             </>
                           )}
@@ -220,45 +274,44 @@ export default function AdminPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => copyInviteLink(entry.inviteToken!)}
+                              className="border-[#e5e5e5] text-[#0a0a0a] hover:bg-[#fafafa]"
                             >
                               {copiedToken === entry.inviteToken ? (
                                 <>
-                                  <CheckCheck className="w-4 h-4 mr-1" />
-                                  Copied!
+                                  <CheckCheck className="w-4 h-4 mr-2" />
+                                  Copied
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-4 h-4 mr-1" />
+                                  <Copy className="w-4 h-4 mr-2" />
                                   Copy Invite Link
                                 </>
                               )}
                             </Button>
                           )}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Instructions for Manual Email */}
-        <Card className="bg-[#fafafa]">
-          <CardContent className="pt-6">
-            <h3 className="font-semibold text-[#0a0a0a] mb-2">📧 Manual Email Instructions</h3>
-            <p className="text-sm text-[#737373] mb-4">
-              After approving an entry, click "Copy Invite Link" and send it to the user via email. The invite link will look like:
+          {/* Instructions */}
+          <div className="border border-[#e5e5e5] bg-[#fafafa] p-6">
+            <h3 className="text-sm font-semibold text-[#0a0a0a] mb-3 tracking-wide">MANUAL EMAIL WORKFLOW</h3>
+            <p className="text-sm text-[#737373] mb-4 leading-relaxed">
+              After approving an entry, click Copy Invite Link and send it to the user via email. The invite link format:
             </p>
-            <div className="p-3 bg-white border border-[#e5e5e5] font-mono text-sm text-[#0a0a0a]">
+            <div className="p-4 bg-white border border-[#e5e5e5] font-mono text-xs text-[#0a0a0a] tracking-tight">
               https://yoursite.com/register/abc123xyz
             </div>
             <p className="text-xs text-[#a3a3a3] mt-4">
-              Later, we'll integrate Resend to automate this process.
+              Resend integration coming soon for automated email delivery
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
