@@ -74,31 +74,6 @@ export default function CareersPage() {
           </div>
         </section>
 
-        {/* Stack */}
-        <section className="max-w-4xl mx-auto px-6 pb-24">
-          <div className="bg-[#0a0a0a] text-white p-10">
-            <h2 className="text-2xl font-bold mb-6">Our Stack</h2>
-            <div className="grid md:grid-cols-2 gap-x-12 gap-y-4">
-              <div>
-                <div className="text-sm text-[#a3a3a3] mb-2">Frontend</div>
-                <div className="text-[#ffffff]">Next.js, React, TypeScript, Tailwind</div>
-              </div>
-              <div>
-                <div className="text-sm text-[#a3a3a3] mb-2">Backend</div>
-                <div className="text-[#ffffff]">Next.js API Routes, PostgreSQL, Drizzle ORM</div>
-              </div>
-              <div>
-                <div className="text-sm text-[#a3a3a3] mb-2">AI</div>
-                <div className="text-[#ffffff]">Claude (Anthropic), structured outputs</div>
-              </div>
-              <div>
-                <div className="text-sm text-[#a3a3a3] mb-2">Infrastructure</div>
-                <div className="text-[#ffffff]">Vercel, Neon (Postgres), GitHub</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Not Hiring Yet */}
         <section className="max-w-4xl mx-auto px-6 pb-24">
           <div className="bg-white border border-[#e5e5e5] p-10">
