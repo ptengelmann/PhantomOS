@@ -40,7 +40,7 @@ export function MarketingFooter() {
                 alt="PhantomOS"
                 width={240}
                 height={80}
-                className="h-20 w-auto object-contain invert"
+                className="w-40 h-auto object-contain invert"
               />
             </Link>
             <p className="mt-4 text-sm text-[#a3a3a3] leading-relaxed">

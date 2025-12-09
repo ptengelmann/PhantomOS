@@ -66,7 +66,8 @@ export function MarketingNavbar() {
             alt="PhantomOS"
             width={280}
             height={96}
-            className="h-24 w-auto object-contain"
+            className="w-48 h-auto object-contain"
+            priority
           />
         </Link>
 
