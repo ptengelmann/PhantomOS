@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Header, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Button } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Button } from '@/components/ui';
 import { Check, X, Copy, CheckCheck, Loader2, Clock, UserCheck, UserX } from 'lucide-react';
 
 interface WaitlistEntry {
@@ -17,7 +17,7 @@ interface WaitlistEntry {
   approvedAt: string | null;
 }
 
-export default function WaitlistAdminPage() {
+export default function AdminPage() {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0 });
@@ -29,7 +29,6 @@ export default function WaitlistAdminPage() {
 
   const loadEntries = async () => {
     try {
-      // Note: In production, this should be protected by proper auth
       const response = await fetch('/api/waitlist/admin');
       if (response.ok) {
         const data = await response.json();
@@ -52,7 +51,7 @@ export default function WaitlistAdminPage() {
       });
 
       if (response.ok) {
-        await loadEntries(); // Reload the list
+        await loadEntries();
       }
     } catch (error) {
       console.error('Failed to approve:', error);
@@ -99,8 +98,11 @@ export default function WaitlistAdminPage() {
 
   if (loading) {
     return (
-      <div>
-        <Header title="Waitlist Management" description="Review and approve pilot program applications" />
+      <div className="min-h-screen bg-[#fafafa]">
+        <div className="border-b border-[#e5e5e5] bg-white px-6 py-8">
+          <h1 className="text-2xl font-bold text-[#0a0a0a]">Waitlist Management</h1>
+          <p className="text-[#737373] mt-2">Review and approve pilot program applications</p>
+        </div>
         <div className="p-6 flex items-center justify-center min-h-[400px]">
           <Loader2 className="w-8 h-8 animate-spin text-[#737373]" />
         </div>
@@ -109,8 +111,11 @@ export default function WaitlistAdminPage() {
   }
 
   return (
-    <div>
-      <Header title="Waitlist Management" description="Review and approve pilot program applications" />
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="border-b border-[#e5e5e5] bg-white px-6 py-8">
+        <h1 className="text-2xl font-bold text-[#0a0a0a]">Waitlist Management</h1>
+        <p className="text-[#737373] mt-2">Review and approve pilot program applications</p>
+      </div>
 
       <div className="p-6 space-y-6">
         {/* Stats */}
