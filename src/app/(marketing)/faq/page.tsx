@@ -146,12 +146,12 @@ const faqCategories: FAQCategory[] = [
 
 function FAQItem({ faq, isOpen, onToggle }: { faq: FAQ; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="border border-[#e5e5e5] bg-white">
+    <div className="border border-[#e5e5e5] bg-white hover:border-[#0a0a0a] transition-all group">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-5 text-left hover:bg-[#fafafa] transition-colors"
+        className="w-full flex items-center justify-between p-6 text-left"
       >
-        <span className="font-medium text-[#0a0a0a] pr-4">{faq.question}</span>
+        <span className="font-medium text-[#0a0a0a] pr-6 tracking-tight">{faq.question}</span>
         <ChevronDown
           className={cn(
             'w-5 h-5 text-[#737373] flex-shrink-0 transition-transform',
@@ -160,8 +160,8 @@ function FAQItem({ faq, isOpen, onToggle }: { faq: FAQ; isOpen: boolean; onToggl
         />
       </button>
       {isOpen && (
-        <div className="px-5 pb-5">
-          <p className="text-[#737373] leading-relaxed">{faq.answer}</p>
+        <div className="px-6 pb-6 pt-0">
+          <p className="text-[#737373] leading-relaxed font-light">{faq.answer}</p>
         </div>
       )}
     </div>
@@ -185,17 +185,17 @@ export default function FAQPage() {
   const currentCategory = faqCategories.find((c) => c.name === activeCategory) || faqCategories[0];
 
   return (
-    <div>
+    <div className="bg-white">
       {/* Header */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="w-14 h-14 bg-white border border-[#e5e5e5] flex items-center justify-center mx-auto mb-6">
-            <HelpCircle className="w-7 h-7 text-[#0a0a0a]" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6">
-            Frequently Asked Questions
+      <section className="relative py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
+
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
+          <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">HELP CENTER</div>
+          <h1 className="text-5xl md:text-6xl font-bold text-[#0a0a0a] mb-8 tracking-tight leading-[1.1]">
+            Frequently Asked <span className="italic font-light">Questions</span>
           </h1>
-          <p className="text-lg text-[#737373] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-[#737373] max-w-2xl mx-auto leading-relaxed font-light">
             Everything you need to know about PhantomOS. Can&apos;t find what you&apos;re looking for?
             Reach out to our team.
           </p>
@@ -203,29 +203,36 @@ export default function FAQPage() {
       </section>
 
       {/* FAQ Content */}
-      <section className="py-16 lg:py-24">
+      <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row gap-12">
+          <div className="flex flex-col lg:flex-row gap-16">
             {/* Category Sidebar */}
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="lg:w-72 flex-shrink-0">
               <div className="lg:sticky lg:top-24">
-                <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-wider mb-4">
+                <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">
                   Categories
-                </p>
-                <nav className="space-y-1">
+                </div>
+                <nav className="space-y-2">
                   {faqCategories.map((category) => (
                     <button
                       key={category.name}
                       onClick={() => setActiveCategory(category.name)}
                       className={cn(
-                        'w-full text-left px-4 py-2 text-sm transition-colors',
+                        'w-full text-left px-5 py-3 text-sm transition-all group',
                         activeCategory === category.name
-                          ? 'bg-[#0a0a0a] text-white font-medium'
-                          : 'text-[#737373] hover:text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                          ? 'bg-[#0a0a0a] text-white'
+                          : 'text-[#737373] hover:text-[#0a0a0a] border border-[#e5e5e5] hover:border-[#0a0a0a]'
                       )}
                     >
-                      {category.name}
-                      <span className="ml-2 text-xs opacity-60">({category.faqs.length})</span>
+                      <div className="flex items-center justify-between">
+                        <span className={activeCategory === category.name ? 'font-medium' : ''}>{category.name}</span>
+                        <span className={cn(
+                          "text-xs",
+                          activeCategory === category.name ? 'text-[#737373]' : 'text-[#a3a3a3]'
+                        )}>
+                          {category.faqs.length}
+                        </span>
+                      </div>
                     </button>
                   ))}
                 </nav>
@@ -234,7 +241,12 @@ export default function FAQPage() {
 
             {/* FAQ List */}
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-[#0a0a0a] mb-6">{currentCategory.name}</h2>
+              <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-2">
+                {currentCategory.name}
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-8 tracking-tight">
+                {currentCategory.faqs.length} Questions
+              </h2>
               <div className="space-y-3">
                 {currentCategory.faqs.map((faq) => (
                   <FAQItem
@@ -251,25 +263,25 @@ export default function FAQPage() {
       </section>
 
       {/* Still Have Questions */}
-      <section className="py-16 lg:py-24 bg-[#fafafa] border-t border-[#e5e5e5]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-bold text-[#0a0a0a] mb-4">
-            Still have questions?
+      <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            Still Have <span className="italic font-light">Questions?</span>
           </h2>
-          <p className="text-[#737373] mb-8">
+          <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
             Can&apos;t find the answer you&apos;re looking for? Join our pilot program and get direct access to our team.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/waitlist"
-              className="w-full sm:w-auto px-6 py-3 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
+              className="group px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-all inline-flex items-center gap-2"
             >
               Join the Pilot Program
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="mailto:hello@phantomos.com"
-              className="w-full sm:w-auto px-6 py-3 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-white transition-colors text-center"
+              className="px-8 py-4 border border-[#525252] text-white font-medium hover:border-white transition-all text-center"
             >
               Contact Us
             </Link>

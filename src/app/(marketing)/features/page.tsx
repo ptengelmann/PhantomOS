@@ -12,7 +12,9 @@ import {
   Target,
   Clock,
   Shield,
-  Users
+  Users,
+  Check,
+  ArrowUpRight
 } from 'lucide-react';
 
 const mainFeatures = [
@@ -20,7 +22,7 @@ const mainFeatures = [
     slug: 'intelligence',
     icon: Brain,
     name: 'Fan Intelligence Hub',
-    tagline: 'AI-Powered Merchandise Insights',
+    tagline: 'AI-POWERED INSIGHTS',
     description: 'Get actionable insights into what your fans actually want. Our AI analyzes your sales patterns, product catalog, and market trends to surface opportunities you\'d otherwise miss.',
     benefits: [
       'Identify which characters and themes drive the most revenue',
@@ -30,25 +32,25 @@ const mainFeatures = [
     ],
     illustration: (
       <div className="space-y-3">
-        <div className="flex items-center gap-3 p-4 bg-white border border-[#e5e5e5]">
-          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-green-600" />
+        <div className="flex items-center gap-4 p-6 bg-white border border-[#e5e5e5]">
+          <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
+            <TrendingUp className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-[#0a0a0a]">Growth Opportunity</p>
-            <p className="text-xs text-[#737373]">Link character products show 34% higher conversion</p>
+            <p className="text-xs text-[#737373] uppercase tracking-wide mb-1">Opportunity</p>
+            <p className="text-sm font-medium text-[#0a0a0a]">Shadow Knight products show 34% higher conversion</p>
           </div>
-          <div className="text-sm font-medium text-green-600">+$45K</div>
+          <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1 font-medium">94%</div>
         </div>
-        <div className="flex items-center gap-3 p-4 bg-white border border-[#e5e5e5]">
-          <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+        <div className="flex items-center gap-4 p-6 bg-white border border-[#e5e5e5]">
+          <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-[#0a0a0a]">Emerging Trend</p>
-            <p className="text-xs text-[#737373]">Retro theme products up 156% MoM</p>
+            <p className="text-xs text-[#737373] uppercase tracking-wide mb-1">Trend</p>
+            <p className="text-sm font-medium text-[#0a0a0a]">Pixel character trending up 67% this month</p>
           </div>
-          <div className="text-sm font-medium text-purple-600">Trending</div>
+          <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1 font-medium">88%</div>
         </div>
       </div>
     ),
@@ -57,43 +59,37 @@ const mainFeatures = [
     slug: 'tagging',
     icon: Tag,
     name: 'AI Asset Tagging',
-    tagline: 'From Weeks to Minutes',
+    tagline: 'FROM WEEKS TO MINUTES',
     description: 'Stop wasting time manually categorizing thousands of products. Our AI analyzes product names and descriptions to suggest IP asset mappings with confidence scores.',
     benefits: [
-      'AI suggests mappings with confidence scores',
+      'AI suggests mappings with 90%+ confidence scores',
       'Accept or reject suggestions with one click',
-      'Bulk operations for efficiency',
+      'Bulk operations for maximum efficiency',
       'Support for multi-asset products',
     ],
     illustration: (
-      <div className="space-y-2">
-        <div className="flex items-center gap-3 p-3 bg-white border border-[#e5e5e5]">
-          <div className="w-12 h-12 bg-[#f5f5f5] rounded-sm" />
+      <div className="space-y-3">
+        <div className="flex items-center gap-4 p-4 bg-white border border-[#e5e5e5]">
+          <div className="w-14 h-14 bg-[#fafafa] border border-[#e5e5e5]" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-[#0a0a0a]">Mario Kart T-Shirt</p>
+            <p className="text-sm font-medium text-[#0a0a0a] mb-2">Shadow Knight T-Shirt</p>
+            <div className="flex gap-2">
+              <span className="px-2 py-1 bg-[#0a0a0a] text-white text-xs">Shadow Knight</span>
+              <span className="px-2 py-1 border border-[#e5e5e5] text-xs text-[#737373]">Apparel</span>
+            </div>
           </div>
-          <div className="flex gap-1">
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium">Mario</span>
-            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium">Racing</span>
-          </div>
+          <div className="text-xs text-[#737373]">AI: 96%</div>
         </div>
-        <div className="flex items-center gap-3 p-3 bg-white border border-[#e5e5e5]">
-          <div className="w-12 h-12 bg-[#f5f5f5] rounded-sm" />
+        <div className="flex items-center gap-4 p-4 bg-white border border-[#e5e5e5]">
+          <div className="w-14 h-14 bg-[#fafafa] border border-[#e5e5e5]" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-[#0a0a0a]">Princess Zelda Poster</p>
+            <p className="text-sm font-medium text-[#0a0a0a] mb-2">Pixel Plush Keychain</p>
+            <div className="flex gap-2">
+              <span className="px-2 py-1 bg-[#0a0a0a] text-white text-xs">Pixel</span>
+              <span className="px-2 py-1 border border-[#e5e5e5] text-xs text-[#737373]">Collectible</span>
+            </div>
           </div>
-          <div className="flex gap-1">
-            <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium">AI Suggested</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 p-3 bg-white border border-[#e5e5e5]">
-          <div className="w-12 h-12 bg-[#f5f5f5] rounded-sm" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-[#0a0a0a]">Pikachu Plush Toy</p>
-          </div>
-          <div className="flex gap-1">
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium">Pending</span>
-          </div>
+          <div className="text-xs text-[#737373]">AI: 94%</div>
         </div>
       </div>
     ),
@@ -102,33 +98,32 @@ const mainFeatures = [
     slug: 'analytics',
     icon: BarChart3,
     name: 'Revenue Analytics',
-    tagline: 'Know Exactly What Sells',
+    tagline: 'KNOW EXACTLY WHAT SELLS',
     description: 'Finally see your merchandise revenue broken down by IP asset. Understand which characters, themes, and product categories drive your business.',
     benefits: [
       'Revenue attribution by character and theme',
-      'Time-based trend analysis',
+      'Time-based trend analysis and forecasting',
       'Regional and channel breakdowns',
       'Export reports for stakeholders',
     ],
     illustration: (
-      <div className="p-4 bg-white border border-[#e5e5e5]">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-medium text-[#0a0a0a]">Revenue by Asset</p>
-          <p className="text-xs text-[#737373]">Last 30 days</p>
-        </div>
-        <div className="space-y-3">
+      <div className="p-6 bg-white border border-[#e5e5e5]">
+        <div className="text-xs text-[#737373] uppercase tracking-wide mb-6">Revenue by Character</div>
+        <div className="space-y-4">
           {[
-            { name: 'Mario', value: 85, revenue: '$124,500' },
-            { name: 'Link', value: 65, revenue: '$89,200' },
-            { name: 'Pikachu', value: 45, revenue: '$52,800' },
-            { name: 'Sonic', value: 30, revenue: '$34,100' },
+            { name: 'Shadow Knight', value: 92, revenue: '$89.4K' },
+            { name: 'Pixel', value: 69, revenue: '$67.2K' },
+            { name: 'Luna Starfire', value: 47, revenue: '$45.8K' },
+            { name: 'Iron Fang', value: 25, revenue: '$24.1K' },
           ].map((item) => (
-            <div key={item.name} className="flex items-center gap-3">
-              <p className="text-sm text-[#737373] w-16">{item.name}</p>
-              <div className="flex-1 h-4 bg-[#f5f5f5] rounded-sm overflow-hidden">
-                <div className="h-full bg-[#0a0a0a] rounded-sm" style={{ width: `${item.value}%` }} />
+            <div key={item.name} className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium text-[#0a0a0a]">{item.name}</span>
+                <span className="text-[#737373]">{item.revenue}</span>
               </div>
-              <p className="text-sm font-medium text-[#0a0a0a] w-20 text-right">{item.revenue}</p>
+              <div className="h-2 bg-[#fafafa] border border-[#e5e5e5]">
+                <div className="h-full bg-[#0a0a0a] transition-all" style={{ width: `${item.value}%` }} />
+              </div>
             </div>
           ))}
         </div>
@@ -139,43 +134,36 @@ const mainFeatures = [
     slug: 'connectors',
     icon: Plug,
     name: 'Data Connectors',
-    tagline: 'All Your Data in One Place',
-    description: 'Connect your e-commerce platforms and import data from any source. PhantomOS automatically syncs your products and sales data.',
+    tagline: 'ALL YOUR DATA, ONE PLACE',
+    description: 'Connect your e-commerce platforms and import data from any source. PhantomOS automatically syncs your products and sales data on a schedule.',
     benefits: [
       'One-click Shopify OAuth connection',
       'CSV import for any data source',
-      'Automatic sync and updates',
-      'Amazon & more connectors coming 2026',
+      'Automatic hourly/daily sync',
+      'Amazon & WooCommerce coming 2026',
     ],
     illustration: (
-      <div className="flex flex-col items-center gap-4 p-4 bg-white border border-[#e5e5e5]">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-[#96bf48] rounded-lg flex items-center justify-center shadow-sm p-2">
-            <Image src="/logos/shopify.svg" alt="Shopify" width={36} height={36} className="object-contain" />
+      <div className="space-y-6 p-6 bg-white border border-[#e5e5e5]">
+        <div className="flex items-center gap-6">
+          <div className="w-20 h-20 bg-white border border-[#e5e5e5] flex items-center justify-center p-4">
+            <Image src="/logos/shopify.svg" alt="Shopify" width={64} height={64} className="object-contain w-full h-full" />
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-8 h-px bg-[#0a0a0a]" />
-            <Zap className="w-4 h-4 text-green-500" />
-            <div className="w-8 h-px bg-[#0a0a0a]" />
+          <div className="flex-1">
+            <div className="font-semibold text-[#0a0a0a] mb-1">Shopify Store</div>
+            <div className="text-xs text-[#737373]">OAuth • Auto-sync</div>
           </div>
-          <div className="w-14 h-14 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
-            <Image src="/PhantomOSIcon.svg" alt="PhantomOS" width={56} height={56} className="object-contain" />
-          </div>
+          <div className="text-xs bg-[#0a0a0a] text-white px-3 py-1">Active</div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-[#f5f5f5] rounded-lg flex items-center justify-center shadow-sm p-2 border border-[#e5e5e5]">
-            <span className="text-2xl font-bold text-[#a3a3a3]">CSV</span>
+        <div className="flex items-center gap-6">
+          <div className="w-20 h-20 bg-[#fafafa] border border-[#e5e5e5] flex items-center justify-center">
+            <span className="text-sm font-bold text-[#737373]">CSV</span>
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-8 h-px bg-[#0a0a0a]" />
-            <Zap className="w-4 h-4 text-green-500" />
-            <div className="w-8 h-px bg-[#0a0a0a]" />
+          <div className="flex-1">
+            <div className="font-semibold text-[#0a0a0a] mb-1">CSV Import</div>
+            <div className="text-xs text-[#737373]">Universal format</div>
           </div>
-          <div className="w-14 h-14 rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
-            <Image src="/PhantomOSIcon.svg" alt="PhantomOS" width={56} height={56} className="object-contain" />
-          </div>
+          <button className="text-xs px-3 py-1 border border-[#e5e5e5] hover:border-[#0a0a0a] transition-colors">Import</button>
         </div>
-        <p className="text-xs text-[#737373] mt-2">Shopify & CSV Available Now</p>
       </div>
     ),
   },
@@ -185,48 +173,54 @@ const additionalFeatures = [
   {
     icon: Target,
     name: 'Smart Filters',
-    description: 'Filter products by status, category, IP, or custom tags',
+    description: 'Filter products by status, category, IP, or custom tags for precise analysis',
   },
   {
     icon: Clock,
     name: 'On-Demand Sync',
-    description: 'Sync your data whenever you need the latest updates',
+    description: 'Sync your data whenever you need the latest updates - no waiting',
   },
   {
     icon: Shield,
     name: 'Secure & Private',
-    description: 'Data encrypted in transit with enterprise-grade security',
+    description: 'Bank-level encryption with enterprise-grade security standards',
   },
   {
     icon: Users,
     name: 'Team Collaboration',
-    description: 'Invite team members with role-based permissions',
+    description: 'Invite team members with role-based access permissions',
   },
   {
     icon: Zap,
     name: 'Fast Performance',
-    description: 'Optimized queries for quick data analysis',
+    description: 'Optimized queries deliver insights in milliseconds, not minutes',
   },
   {
     icon: Sparkles,
-    name: 'AI-Powered Insights',
-    description: 'AI-generated recommendations and analysis',
+    name: 'Continuous AI',
+    description: 'AI learns from your data to provide better recommendations over time',
   },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div>
-      {/* Header */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6">
-            Features Built for Gaming Publishers
-          </h1>
-          <p className="text-lg text-[#737373] max-w-2xl mx-auto leading-relaxed">
-            Everything you need to understand your merchandise performance and make data-driven
-            decisions about your IP.
-          </p>
+    <div className="bg-white">
+      {/* Hero */}
+      <section className="relative py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
+
+        <div className="relative max-w-7xl mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">PLATFORM FEATURES</div>
+            <h1 className="text-5xl md:text-6xl font-bold text-[#0a0a0a] mb-8 tracking-tight leading-[1.1]">
+              Everything You Need to
+              <br />
+              <span className="italic font-light">Understand</span> Your Fans
+            </h1>
+            <p className="text-xl text-[#737373] leading-relaxed font-light max-w-2xl mx-auto">
+              From AI-powered insights to automated data sync, PhantomOS gives you complete visibility into your merchandise performance.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -240,46 +234,51 @@ export default function FeaturesPage() {
               return (
                 <div
                   key={feature.slug}
-                  className={`grid lg:grid-cols-2 gap-12 lg:gap-20 items-center ${
-                    !isEven ? 'lg:flex-row-reverse' : ''
-                  }`}
+                  className={`grid lg:grid-cols-12 gap-16 items-center`}
                 >
-                  <div className={!isEven ? 'lg:order-2' : ''}>
-                    <div className="w-14 h-14 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mb-6">
-                      <Icon className="w-7 h-7 text-[#0a0a0a]" />
+                  {/* Content */}
+                  <div className={`lg:col-span-5 ${!isEven ? 'lg:col-start-8' : ''}`}>
+                    <div className="w-16 h-16 bg-white border border-[#e5e5e5] flex items-center justify-center mb-8">
+                      <Icon className="w-8 h-8 text-[#0a0a0a]" />
                     </div>
-                    <p className="text-sm font-medium text-[#737373] uppercase tracking-wider mb-2">
+
+                    <div className="text-xs font-medium text-[#a3a3a3] uppercase tracking-[0.2em] mb-4">
                       {feature.tagline}
-                    </p>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
+                    </div>
+
+                    <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6 tracking-tight">
                       {feature.name}
                     </h2>
-                    <p className="text-lg text-[#737373] leading-relaxed mb-8">
+
+                    <p className="text-lg text-[#737373] leading-relaxed font-light mb-8">
                       {feature.description}
                     </p>
-                    <ul className="space-y-3 mb-8">
+
+                    <ul className="space-y-4 mb-10">
                       {feature.benefits.map((benefit) => (
                         <li key={benefit} className="flex items-start gap-3">
-                          <div className="w-5 h-5 bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
+                          <div className="w-5 h-5 border border-[#0a0a0a] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3 h-3 text-[#0a0a0a]" />
                           </div>
-                          <span className="text-[#0a0a0a]">{benefit}</span>
+                          <span className="text-[#525252] leading-relaxed">{benefit}</span>
                         </li>
                       ))}
                     </ul>
+
                     <Link
                       href={`/features/${feature.slug}`}
-                      className="inline-flex items-center gap-2 text-[#0a0a0a] font-medium hover:underline"
+                      className="group inline-flex items-center gap-2 text-[#0a0a0a] font-medium hover:gap-3 transition-all"
                     >
-                      Learn more about {feature.name}
-                      <ArrowRight className="w-4 h-4" />
+                      <span>Explore {feature.name}</span>
+                      <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </Link>
                   </div>
 
-                  <div className={`bg-[#fafafa] border border-[#e5e5e5] p-8 ${!isEven ? 'lg:order-1' : ''}`}>
-                    {feature.illustration}
+                  {/* Preview */}
+                  <div className={`lg:col-span-7 ${!isEven ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
+                    <div className="bg-[#fafafa] border-2 border-[#e5e5e5] p-8">
+                      {feature.illustration}
+                    </div>
                   </div>
                 </div>
               );
@@ -288,31 +287,30 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* Additional Features Grid */}
+      {/* Additional Features */}
       <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0a0a0a] mb-4">
-              And Much More
+          <div className="max-w-3xl mb-16">
+            <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">ADDITIONAL FEATURES</div>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] tracking-tight mb-6">
+              Built for Scale
             </h2>
-            <p className="text-lg text-[#737373]">
-              Additional features to power your merchandise operations
+            <p className="text-lg text-[#737373] font-light">
+              Everything you need to run a professional merchandise operation, from team collaboration to enterprise security.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {additionalFeatures.map((feature) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={feature.name}
-                  className="bg-white border border-[#e5e5e5] p-6 hover:border-[#0a0a0a] transition-colors"
+                  className="bg-white border border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-all group"
                 >
-                  <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mb-4">
-                    <Icon className="w-5 h-5 text-[#0a0a0a]" />
-                  </div>
-                  <h3 className="font-semibold text-[#0a0a0a] mb-2">{feature.name}</h3>
-                  <p className="text-sm text-[#737373]">{feature.description}</p>
+                  <Icon className="w-8 h-8 text-[#0a0a0a] mb-6 group-hover:scale-110 transition-transform" />
+                  <h3 className="font-semibold text-[#0a0a0a] mb-2 text-lg">{feature.name}</h3>
+                  <p className="text-sm text-[#737373] leading-relaxed font-light">{feature.description}</p>
                 </div>
               );
             })}
@@ -321,28 +319,28 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 lg:py-32">
+      <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
             Ready to See It in Action?
           </h2>
-          <p className="text-lg text-[#737373] mb-8 max-w-2xl mx-auto">
-            Start your free 30-day revenue audit. Connect your data in minutes and see
-            which IP assets drive your merchandise revenue.
+          <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+            Start your free 30-day pilot. Connect your data in minutes and discover which IP assets drive your revenue.
           </p>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
+              href="/waitlist"
+              className="group px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-all inline-flex items-center gap-2"
             >
-              Start Free Pilot
-              <ArrowRight className="w-4 h-4" />
+              Join the Pilot Program
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/faq"
-              className="w-full sm:w-auto px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-[#fafafa] transition-colors text-center"
+              href="/pricing"
+              className="px-8 py-4 border border-[#525252] text-white font-medium hover:border-white transition-all text-center"
             >
-              Learn More
+              View Pricing
             </Link>
           </div>
         </div>

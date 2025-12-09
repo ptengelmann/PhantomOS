@@ -11,275 +11,294 @@ import {
   Store,
   Users,
   Image as ImageIcon,
-  Calendar,
   ShoppingCart,
   Filter,
-  Globe,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Circle
 } from 'lucide-react';
 
-// What's Live Now - Core Platform
+// What's Live Now
 const liveFeatures = [
   {
     icon: BarChart3,
     title: 'Analytics Dashboard',
     description: 'Revenue metrics, trend charts, category breakdowns, and CSV export.',
-    highlights: ['Revenue by asset', 'Growth tracking', 'Export reports'],
   },
   {
     icon: Brain,
     title: 'Fan Intelligence Hub',
     description: 'AI-powered insights that analyze your sales and surface opportunities.',
-    highlights: ['AI recommendations', 'Risk alerts', 'Trend detection'],
   },
   {
     icon: Tag,
     title: 'AI Asset Tagging',
     description: 'Map products to characters and IP with AI-assisted suggestions.',
-    highlights: ['Auto-tagging', 'Confidence scores', 'Bulk operations'],
   },
   {
     icon: Plug,
     title: 'Data Connectors',
     description: 'Connect Shopify via OAuth or import any data via CSV.',
-    highlights: ['Shopify OAuth', 'CSV import', 'Product sync'],
   },
 ];
 
-// Coming Soon - Q1 2026
-const comingSoon = [
+// Q1 2026
+const q1Features = [
   {
     icon: ShoppingCart,
     title: 'Amazon Connector',
     description: 'Connect Amazon Seller Central to unify all your sales data.',
-    quarter: 'Q1 2026',
   },
   {
     icon: ImageIcon,
     title: 'AI Image Recognition',
     description: 'AI analyzes product images to automatically detect characters and logos.',
-    quarter: 'Q1 2026',
   },
   {
     icon: Filter,
     title: 'Advanced Filtering',
     description: 'Custom date ranges, regional breakdowns, and saved filter presets.',
-    quarter: 'Q1 2026',
   },
   {
     icon: Plug,
     title: 'WooCommerce Connector',
     description: 'Native integration with WooCommerce-powered stores.',
-    quarter: 'Q2 2026',
   },
 ];
 
-// Future Vision - 2026+
-const futureVision = [
+// Future Vision
+const futureFeatures = [
   {
     icon: Palette,
     title: 'Merch Studio',
     description: 'AI-powered merchandise design generation from your IP assets.',
+    timeline: 'Q2 2026',
   },
   {
     icon: Factory,
     title: 'Production Integration',
     description: 'Connect to print-on-demand partners like Printful and Printify.',
+    timeline: 'Q3 2026',
   },
   {
     icon: Store,
     title: 'Hosted Storefronts',
     description: 'Launch direct-to-fan stores with your branding.',
+    timeline: 'Q3 2026',
   },
   {
     icon: Users,
     title: 'Creator Partnerships',
     description: 'Tools for influencer collaborations and revenue sharing.',
+    timeline: 'Q4 2026',
   },
 ];
 
-function LiveFeatureCard({ feature }: { feature: typeof liveFeatures[0] }) {
-  const Icon = feature.icon;
-  return (
-    <div className="bg-white border border-[#e5e5e5] p-6 relative">
-      {/* Live Badge */}
-      <div className="absolute top-4 right-4">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium">
-          <Check className="w-3 h-3" />
-          Live
-        </span>
-      </div>
-
-      <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center mb-4">
-        <Icon className="w-6 h-6 text-white" />
-      </div>
-
-      <h3 className="text-lg font-semibold text-[#0a0a0a] mb-2">{feature.title}</h3>
-      <p className="text-sm text-[#737373] mb-4">{feature.description}</p>
-
-      <div className="flex flex-wrap gap-2">
-        {feature.highlights.map((highlight) => (
-          <span key={highlight} className="px-2 py-1 bg-[#f5f5f5] text-xs text-[#737373]">
-            {highlight}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ComingSoonCard({ feature }: { feature: typeof comingSoon[0] }) {
-  const Icon = feature.icon;
-  return (
-    <div className="bg-white border border-[#e5e5e5] p-5 hover:border-[#0a0a0a] transition-colors">
-      <div className="flex items-start gap-4">
-        <div className="w-10 h-10 bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-5 h-5 text-blue-600" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-[#0a0a0a]">{feature.title}</h3>
-            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium">
-              {feature.quarter}
-            </span>
-          </div>
-          <p className="text-sm text-[#737373]">{feature.description}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FutureCard({ feature }: { feature: typeof futureVision[0] }) {
-  const Icon = feature.icon;
-  return (
-    <div className="p-5 border border-dashed border-[#e5e5e5] bg-[#fafafa]">
-      <div className="flex items-start gap-4">
-        <div className="w-10 h-10 bg-white border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
-          <Icon className="w-5 h-5 text-[#a3a3a3]" />
-        </div>
-        <div>
-          <h3 className="font-medium text-[#737373] mb-1">{feature.title}</h3>
-          <p className="text-sm text-[#a3a3a3]">{feature.description}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function RoadmapPage() {
   return (
-    <div>
-      {/* Header */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-[#e5e5e5] text-sm text-[#737373] mb-6">
-            <Calendar className="w-4 h-4" />
-            Last updated December 2025
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6">
-            Product Roadmap
-          </h1>
-          <p className="text-lg text-[#737373] max-w-2xl mx-auto leading-relaxed">
-            See what&apos;s live, what&apos;s coming next, and where we&apos;re headed.
-            Our roadmap is shaped by publisher feedback.
-          </p>
-        </div>
-      </section>
+    <div className="bg-white">
+      {/* Hero */}
+      <section className="relative py-24 lg:py-32 bg-[#fafafa] border-b border-[#e5e5e5] overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
 
-      {/* What's Live Now */}
-      <section className="py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-green-100 flex items-center justify-center">
-              <Check className="w-5 h-5 text-green-600" />
+        <div className="relative max-w-7xl mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">PRODUCT ROADMAP</div>
+            <h1 className="text-5xl md:text-6xl font-bold text-[#0a0a0a] mb-8 tracking-tight leading-[1.1]">
+              Building in <span className="italic font-light">Public</span>
+            </h1>
+            <p className="text-xl text-[#737373] leading-relaxed font-light max-w-2xl mx-auto mb-8">
+              See what's live, what's coming next, and where we're headed. Our roadmap is shaped by publisher feedback.
+            </p>
+            <div className="text-sm text-[#a3a3a3]">
+              Last updated December 2025
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-[#0a0a0a]">What&apos;s Live Now</h2>
-              <p className="text-sm text-[#737373]">Core platform features available today</p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {liveFeatures.map((feature) => (
-              <LiveFeatureCard key={feature.title} feature={feature} />
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Coming Soon */}
-      <section className="py-20 lg:py-24 bg-[#fafafa] border-y border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-blue-100 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-blue-600" />
+      {/* Timeline */}
+      <section className="py-24 lg:py-32">
+        <div className="max-w-5xl mx-auto px-6">
+          {/* Live Now */}
+          <div className="relative pb-24">
+            {/* Timeline Line */}
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-[#e5e5e5]" />
+
+            {/* Timeline Dot */}
+            <div className="absolute left-0 top-0 w-8 h-8 -ml-4 bg-[#0a0a0a] border-4 border-white flex items-center justify-center">
+              <Check className="w-4 h-4 text-white" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-[#0a0a0a]">Coming Soon</h2>
-              <p className="text-sm text-[#737373]">In active development for early 2026</p>
+
+            {/* Content */}
+            <div className="pl-16">
+              <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-2">NOW</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-4 tracking-tight">
+                Live & Available
+              </h2>
+              <p className="text-lg text-[#737373] font-light mb-12 max-w-2xl">
+                Core platform features available in pilot program today.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {liveFeatures.map((feature) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div
+                      key={feature.title}
+                      className="bg-white border border-[#e5e5e5] p-6 hover:border-[#0a0a0a] transition-all group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-[#0a0a0a] mb-2">{feature.title}</h3>
+                          <p className="text-sm text-[#737373] leading-relaxed font-light">{feature.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            {comingSoon.map((feature) => (
-              <ComingSoonCard key={feature.title} feature={feature} />
-            ))}
+          {/* Q1 2026 */}
+          <div className="relative pb-24">
+            {/* Timeline Line */}
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-[#e5e5e5]" />
+
+            {/* Timeline Dot */}
+            <div className="absolute left-0 top-0 w-8 h-8 -ml-4 bg-white border-2 border-[#0a0a0a] flex items-center justify-center">
+              <Clock className="w-4 h-4 text-[#0a0a0a]" />
+            </div>
+
+            {/* Content */}
+            <div className="pl-16">
+              <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-2">IN PROGRESS</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-4 tracking-tight">
+                Q1 2026
+              </h2>
+              <p className="text-lg text-[#737373] font-light mb-12 max-w-2xl">
+                In active development. Expected release January - March 2026.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {q1Features.map((feature) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div
+                      key={feature.title}
+                      className="bg-white border border-[#e5e5e5] p-6 hover:border-[#0a0a0a] transition-all"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-white border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-6 h-6 text-[#0a0a0a]" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-[#0a0a0a] mb-2">{feature.title}</h3>
+                          <p className="text-sm text-[#737373] leading-relaxed font-light">{feature.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Future Vision */}
+          <div className="relative">
+            {/* Timeline Dot */}
+            <div className="absolute left-0 top-0 w-8 h-8 -ml-4 bg-white border-2 border-[#e5e5e5] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[#737373]" />
+            </div>
+
+            {/* Content */}
+            <div className="pl-16">
+              <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-2">FUTURE</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-4 tracking-tight">
+                Beyond 2026
+              </h2>
+              <p className="text-lg text-[#737373] font-light mb-12 max-w-2xl">
+                Where we're headed. Timelines subject to change based on user feedback.
+              </p>
+
+              <div className="space-y-4">
+                {futureFeatures.map((feature) => {
+                  const Icon = feature.icon;
+                  return (
+                    <div
+                      key={feature.title}
+                      className="bg-[#fafafa] border border-dashed border-[#e5e5e5] p-6"
+                    >
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="w-12 h-12 bg-white border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+                            <Icon className="w-6 h-6 text-[#737373]" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-[#0a0a0a] mb-2">{feature.title}</h3>
+                            <p className="text-sm text-[#737373] leading-relaxed font-light">{feature.description}</p>
+                          </div>
+                        </div>
+                        <div className="text-xs text-[#a3a3a3] whitespace-nowrap">{feature.timeline}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Future Vision */}
-      <section className="py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-[#f5f5f5] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#737373]" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-[#0a0a0a]">Future Vision</h2>
-              <p className="text-sm text-[#737373]">Where we&apos;re headed in 2026 and beyond</p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {futureVision.map((feature) => (
-              <FutureCard key={feature.title} feature={feature} />
-            ))}
-          </div>
-
-          <p className="text-center text-sm text-[#a3a3a3] mt-8">
-            Future features are subject to change based on user feedback and market needs.
-          </p>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 lg:py-24 bg-[#0a0a0a]">
+      {/* Feature Request */}
+      <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <Globe className="w-12 h-12 text-[#737373] mx-auto mb-6" />
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Want to Shape the Roadmap?
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6 tracking-tight">
+            Help Shape the Roadmap
           </h2>
-          <p className="text-lg text-[#a3a3a3] mb-8 max-w-2xl mx-auto">
-            Join our pilot program and help us build the features that matter most to gaming publishers.
+          <p className="text-xl text-[#737373] font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+            Join our pilot program and influence which features we build next. Your feedback directly shapes our priorities.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors flex items-center justify-center gap-2"
+              href="/waitlist"
+              className="group px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-all inline-flex items-center justify-center gap-2"
             >
               Join the Pilot Program
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/contact"
-              className="w-full sm:w-auto px-8 py-4 border border-[#404040] text-white font-medium hover:bg-[#171717] transition-colors text-center"
+              href="mailto:feedback@phantomos.com"
+              className="px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:border-[#0a0a0a] transition-all text-center"
             >
               Request a Feature
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            Start Using PhantomOS Today
+          </h2>
+          <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+            All live features are available now in our pilot program. No waiting, no roadblocks.
+          </p>
+
+          <Link
+            href="/waitlist"
+            className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-all"
+          >
+            Get Started Free
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </section>
     </div>

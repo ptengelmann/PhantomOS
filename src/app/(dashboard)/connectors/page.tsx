@@ -365,7 +365,7 @@ export default function ConnectorsPage() {
     };
 
     if (logoMap[type]) {
-      return <Image src={logoMap[type]} alt={type} width={24} height={24} className="object-contain" />;
+      return <Image src={logoMap[type]} alt={type} width={40} height={40} className="object-contain w-full h-full" />;
     }
     return <Plug className="w-6 h-6 text-[#737373]" />;
   };
@@ -435,7 +435,7 @@ export default function ConnectorsPage() {
           connector={{
             id: selectedConnector.id,
             name: selectedConnector.name,
-            icon: <Image src={selectedConnector.logo} alt={selectedConnector.name} width={24} height={24} className="object-contain" />,
+            icon: <Image src={selectedConnector.logo} alt={selectedConnector.name} width={48} height={48} className="object-contain w-12 h-12" />,
           }}
           onClose={() => {
             setWizardOpen(false);
@@ -513,7 +513,7 @@ export default function ConnectorsPage() {
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white border border-[#e5e5e5] flex items-center justify-center p-2">
                           {getConnectorIcon(connector.type)}
                         </div>
                         <div>
@@ -591,8 +591,8 @@ export default function ConnectorsPage() {
                 <Card key={connector.id} hover={connector.available && !isConnected}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 ${connector.bgColor} rounded-lg flex items-center justify-center flex-shrink-0 p-2 ${!connector.available ? 'opacity-50' : ''}`}>
-                        <Image src={connector.logo} alt={connector.name} width={28} height={28} className="object-contain" />
+                      <div className={`w-16 h-16 bg-white border border-[#e5e5e5] flex items-center justify-center flex-shrink-0 p-3 ${!connector.available ? 'opacity-50' : ''}`}>
+                        <Image src={connector.logo} alt={connector.name} width={48} height={48} className="object-contain w-full h-full" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -888,7 +888,7 @@ export default function ConnectorsPage() {
             <div className="space-y-4">
               {/* Connector Info */}
               <div className="flex items-center gap-4 p-4 bg-[#f5f5f5] border border-[#e5e5e5]">
-                <div className="w-12 h-12 bg-white border border-[#e5e5e5] flex items-center justify-center">
+                <div className="w-16 h-16 bg-white border border-[#e5e5e5] flex items-center justify-center p-2">
                   {getConnectorIcon(selectedConnectorForSettings.type)}
                 </div>
                 <div>

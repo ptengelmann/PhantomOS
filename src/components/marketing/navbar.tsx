@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -40,6 +40,21 @@ export function MarketingNavbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setFeaturesOpen(false);
+      }
+    }
+
+    if (featuresOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [featuresOpen]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#e5e5e5]">
@@ -59,10 +74,9 @@ export function MarketingNavbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           {/* Features Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setFeaturesOpen(!featuresOpen)}
-              onBlur={() => setTimeout(() => setFeaturesOpen(false), 150)}
               className="flex items-center gap-1 text-sm text-[#737373] hover:text-[#0a0a0a] transition-colors"
             >
               Features
@@ -75,6 +89,7 @@ export function MarketingNavbar() {
                   <Link
                     key={feature.name}
                     href={feature.href}
+                    onClick={() => setFeaturesOpen(false)}
                     className="block p-3 hover:bg-[#fafafa] transition-colors"
                   >
                     <p className="text-sm font-medium text-[#0a0a0a]">{feature.name}</p>
@@ -84,6 +99,7 @@ export function MarketingNavbar() {
                 <div className="border-t border-[#e5e5e5] mt-2 pt-2">
                   <Link
                     href="/features"
+                    onClick={() => setFeaturesOpen(false)}
                     className="flex items-center gap-2 p-3 text-sm font-medium text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
                   >
                     View all features

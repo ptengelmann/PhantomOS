@@ -1,538 +1,519 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Zap, ArrowUpRight, ChevronRight, FileSpreadsheet } from 'lucide-react';
 
-// Pilot mode - change this to '/register' when ready for public signup
+// Pilot mode
 const SIGNUP_URL = '/waitlist';
 const SIGNUP_CTA = 'Join the Pilot Program';
 
-// Hero Illustration Component
-function HeroIllustration() {
-  return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      {/* Main Dashboard Preview */}
-      <div className="relative bg-white border border-[#e5e5e5] shadow-2xl rounded-sm overflow-hidden">
-        {/* Browser Chrome */}
-        <div className="flex items-center gap-2 px-4 py-3 bg-[#fafafa] border-b border-[#e5e5e5]">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#e5e5e5]" />
-            <div className="w-3 h-3 rounded-full bg-[#e5e5e5]" />
-            <div className="w-3 h-3 rounded-full bg-[#e5e5e5]" />
-          </div>
-          <div className="flex-1 mx-4">
-            <div className="w-48 h-5 bg-[#f5f5f5] rounded-sm mx-auto" />
-          </div>
-        </div>
+// Feature Carousel Component
+function FeatureCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
 
-        {/* Dashboard Content */}
-        <div className="p-6 bg-[#fafafa]">
-          <div className="flex gap-4">
-            {/* Sidebar Preview */}
-            <div className="w-48 bg-white border border-[#e5e5e5] p-4 hidden md:block">
-              <div className="w-20 h-4 bg-[#0a0a0a] rounded-sm mb-6" />
-              <div className="space-y-3">
-                <div className="w-full h-3 bg-[#f5f5f5] rounded-sm" />
-                <div className="w-3/4 h-3 bg-[#e5e5e5] rounded-sm" />
-                <div className="w-5/6 h-3 bg-[#e5e5e5] rounded-sm" />
-                <div className="w-2/3 h-3 bg-[#e5e5e5] rounded-sm" />
+  const features = [
+    {
+      id: 'intelligence',
+      name: 'Fan Intelligence Hub',
+      slug: '/features/intelligence',
+      icon: Brain,
+      description: 'AI analyzes your sales patterns and product catalog to surface actionable insights about what your fans actually want.',
+      preview: (
+        <div className="space-y-4">
+          <div className="bg-white border border-[#e5e5e5] p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-10 h-10 bg-[#0a0a0a] flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
               </div>
+              <div className="flex-1">
+                <div className="text-xs text-[#737373] uppercase tracking-wide mb-1">Opportunity</div>
+                <div className="text-sm font-medium text-[#0a0a0a]">Shadow Knight products show 40% higher conversion</div>
+              </div>
+              <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1">94%</div>
             </div>
-
-            {/* Main Content */}
-            <div className="flex-1 space-y-4">
-              {/* Stats Row */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white border border-[#e5e5e5] p-4">
-                  <div className="w-16 h-2 bg-[#e5e5e5] rounded-sm mb-2" />
-                  <div className="w-20 h-5 bg-[#0a0a0a] rounded-sm" />
-                  <div className="w-12 h-2 bg-green-200 rounded-sm mt-2" />
-                </div>
-                <div className="bg-white border border-[#e5e5e5] p-4">
-                  <div className="w-16 h-2 bg-[#e5e5e5] rounded-sm mb-2" />
-                  <div className="w-20 h-5 bg-[#0a0a0a] rounded-sm" />
-                  <div className="w-12 h-2 bg-green-200 rounded-sm mt-2" />
-                </div>
-                <div className="bg-white border border-[#e5e5e5] p-4">
-                  <div className="w-16 h-2 bg-[#e5e5e5] rounded-sm mb-2" />
-                  <div className="w-20 h-5 bg-[#0a0a0a] rounded-sm" />
-                  <div className="w-12 h-2 bg-blue-200 rounded-sm mt-2" />
+            <p className="text-xs text-[#737373] leading-relaxed">Analysis shows this character drives significantly more revenue. Consider expanding product line.</p>
+          </div>
+          <div className="bg-white border border-[#e5e5e5] p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-10 h-10 bg-[#0a0a0a] flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-[#737373] uppercase tracking-wide mb-1">Trend</div>
+                <div className="text-sm font-medium text-[#0a0a0a]">Pixel character trending up 67% this month</div>
+              </div>
+              <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1">88%</div>
+            </div>
+            <p className="text-xs text-[#737373] leading-relaxed">Fan demand increasing. Stock more Pixel merchandise.</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'tagging',
+      name: 'AI Asset Tagging',
+      slug: '/features/tagging',
+      icon: Tag,
+      description: 'Automatically map products to characters and themes. What used to take weeks now takes minutes with AI-powered suggestions.',
+      preview: (
+        <div className="bg-white border border-[#e5e5e5] p-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 pb-4 border-b border-[#e5e5e5]">
+              <div className="w-16 h-16 bg-[#fafafa] border border-[#e5e5e5]" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-[#0a0a0a] mb-2">Shadow Knight Premium T-Shirt</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-xs px-2 py-1 bg-[#0a0a0a] text-white">Shadow Knight</div>
+                  <div className="text-xs px-2 py-1 border border-[#e5e5e5] text-[#737373]">Apparel</div>
+                  <div className="text-xs text-[#737373]">AI Suggested · 94%</div>
                 </div>
               </div>
-
-              {/* Chart */}
-              <div className="bg-white border border-[#e5e5e5] p-4">
-                <div className="w-32 h-3 bg-[#e5e5e5] rounded-sm mb-4" />
-                <div className="flex items-end gap-2 h-24">
-                  {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((h, i) => (
-                    <div key={i} className="flex-1 bg-[#0a0a0a] rounded-t-sm transition-all" style={{ height: `${h}%` }} />
-                  ))}
+              <button className="px-4 py-2 bg-[#0a0a0a] text-white text-xs font-medium">Accept</button>
+            </div>
+            <div className="flex items-center gap-4 pb-4 border-b border-[#e5e5e5]">
+              <div className="w-16 h-16 bg-[#fafafa] border border-[#e5e5e5]" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-[#0a0a0a] mb-2">Pixel Plush Keychain</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-xs px-2 py-1 bg-[#0a0a0a] text-white">Pixel</div>
+                  <div className="text-xs px-2 py-1 border border-[#e5e5e5] text-[#737373]">Collectible</div>
+                  <div className="text-xs text-[#737373]">AI Suggested · 96%</div>
                 </div>
               </div>
+              <button className="px-4 py-2 bg-[#0a0a0a] text-white text-xs font-medium">Accept</button>
+            </div>
+            <div className="text-center pt-2">
+              <div className="text-xs text-[#a3a3a3]">Auto-tagging 156 products...</div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'analytics',
+      name: 'Revenue Analytics',
+      slug: '/features/analytics',
+      icon: BarChart3,
+      description: 'See exactly how much revenue each character, theme, or IP asset generates. Filter by time period, region, or sales channel.',
+      preview: (
+        <div className="bg-white border border-[#e5e5e5] p-8">
+          <div className="mb-6">
+            <div className="text-xs text-[#737373] uppercase tracking-wide mb-4">Revenue by Character</div>
+            <div className="space-y-4">
+              {[
+                { name: 'Shadow Knight', revenue: 89400, percentage: 92 },
+                { name: 'Pixel', revenue: 67200, percentage: 69 },
+                { name: 'Luna Starfire', revenue: 45800, percentage: 47 },
+                { name: 'Iron Fang', revenue: 24100, percentage: 25 },
+              ].map((char, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-[#0a0a0a]">{char.name}</span>
+                    <span className="text-[#737373]">${(char.revenue / 1000).toFixed(1)}K</span>
+                  </div>
+                  <div className="h-2 bg-[#fafafa] border border-[#e5e5e5]">
+                    <div className="h-full bg-[#0a0a0a]" style={{ width: `${char.percentage}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'connectors',
+      name: 'Data Connectors',
+      slug: '/features/connectors',
+      icon: Plug,
+      description: 'One-click OAuth for Shopify. CSV import for everything else. All your merchandise data aggregated in one place.',
+      preview: (
+        <div className="bg-white border border-[#e5e5e5] p-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-6 p-6 bg-[#fafafa] border border-[#e5e5e5]">
+              <div className="w-20 h-20 bg-white border border-[#e5e5e5] flex items-center justify-center p-4">
+                <Image src="/logos/shopify.svg" alt="Shopify" width={64} height={64} className="object-contain w-full h-full" />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-[#0a0a0a] mb-1">Shopify Store</div>
+                <div className="text-xs text-[#737373]">Connected • Last synced 2 min ago</div>
+              </div>
+              <div className="text-xs bg-[#0a0a0a] text-white px-3 py-1">Active</div>
+            </div>
+            <div className="flex items-center gap-6 p-6 border border-[#e5e5e5]">
+              <div className="w-20 h-20 bg-[#fafafa] border border-[#e5e5e5] flex items-center justify-center">
+                <FileSpreadsheet className="w-10 h-10 text-[#737373]" />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-[#0a0a0a] mb-1">CSV Import</div>
+                <div className="text-xs text-[#737373]">Upload product catalogs & sales data</div>
+              </div>
+              <button className="px-4 py-2 border border-[#e5e5e5] text-xs font-medium hover:border-[#0a0a0a] transition-colors">
+                Import
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  const activeFeature = features[activeIndex];
+  const Icon = activeFeature.icon;
+
+  return (
+    <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">PLATFORM FEATURES</div>
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] tracking-tight mb-4">
+            Everything You Need
+          </h2>
+          <p className="text-lg text-[#737373] font-light max-w-2xl mx-auto">
+            From AI insights to data connectors, see how PhantomOS transforms your merchandise intelligence
+          </p>
+        </div>
+
+        {/* Custom Carousel */}
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          {/* Navigation Tabs - Left Side */}
+          <div className="lg:col-span-4 space-y-2">
+            {features.map((feature, index) => {
+              const FeatureIcon = feature.icon;
+              return (
+                <button
+                  key={feature.id}
+                  onClick={() => setActiveIndex(index)}
+                  className={`w-full text-left p-6 border transition-all group ${
+                    activeIndex === index
+                      ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                      : 'bg-white border-[#e5e5e5] hover:border-[#0a0a0a]'
+                  }`}
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <FeatureIcon className={`w-6 h-6 ${activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'}`} />
+                    <span className={`font-semibold ${activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'}`}>
+                      {feature.name}
+                    </span>
+                  </div>
+                  <p className={`text-sm font-light leading-relaxed ${
+                    activeIndex === index ? 'text-[#a3a3a3]' : 'text-[#737373]'
+                  }`}>
+                    {feature.description}
+                  </p>
+                  <div className="flex items-center gap-2 mt-4">
+                    <span className={`text-xs font-medium ${
+                      activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'
+                    }`}>
+                      Learn more
+                    </span>
+                    <ArrowRight className={`w-4 h-4 transition-transform ${
+                      activeIndex === index ? 'text-white translate-x-1' : 'text-[#737373] group-hover:translate-x-1'
+                    }`} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Preview - Right Side */}
+          <div className="lg:col-span-8">
+            <Link
+              href={activeFeature.slug}
+              className="block group"
+            >
+              <div className="bg-[#fafafa] border-2 border-[#e5e5e5] p-8 group-hover:border-[#0a0a0a] transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-[#0a0a0a] text-lg">{activeFeature.name}</div>
+                      <div className="text-xs text-[#737373]">Click to explore feature →</div>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-6 h-6 text-[#737373] group-hover:text-[#0a0a0a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                </div>
+
+                {/* Animated Preview */}
+                <div className="transition-opacity duration-300">
+                  {activeFeature.preview}
+                </div>
+              </div>
+            </Link>
+
+            {/* Dots Indicator */}
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {features.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveIndex(index)}
+                  className={`h-1 transition-all ${
+                    activeIndex === index ? 'w-8 bg-[#0a0a0a]' : 'w-1 bg-[#e5e5e5] hover:bg-[#a3a3a3]'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Floating Elements */}
-      <div className="absolute -top-4 -right-4 bg-white border border-[#e5e5e5] shadow-lg p-3 rounded-sm animate-float">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-green-600" />
-          </div>
-          <div>
-            <p className="text-xs text-[#737373]">Revenue</p>
-            <p className="text-sm font-semibold text-[#0a0a0a]">+24.5%</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute -bottom-4 -left-4 bg-white border border-[#e5e5e5] shadow-lg p-3 rounded-sm animate-float-delayed">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-xs text-[#737373]">AI Insight</p>
-            <p className="text-sm font-semibold text-[#0a0a0a]">3 new</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
-
-// Feature Card with Illustration
-function FeatureCard({
-  icon: Icon,
-  title,
-  description,
-  illustration
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  illustration: React.ReactNode;
-}) {
-  return (
-    <div className="group relative bg-white border border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-colors">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#fafafa] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <div className="relative">
-        <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mb-6">
-          <Icon className="w-6 h-6 text-[#0a0a0a]" />
-        </div>
-        <h3 className="text-xl font-semibold text-[#0a0a0a] mb-3">{title}</h3>
-        <p className="text-[#737373] leading-relaxed mb-6">{description}</p>
-        <div className="mt-4 p-4 bg-[#fafafa] border border-[#e5e5e5]">
-          {illustration}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// How It Works Step
-function HowItWorksStep({
-  step,
-  title,
-  description,
-  isLast = false
-}: {
-  step: number;
-  title: string;
-  description: string;
-  isLast?: boolean;
-}) {
-  return (
-    <div className="relative flex gap-6">
-      {/* Step Number & Line */}
-      <div className="flex flex-col items-center">
-        <div className="w-12 h-12 bg-[#0a0a0a] text-white flex items-center justify-center text-lg font-semibold">
-          {step}
-        </div>
-        {!isLast && <div className="w-px flex-1 bg-[#e5e5e5] my-2" />}
-      </div>
-      {/* Content */}
-      <div className="flex-1 pb-12">
-        <h3 className="text-lg font-semibold text-[#0a0a0a] mb-2">{title}</h3>
-        <p className="text-[#737373] leading-relaxed">{description}</p>
-      </div>
-    </div>
-  );
-}
-
 
 export default function LandingPage() {
   return (
-    <div className="overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5f5f5_1px,transparent_1px),linear-gradient(to_bottom,#f5f5f5_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+    <div className="bg-white">
+      {/* Hero Section - Asymmetric Layout */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5f5f5_1px,transparent_1px),linear-gradient(to_bottom,#f5f5f5_1px,transparent_1px)] bg-[size:6rem_6rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
-        <div className="relative max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Text Content */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#f5f5f5] border border-[#e5e5e5] text-sm text-[#737373] mb-6">
+        <div className="relative max-w-7xl mx-auto px-6 py-32 w-full">
+          <div className="grid lg:grid-cols-12 gap-16 items-center">
+            {/* Left: Content - 7 cols */}
+            <div className="lg:col-span-7 space-y-12">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white text-sm font-medium group hover:gap-3 transition-all cursor-default">
                 <Sparkles className="w-4 h-4" />
-                Now with AI-Powered Insights
+                <span className="tracking-wide">AI-POWERED INSIGHTS</span>
+                <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0a0a0a] leading-tight mb-6">
-                Know What Your
-                <br />
-                <span className="relative">
-                  Fans Love
-                  <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
-                    <path d="M2 10C50 2 150 2 198 10" stroke="#0a0a0a" strokeWidth="3" strokeLinecap="round" />
-                  </svg>
-                </span>
-              </h1>
+              {/* Headline */}
+              <div className="space-y-8">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#0a0a0a] leading-[1.1] tracking-tight">
+                  Know What
+                  <br />
+                  Your Fans
+                  <br />
+                  <span className="italic font-light">Actually</span> Love
+                </h1>
 
-              <p className="text-lg md:text-xl text-[#737373] leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
-                PhantomOS reveals which characters, themes, and IP assets drive your merchandise revenue.
-                Stop guessing. Start knowing.
+                <div className="w-24 h-px bg-[#0a0a0a]" />
+              </div>
+
+              {/* Subheadline */}
+              <p className="text-xl text-[#525252] leading-relaxed max-w-xl font-light">
+                PhantomOS reveals which characters and IP assets drive your merchandise revenue.
+                <span className="text-[#0a0a0a] font-normal"> Stop guessing. Start knowing.</span>
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6">
                 <Link
                   href={SIGNUP_URL}
-                  className="w-full sm:w-auto px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
+                  className="group relative px-6 py-3 bg-[#0a0a0a] text-white font-medium overflow-hidden flex items-center justify-center gap-2 hover:gap-3 transition-all"
                 >
-                  {SIGNUP_CTA}
-                  <ArrowRight className="w-4 h-4" />
+                  <span className="relative z-10">{SIGNUP_CTA}</span>
+                  <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-[#171717] transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </Link>
                 <Link
-                  href="/features"
-                  className="w-full sm:w-auto px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-[#fafafa] transition-colors text-center"
+                  href="#features"
+                  className="group px-6 py-3 bg-white text-[#0a0a0a] font-medium border border-[#e5e5e5] hover:border-[#0a0a0a] transition-all text-center flex items-center justify-center gap-2"
                 >
                   See How It Works
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
 
-              <p className="text-sm text-[#a3a3a3] mt-6">
-                Free 30-day pilot. No credit card required.
+              {/* Trust Line */}
+              <p className="text-sm text-[#a3a3a3] tracking-wide">
+                FREE 30-DAY PILOT · NO CREDIT CARD · 5-MINUTE SETUP
               </p>
             </div>
 
-            {/* Hero Illustration */}
-            <div className="relative lg:ml-8">
-              <HeroIllustration />
+            {/* Right: Visual - 5 cols */}
+            <div className="lg:col-span-5 relative">
+              {/* Floating Card 1 - Top */}
+              <div className="absolute -top-12 -right-8 z-20 bg-white border-2 border-[#0a0a0a] p-6 shadow-2xl animate-float">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#737373] uppercase tracking-wider">Revenue Growth</p>
+                    <p className="text-2xl font-bold text-[#0a0a0a]">+34%</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Dashboard Preview */}
+              <div className="relative bg-white border-2 border-[#0a0a0a] shadow-2xl">
+                {/* Browser Chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-[#fafafa] border-b-2 border-[#0a0a0a]">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 bg-[#0a0a0a]" />
+                    <div className="w-3 h-3 border border-[#0a0a0a]" />
+                    <div className="w-3 h-3 border border-[#0a0a0a]" />
+                  </div>
+                </div>
+
+                {/* Dashboard Content */}
+                <div className="p-8 bg-white">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {[
+                      { label: 'Revenue', value: '$227K', growth: '+24%' },
+                      { label: 'Orders', value: '2.8K', growth: '+18%' },
+                      { label: 'Products', value: '156', growth: '+12%' },
+                    ].map((stat, i) => (
+                      <div key={i} className="bg-[#fafafa] border border-[#e5e5e5] p-4">
+                        <div className="text-xs text-[#737373] mb-2 tracking-wide uppercase">{stat.label}</div>
+                        <div className="text-xl font-bold text-[#0a0a0a] mb-1">{stat.value}</div>
+                        <div className="text-xs text-[#0a0a0a]">{stat.growth}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Chart Preview */}
+                  <div className="bg-[#fafafa] border border-[#e5e5e5] p-6">
+                    <div className="flex items-end justify-between gap-1 h-32">
+                      {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((height, i) => (
+                        <div
+                          key={i}
+                          className="flex-1 bg-[#0a0a0a] transition-all duration-1000 ease-out hover:bg-[#525252]"
+                          style={{
+                            height: `${height}%`,
+                            animationDelay: `${i * 50}ms`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Card 2 - Bottom */}
+              <div className="absolute -bottom-8 -left-8 z-20 bg-[#0a0a0a] text-white p-6 shadow-2xl animate-float-delayed">
+                <div className="flex items-center gap-3">
+                  <Brain className="w-8 h-8" />
+                  <div>
+                    <p className="text-xs text-[#a3a3a3] uppercase tracking-wider">AI Insights</p>
+                    <p className="text-lg font-semibold">12 New</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-
-      {/* Problem/Solution Section */}
-      <section className="py-24 lg:py-32">
+      {/* Problem/Solution - Split Design */}
+      <section id="features" className="pt-16 lg:pt-20 pb-24 lg:pb-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
-              Your Merchandise Data is a Black Box
+          <div className="max-w-3xl mb-20">
+            <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">THE PROBLEM</div>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6 tracking-tight leading-[1.15]">
+              Your Merchandise Data
+              <br />
+              is a <span className="italic font-light">Black Box</span>
             </h2>
-            <p className="text-lg text-[#737373] leading-relaxed">
-              You know your total revenue. But do you know which character drove 40% of Q4 sales?
-              Which theme is trending with your fans? Which assets are underperforming?
+            <p className="text-lg text-[#737373] leading-relaxed font-light">
+              You know total revenue. But which character drove 40% of Q4? Which theme is trending?
+              Which assets are underperforming? <span className="text-[#0a0a0a] font-normal">You're flying blind.</span>
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Before/After Grid */}
+          <div className="grid lg:grid-cols-2 gap-2">
             {/* Before */}
-            <div className="bg-[#fafafa] border border-[#e5e5e5] p-8">
-              <div className="text-sm font-medium text-red-600 mb-4">WITHOUT PHANTOMOS</div>
-              <ul className="space-y-4">
-                {[
-                  'Spreadsheets with thousands of SKUs',
-                  'No visibility into IP performance',
-                  'Manual tagging taking weeks',
-                  'Decisions based on gut feeling',
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <div className="w-5 h-5 mt-0.5 bg-red-100 text-red-600 flex items-center justify-center text-xs">✕</div>
-                    <span className="text-[#737373]">{item}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="bg-[#fafafa] border-2 border-[#e5e5e5] p-12 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#0a0a0a] opacity-[0.02] transform rotate-45 translate-x-16 -translate-y-16 group-hover:scale-150 transition-transform duration-700" />
+              <div className="relative">
+                <div className="text-xs font-bold text-[#0a0a0a] mb-8 tracking-[0.3em] uppercase">Without PhantomOS</div>
+                <ul className="space-y-6">
+                  {[
+                    'Spreadsheets with thousands of SKUs',
+                    'No visibility into IP performance',
+                    'Manual tagging taking weeks',
+                    'Decisions based on gut feeling',
+                    'Revenue opportunities missed',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-4 group/item">
+                      <div className="w-6 h-6 mt-0.5 border-2 border-[#0a0a0a] flex items-center justify-center flex-shrink-0 group-hover/item:rotate-45 transition-transform">
+                        <span className="text-xs">✕</span>
+                      </div>
+                      <span className="text-[#737373] font-light text-lg">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             {/* After */}
-            <div className="bg-white border-2 border-[#0a0a0a] p-8">
-              <div className="text-sm font-medium text-green-600 mb-4">WITH PHANTOMOS</div>
-              <ul className="space-y-4">
-                {[
-                  'One dashboard, all your data',
-                  'Revenue by character, theme, IP',
-                  'AI auto-tags products in minutes',
-                  'Data-driven licensing decisions',
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <div className="w-5 h-5 mt-0.5 bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</div>
-                    <span className="text-[#0a0a0a]">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
-              Everything You Need to Understand Fan Demand
-            </h2>
-            <p className="text-lg text-[#737373] leading-relaxed">
-              From data ingestion to AI insights, PhantomOS gives you complete visibility into your merchandise performance.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <FeatureCard
-              icon={Brain}
-              title="Fan Intelligence Hub"
-              description="AI analyzes your sales patterns and product catalog to surface actionable insights about what your fans actually want."
-              illustration={
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-white border border-[#e5e5e5]">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="w-3/4 h-2 bg-[#e5e5e5] rounded-sm" />
-                      <div className="w-1/2 h-2 bg-[#f5f5f5] rounded-sm mt-1" />
-                    </div>
-                    <div className="text-xs text-green-600">+24%</div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-white border border-[#e5e5e5]">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="w-2/3 h-2 bg-[#e5e5e5] rounded-sm" />
-                      <div className="w-1/3 h-2 bg-[#f5f5f5] rounded-sm mt-1" />
-                    </div>
-                    <div className="text-xs text-purple-600">New</div>
-                  </div>
-                </div>
-              }
-            />
-
-            <FeatureCard
-              icon={Tag}
-              title="AI Asset Tagging"
-              description="Automatically map products to characters, themes, and IP assets. What used to take weeks now takes minutes."
-              illustration={
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-[#e5e5e5] rounded-sm" />
-                    <div className="flex-1">
-                      <div className="w-1/2 h-2 bg-[#e5e5e5] rounded-sm" />
-                    </div>
-                    <div className="flex gap-1">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs">Mario</span>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs">Luigi</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-[#e5e5e5] rounded-sm" />
-                    <div className="flex-1">
-                      <div className="w-2/3 h-2 bg-[#e5e5e5] rounded-sm" />
-                    </div>
-                    <div className="flex gap-1">
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs">AI Suggested</span>
-                    </div>
-                  </div>
-                </div>
-              }
-            />
-
-            <FeatureCard
-              icon={BarChart3}
-              title="Revenue Analytics"
-              description="See exactly how much revenue each character, theme, or IP asset generates. Filter by time, region, or channel."
-              illustration={
-                <div className="h-24 flex items-end justify-between gap-1">
-                  {[65, 45, 80, 55, 90, 70, 85].map((h, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full bg-[#0a0a0a] rounded-t-sm" style={{ height: `${h}%` }} />
-                      <span className="text-[10px] text-[#a3a3a3]">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
-                    </div>
+            <div className="bg-[#0a0a0a] text-white p-12 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-[0.03] transform rotate-45 translate-x-16 -translate-y-16 group-hover:scale-150 transition-transform duration-700" />
+              <div className="relative">
+                <div className="text-xs font-bold mb-8 tracking-[0.3em] uppercase">With PhantomOS</div>
+                <ul className="space-y-6">
+                  {[
+                    'One dashboard, all your data',
+                    'Revenue by character, theme, IP',
+                    'AI auto-tags products in minutes',
+                    'Data-driven licensing decisions',
+                    'Maximize high-performing assets',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-4 group/item">
+                      <div className="w-6 h-6 mt-0.5 bg-white text-[#0a0a0a] flex items-center justify-center flex-shrink-0 group-hover/item:scale-110 transition-transform">
+                        <span className="text-xs">✓</span>
+                      </div>
+                      <span className="text-white font-light text-lg">{item}</span>
+                    </li>
                   ))}
-                </div>
-              }
-            />
-
-            <FeatureCard
-              icon={Plug}
-              title="Data Connectors"
-              description="Connect your Shopify store or import CSVs. All your data in one place. More connectors coming 2026."
-              illustration={
-                <div className="flex items-center justify-center gap-4">
-                  <div className="w-12 h-12 bg-[#96bf48] rounded-sm flex items-center justify-center p-2">
-                    <Image src="/logos/shopify.svg" alt="Shopify" width={32} height={32} className="object-contain" />
-                  </div>
-                  <div className="w-8 h-px bg-[#e5e5e5]" />
-                  <div className="w-12 h-12 bg-[#f5f5f5] rounded-sm flex items-center justify-center border border-[#e5e5e5]">
-                    <span className="text-[#737373] text-xs font-bold">CSV</span>
-                  </div>
-                  <div className="w-8 h-px bg-[#e5e5e5]" />
-                  <div className="w-12 h-12 bg-[#e5e5e5] rounded-sm flex items-center justify-center">
-                    <span className="text-[#737373] text-lg font-bold">+</span>
-                  </div>
-                </div>
-              }
-            />
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              href="/features"
-              className="inline-flex items-center gap-2 text-[#0a0a0a] font-medium hover:underline"
-            >
-              Explore all features
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-24 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
-                From Data Chaos to Clarity in 3 Steps
-              </h2>
-              <p className="text-lg text-[#737373] leading-relaxed mb-12">
-                Get started in minutes, not months. Our streamlined process gets you to insights fast.
-              </p>
-
-              <div>
-                <HowItWorksStep
-                  step={1}
-                  title="Connect Your Data"
-                  description="Link your Shopify store or upload a CSV. We automatically ingest all your products and sales data."
-                />
-                <HowItWorksStep
-                  step={2}
-                  title="AI Tags Your Products"
-                  description="Our AI analyzes product names and descriptions to suggest IP asset mappings. Review suggestions and approve with one click."
-                />
-                <HowItWorksStep
-                  step={3}
-                  title="Discover Fan Insights"
-                  description="See exactly which characters and themes drive revenue. Get AI-powered recommendations to optimize your merchandise strategy."
-                  isLast
-                />
-              </div>
-            </div>
-
-            {/* Process Illustration */}
-            <div className="relative">
-              <div className="sticky top-24 space-y-4">
-                {/* Step 1 Illustration */}
-                <div className="bg-white border border-[#e5e5e5] p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-10 h-10 bg-[#96bf48] rounded-sm flex items-center justify-center p-1.5">
-                      <Image src="/logos/shopify.svg" alt="Shopify" width={28} height={28} className="object-contain" />
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-[#e5e5e5]" />
-                    <div className="flex-1 h-2 bg-[#e5e5e5] rounded-full overflow-hidden">
-                      <div className="h-full w-3/4 bg-[#0a0a0a] rounded-full animate-pulse" />
-                    </div>
-                  </div>
-                  <p className="text-sm text-[#737373]">Syncing 2,847 products...</p>
-                </div>
-
-                {/* Step 2 Illustration */}
-                <div className="bg-white border border-[#e5e5e5] p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-5 h-5 text-purple-600" />
-                      <span className="text-sm font-medium">AI Processing</span>
-                    </div>
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1">94% Complete</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-[#f5f5f5] rounded-sm" />
-                      <div className="flex-1 h-2 bg-[#f5f5f5] rounded-sm" />
-                      <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700">Mapped</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-[#f5f5f5] rounded-sm" />
-                      <div className="flex-1 h-2 bg-[#f5f5f5] rounded-sm" />
-                      <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700">Suggested</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 3 Illustration */}
-                <div className="bg-white border border-[#e5e5e5] p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-[#0a0a0a]" />
-                    <span className="text-sm font-medium">Top Insight</span>
-                  </div>
-                  <p className="text-sm text-[#737373] mb-3">
-                    &ldquo;Link&rdquo; character products show 34% higher conversion than average. Consider expanding this line.
-                  </p>
-                  <div className="flex gap-2">
-                    <button className="text-xs px-3 py-1.5 bg-[#0a0a0a] text-white">View Details</button>
-                    <button className="text-xs px-3 py-1.5 border border-[#e5e5e5] text-[#737373]">Dismiss</button>
-                  </div>
-                </div>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Features Carousel */}
+      <FeatureCarousel />
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6">
-            Ready to See What Your Fans Love?
+      <section className="py-24 lg:py-32 bg-white relative overflow-hidden">
+        {/* Large text background */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.015] select-none pointer-events-none">
+          <div className="text-[16rem] font-bold tracking-tighter">START</div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6 tracking-tight leading-[1.15]">
+            Ready to See What
+            <br />
+            Your Fans Love?
           </h2>
-          <p className="text-lg text-[#737373] leading-relaxed mb-8 max-w-2xl mx-auto">
-            Start your free 30-day revenue audit. Connect your data in minutes and get AI-powered insights into your merchandise performance.
+
+          <p className="text-xl text-[#737373] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+            Free 30-day pilot. Connect your data in minutes and get AI-powered insights.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href={SIGNUP_URL}
-              className="w-full sm:w-auto px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-colors flex items-center justify-center gap-2"
-            >
-              {SIGNUP_CTA}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/faq"
-              className="w-full sm:w-auto px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:bg-[#fafafa] transition-colors text-center"
-            >
-              Learn More
-            </Link>
-          </div>
+          <Link
+            href={SIGNUP_URL}
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:gap-4 transition-all"
+          >
+            {SIGNUP_CTA}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
 
-          <div className="flex items-center justify-center gap-8 mt-12 text-sm text-[#737373]">
+          <div className="flex items-center justify-center gap-12 mt-16 text-sm text-[#a3a3a3]">
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4" />
               <span>5-minute setup</span>
             </div>
+            <div className="w-px h-4 bg-[#e5e5e5]" />
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span>No credit card required</span>
+              <span>No credit card</span>
             </div>
           </div>
         </div>
       </section>
-
     </div>
   );
 }
