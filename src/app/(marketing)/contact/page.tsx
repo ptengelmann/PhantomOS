@@ -8,11 +8,7 @@ export default function ContactPage() {
       <div className="relative">
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-6 py-24 text-center">
-          <div className="mb-4">
-            <div className="inline-block px-3 py-1 bg-[#f5f5f5] border border-[#e5e5e5] text-xs font-medium text-[#737373] tracking-wide">
-              CONTACT
-            </div>
-          </div>
+          <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">CONTACT</div>
           <h1 className="text-5xl md:text-6xl font-bold text-[#0a0a0a] mb-6 tracking-tight">
             Get in <span className="italic font-light">Touch</span>
           </h1>
