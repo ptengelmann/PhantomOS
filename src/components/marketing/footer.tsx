@@ -34,15 +34,14 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center">
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="PhantomOS"
-                width={32}
-                height={32}
-                className="w-8 h-8 object-contain invert"
+                width={120}
+                height={40}
+                className="h-10 w-auto object-contain invert"
               />
-              <span className="text-lg font-semibold tracking-tight">PhantomOS</span>
             </Link>
             <p className="mt-4 text-sm text-[#a3a3a3] leading-relaxed">
               The operating system for gaming merchandise. Know what your fans love.

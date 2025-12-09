@@ -60,15 +60,14 @@ export function MarketingNavbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#e5e5e5]">
       <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="PhantomOS"
-            width={32}
-            height={32}
-            className="w-8 h-8 object-contain"
+            width={120}
+            height={40}
+            className="h-10 w-auto object-contain"
           />
-          <span className="text-lg font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
         </Link>
 
         {/* Desktop Navigation */}
