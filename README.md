@@ -1,64 +1,38 @@
 # PhantomOS
 
-**Merchandise Intelligence Platform for Gaming Publishers**
+**The Operating System for Gaming Merchandise**
 
-PhantomOS helps gaming publishers understand which IP assets (characters, themes, logos) drive their merchandise revenue. Connect your sales data, tag products with AI assistance, and unlock actionable insights about fan demand.
+PhantomOS is an AI-powered merchandise intelligence platform for gaming publishers. Connect your sales data, map products to IP assets with AI assistance, and unlock insights into what fans actually want.
 
 ---
 
-## What It Does
+## The Problem
 
-Gaming publishers sell merchandise featuring their IP but lack visibility into which characters or themes actually drive revenue. Sales data is scattered across Shopify stores, Amazon accounts, and licensing partners.
+Gaming publishers sell merchandise featuring their IP but operate blind:
+- Sales data scattered across Shopify, Amazon, licensing partners
+- No visibility into which characters/themes drive revenue
+- Can't answer: *"Which character sold best this quarter?"*
 
-PhantomOS solves this by:
-1. **Aggregating** sales data from multiple channels
-2. **Mapping** products to specific IP assets (characters, logos, themes)
-3. **Analyzing** performance to reveal which IPs resonate with fans
+## The Solution
 
-For the first time, publishers can answer: *"Which character generated the most revenue this quarter?"*
+PhantomOS aggregates, maps, and analyzes merchandise data:
+
+1. **Connect** - Shopify OAuth, CSV import (Amazon, WooCommerce coming)
+2. **Map** - AI-assisted product tagging to characters, themes, logos
+3. **Analyze** - Revenue by IP asset, trend detection, demand forecasting
 
 ---
 
 ## Live Features
 
-### Dashboard Overview
-- Revenue metrics with growth indicators
-- Revenue trend charts (monthly view)
-- Category breakdown visualization
-- Recent orders table
-- Export to CSV
-
-### Fan Intelligence Hub
-- AI-powered insights using Claude
-- Opportunity detection ("Shadow Knight trending +40%")
-- Risk alerts ("Villain merch declining")
-- Actionable recommendations
-- Confidence scoring
-
-### Asset Tagging
-- Product list with mapping status
-- AI-assisted tagging suggestions
-- Batch auto-tag functionality
-- Game IP and character management
-- Progress tracking (mapped vs unmapped)
-
-### Data Connectors
-- **Shopify OAuth** - Full OAuth integration
-- **CSV Import** - Products and sales data
-- Sync status tracking
-- Disconnect/reconnect capability
-
-### Team Management
-- Invite team members via secure tokens
-- Role-based access (Owner, Admin, Member, Analyst)
-- Pending invitation management
-
-### Marketing Site
-- Landing page with value proposition
-- Features overview
-- FAQ page (replaces pricing)
-- Roadmap page
-- Waitlist/pilot signup
+| Feature | Description |
+|---------|-------------|
+| **Dashboard** | Revenue metrics, growth trends, category breakdown, asset performance charts |
+| **Fan Intelligence Hub** | AI-powered insights using Claude - opportunities, warnings, recommendations |
+| **Asset Tagging** | Map products to game IPs and characters with AI suggestions |
+| **Data Connectors** | Shopify OAuth, CSV import for products and sales |
+| **Settings** | Account management, team invites with secure tokens |
+| **Pilot Waitlist** | Gated access system for controlled launch |
 
 ---
 
@@ -66,13 +40,73 @@ For the first time, publishers can answer: *"Which character generated the most 
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 16, React 19, TypeScript |
+| Framework | Next.js 15 (App Router), React 19, TypeScript |
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL (serverless) |
 | ORM | Drizzle ORM |
-| Auth | NextAuth.js |
-| AI | Anthropic Claude API |
+| Auth | NextAuth.js v5 (credentials) |
+| AI | Anthropic Claude API (claude-sonnet-4-20250514) |
 | Charts | Recharts |
+| Icons | Lucide React |
+
+---
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/ptengelmann/PhantomOS.git
+cd phantomos
+npm install
+
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your credentials
+
+# Push database schema
+npx drizzle-kit push
+
+# Run development server
+npm run dev
+```
+
+### Demo Data (Optional)
+
+Seed with fictional "Phantom Warriors" game data:
+
+```bash
+npx tsx scripts/seed-demo-data.ts
+```
+
+Creates: 1 Game IP, 6 characters, 60 products, 6 months of sales (~$227K revenue)
+
+---
+
+## Environment Variables
+
+```bash
+# Database
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+
+# Auth
+NEXTAUTH_SECRET=random-32-char-string
+NEXTAUTH_URL=http://localhost:3000
+
+# AI
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Shopify OAuth
+SHOPIFY_API_KEY=your-shopify-api-key
+SHOPIFY_API_SECRET=your-shopify-api-secret
+
+# App Config
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Pilot Mode (optional)
+PILOT_MODE=true
+ALLOWED_EMAILS=dev@example.com
+ADMIN_SECRET_KEY=your-admin-secret
+```
 
 ---
 
@@ -82,212 +116,91 @@ For the first time, publishers can answer: *"Which character generated the most 
 phantomos/
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/              # Login, registration, invites
-│   │   ├── (dashboard)/         # Protected dashboard pages
-│   │   │   ├── overview/        # Main dashboard
-│   │   │   ├── intelligence/    # Fan Intelligence Hub
-│   │   │   ├── products/        # Asset tagging
-│   │   │   ├── connectors/      # Data sources
-│   │   │   └── settings/        # Account settings
-│   │   ├── (marketing)/         # Public marketing site
-│   │   │   ├── features/        # Feature pages
-│   │   │   ├── faq/             # FAQ page
-│   │   │   ├── roadmap/         # Product roadmap
-│   │   │   └── waitlist/        # Pilot signup
-│   │   └── api/                 # API routes
-│   │       ├── ai/              # AI endpoints
-│   │       ├── connectors/      # Connector management
-│   │       ├── dashboard/       # Dashboard stats
-│   │       ├── products/        # Product CRUD
-│   │       ├── sales/           # Sales import
-│   │       └── waitlist/        # Waitlist API
+│   │   ├── (marketing)/      # Public: landing, features, FAQ, roadmap, waitlist
+│   │   ├── (dashboard)/      # Protected: overview, intelligence, products, connectors, settings
+│   │   ├── admin/            # Waitlist management
+│   │   └── api/              # REST endpoints
 │   ├── components/
-│   │   ├── charts/              # Data visualizations
-│   │   ├── dashboard/           # Dashboard UI
-│   │   ├── marketing/           # Marketing site components
-│   │   └── ui/                  # Base UI components
+│   │   ├── ui/               # Button, Card, Input, Badge, Table, Select
+│   │   ├── charts/           # RevenueChart, AssetPerformanceChart, CategoryBreakdown
+│   │   ├── dashboard/        # Sidebar, Header, StatsCard, ConnectorWizard
+│   │   └── marketing/        # Navbar, Footer
 │   └── lib/
-│       ├── auth/                # NextAuth config
-│       ├── db/                  # Drizzle + schema
-│       └── pilot.ts             # Pilot mode utilities
-├── scripts/
-│   └── seed-demo-data.ts        # Demo data generator
-├── public/
-│   └── logos/                   # Connector logos
-└── middleware.ts                # Route protection
+│       ├── db/schema.ts      # Drizzle schema (10 tables)
+│       ├── ai/index.ts       # Claude AI integration
+│       ├── auth/index.ts     # NextAuth config
+│       └── utils/index.ts    # Helpers
+├── scripts/                   # Database scripts
+├── middleware.ts              # Route protection
+└── drizzle.config.ts         # ORM config
 ```
 
 ---
 
 ## Database Schema
 
-### Core Tables
-
 | Table | Purpose |
 |-------|---------|
+| `users` | Auth accounts, linked to publisher |
 | `publishers` | Multi-tenant organizations |
-| `users` | Team members |
+| `connectors` | Data sources (Shopify, CSV, etc.) |
 | `game_ips` | Game franchises |
-| `ip_assets` | Characters, logos, themes |
-| `connectors` | Data source integrations |
+| `ip_assets` | Characters, logos, themes within games |
 | `products` | Merchandise items |
-| `product_assets` | Product-to-asset mapping |
-| `sales` | Transaction records |
-| `ai_insights` | AI-generated recommendations |
-| `invitations` | Pending team invites |
-| `waitlist` | Pilot program signups |
+| `product_assets` | Many-to-many: products ↔ IP assets |
+| `sales` | Order/revenue records |
+| `waitlist_entries` | Pilot program applications |
+| `invite_tokens` | Registration tokens for approved users |
 
----
-
-## Environment Variables
-
-```bash
-# Database
-DATABASE_URL=postgresql://...
-
-# Authentication
-NEXTAUTH_SECRET=your-secret
-NEXTAUTH_URL=http://localhost:3000
-
-# AI
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Shopify OAuth
-SHOPIFY_API_KEY=...
-SHOPIFY_API_SECRET=...
-
-# Application
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-DEMO_MODE=true
-
-# Pilot Mode
-PILOT_MODE=true
-ALLOWED_EMAILS=your@email.com
-ADMIN_SECRET_KEY=random-secret
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+
-- PostgreSQL (or Neon account)
-- Anthropic API key
-
-### Setup
-
-```bash
-# Clone
-git clone https://github.com/ptengelmann/PhantomOS.git
-cd phantomos
-
-# Install
-npm install
-
-# Configure
-cp .env.example .env.local
-# Edit .env.local with your credentials
-
-# Database
-npx drizzle-kit push
-
-# Development
-npm run dev
-```
-
-### Demo Data (Optional)
-
-Seed the database with fictional "Phantom Warriors" game data:
-
-```bash
-npx tsx scripts/seed-demo-data.ts
-```
-
-This creates:
-- 1 Game IP with 6 characters
-- 60 products mapped to characters
-- 6 months of sales data (~$227K revenue)
-
----
-
-## Pilot Mode
-
-The waitlist system controls access during the pilot phase:
-
-- `PILOT_MODE=true` redirects `/register` to `/waitlist`
-- `ALLOWED_EMAILS` bypasses restrictions for developers
-- Landing page CTAs point to waitlist
-- Approved users can register normally
-
-See `PILOT_SYSTEM.md` for detailed documentation.
+See `ARCHITECTURE.md` for complete schema details.
 
 ---
 
 ## API Endpoints
 
-### Dashboard
+### Dashboard & Data
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/dashboard/stats` | Dashboard metrics |
-| GET | `/api/connectors` | List connectors |
+| GET | `/api/dashboard/stats` | Revenue, orders, top assets |
+| GET | `/api/products` | Product list with filters |
+| POST | `/api/products` | Create/import products |
+| GET | `/api/connectors` | List connected sources |
 
 ### AI
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/ai/insights` | Generate AI insights |
-| POST | `/api/ai/tagging` | Product tagging suggestions |
-
-### Products
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/products` | List products |
-| POST | `/api/products/import` | Import from CSV |
-| POST | `/api/products/auto-tag` | Batch AI tagging |
-| GET | `/api/products/[id]/assets` | Get product assets |
-| POST | `/api/products/[id]/assets` | Link assets |
+| POST | `/api/ai/insights` | Generate Claude insights |
+| POST | `/api/ai/tagging` | AI product tag suggestions |
+| POST | `/api/ai/forecast` | Revenue forecasting |
 
 ### Connectors
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/connectors/shopify/auth` | Start OAuth |
+| POST | `/api/connectors/shopify/auth` | Initiate OAuth |
+| GET | `/api/connectors/shopify/callback` | OAuth callback |
 | POST | `/api/connectors/shopify/sync/products` | Sync products |
 | POST | `/api/connectors/shopify/sync/orders` | Sync orders |
-| DELETE | `/api/connectors/[id]` | Disconnect |
 
-### Settings
+### Waitlist (Admin)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/settings/team` | List team members |
-| POST | `/api/settings/invite` | Create invitation |
-
-### Waitlist
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/waitlist` | Submit signup |
-| GET | `/api/waitlist?key=SECRET` | List entries (admin) |
+| POST | `/api/waitlist` | Submit application |
+| GET | `/api/waitlist/admin` | List entries (requires key) |
+| POST | `/api/waitlist/approve` | Approve application |
+| POST | `/api/waitlist/reject` | Reject application |
 
 ---
 
-## Roadmap
+## Design System
 
-### Live Now
-- Dashboard with revenue analytics
-- Fan Intelligence Hub with AI insights
-- AI-assisted asset tagging
-- Shopify OAuth + CSV import
+Monochromatic minimalism:
 
-### Coming Q1 2026
-- Amazon Seller Central connector
-- AI image recognition for products
-- Advanced filtering and search
-- WooCommerce connector
-
-### Future (2026+)
-- Merch Studio (AI design tools)
-- Print-on-demand integration
-- Creator partnerships
-- Custom storefronts
+| Element | Style |
+|---------|-------|
+| Colors | `#0a0a0a` (black), `#737373` (gray), `#e5e5e5` (border), `#fafafa` (bg) |
+| Borders | 1px solid, no border-radius |
+| Typography | Geist font, uppercase tracking-wide labels |
+| Philosophy | Data-first, invisible design |
 
 ---
 
@@ -295,32 +208,32 @@ See `PILOT_SYSTEM.md` for detailed documentation.
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Development server |
+| `npm run dev` | Development server (port 3000) |
 | `npm run build` | Production build |
-| `npx drizzle-kit push` | Push schema to DB |
+| `npx drizzle-kit push` | Push schema to database |
+| `npx drizzle-kit studio` | Open Drizzle Studio |
 | `npx tsx scripts/seed-demo-data.ts` | Seed demo data |
 
 ---
 
-## Design System
+## Roadmap
 
-PhantomOS uses a minimalist design language:
-- **Colors**: White backgrounds, black text, gray accents
-- **Borders**: 1px borders, no border-radius
-- **Typography**: Clean, data-focused
-- **Philosophy**: "Invisible design" - the data is the focus
+**Live Now:** Dashboard, Fan Intelligence Hub, Asset Tagging, Shopify + CSV connectors
+
+**Coming Soon:**
+- Merch Studio (AI design tools)
+- Production (print-on-demand integration)
+- Storefront (direct-to-consumer)
+- Creators (influencer partnerships)
+- More connectors (Amazon, WooCommerce, BigCommerce)
+
+See `ROADMAP.md` for full details.
 
 ---
 
 ## License
 
 Proprietary - All rights reserved.
-
----
-
-## Contact
-
-For pilot program inquiries: hello@phantomos.com
 
 ---
 
