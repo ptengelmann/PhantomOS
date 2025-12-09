@@ -484,9 +484,7 @@ export default function LandingPage() {
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6 tracking-tight leading-[1.15]">
-            Ready to See What
-            <br />
-            Your Fans Love?
+            Ready to See What Your Fans <span className="italic font-light">Love</span>?
           </h2>
 
           <p className="text-xl text-[#737373] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
