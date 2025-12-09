@@ -64,9 +64,9 @@ export function MarketingNavbar() {
           <Image
             src="/logo.png"
             alt="PhantomOS"
-            width={280}
-            height={96}
-            className="w-48 h-auto object-contain"
+            width={320}
+            height={64}
+            className="w-64 h-auto object-contain"
             priority
           />
         </Link>
