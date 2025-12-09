@@ -62,7 +62,7 @@ export function MarketingNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="PhantomOS"
             width={280}
             height={96}

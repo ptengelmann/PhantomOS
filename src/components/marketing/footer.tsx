@@ -36,7 +36,7 @@ export function MarketingFooter() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo.svg"
+                src="/logo.png"
                 alt="PhantomOS"
                 width={160}
                 height={48}
