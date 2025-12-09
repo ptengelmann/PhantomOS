@@ -9,7 +9,15 @@ import crypto from 'crypto';
 export async function POST(request: NextRequest) {
   try {
     // Check authentication - require admin or owner role
-    const session = await requireAuth();
+    let session;
+    try {
+      session = await requireAuth();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Please login' },
+        { status: 401 }
+      );
+    }
 
     if (session.user.role !== 'owner' && session.user.role !== 'admin') {
       return NextResponse.json(
