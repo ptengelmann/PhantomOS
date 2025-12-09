@@ -34,13 +34,13 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center mb-4">
+            <Link href="/" className="flex items-center mb-3">
               <Image
                 src="/logo.png"
                 alt="PhantomOS"
-                width={240}
-                height={80}
-                className="w-auto h-20 max-w-full object-contain invert"
+                width={350}
+                height={70}
+                className="w-auto h-14 max-w-full object-contain invert"
               />
             </Link>
             <p className="text-sm text-[#a3a3a3] leading-relaxed">
