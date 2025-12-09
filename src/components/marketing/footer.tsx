@@ -38,9 +38,9 @@ export function MarketingFooter() {
               <Image
                 src="/logo.svg"
                 alt="PhantomOS"
-                width={240}
-                height={80}
-                className="w-40 h-auto object-contain invert"
+                width={160}
+                height={48}
+                className="w-32 h-auto object-contain invert"
               />
             </Link>
             <p className="mt-4 text-sm text-[#a3a3a3] leading-relaxed">
