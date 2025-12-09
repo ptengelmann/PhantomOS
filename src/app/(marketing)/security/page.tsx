@@ -123,35 +123,6 @@ export default function SecurityPage() {
           </div>
         </section>
 
-        {/* Roadmap */}
-        <section className="max-w-5xl mx-auto px-6 pb-24">
-          <div className="bg-[#fafafa] border border-[#e5e5e5] p-10">
-            <div className="flex items-start gap-4 mb-6">
-              <AlertCircle className="w-6 h-6 text-[#737373] flex-shrink-0" />
-              <div>
-                <h2 className="text-2xl font-bold text-[#0a0a0a] mb-2">Security Roadmap</h2>
-                <p className="text-[#737373] leading-relaxed">
-                  We're actively working toward additional security certifications and measures
-                </p>
-              </div>
-            </div>
-            <div className="space-y-3 ml-10">
-              <div className="flex items-center gap-3">
-                <div className="text-xs font-medium text-[#a3a3a3]">Q2 2026</div>
-                <div className="text-sm text-[#737373]">SOC 2 Type I certification process</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-xs font-medium text-[#a3a3a3]">Q3 2026</div>
-                <div className="text-sm text-[#737373]">Third-party security audit</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-xs font-medium text-[#a3a3a3]">Q4 2026</div>
-                <div className="text-sm text-[#737373]">SOC 2 Type II certification</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Responsible Disclosure */}
         <section className="max-w-5xl mx-auto px-6 pb-24">
           <div className="bg-white border border-[#e5e5e5] p-10">

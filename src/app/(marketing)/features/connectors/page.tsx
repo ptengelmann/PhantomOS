@@ -233,15 +233,9 @@ export default function ConnectorsFeaturePage() {
                     </div>
                   </div>
                   <div className="border-t border-[#e5e5e5] pt-4">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-[#0a0a0a] tracking-tight">SOC 2</div>
-                        <div className="text-xs text-[#737373] uppercase tracking-wider">Compliant</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-[#0a0a0a] tracking-tight">GDPR</div>
-                        <div className="text-xs text-[#737373] uppercase tracking-wider">Ready</div>
-                      </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-[#0a0a0a] tracking-tight">GDPR</div>
+                      <div className="text-xs text-[#737373] uppercase tracking-wider">Ready</div>
                     </div>
                   </div>
                 </div>

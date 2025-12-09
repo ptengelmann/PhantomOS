@@ -67,7 +67,7 @@ const faqs = [
   },
   {
     question: 'Is my data secure?',
-    answer: 'Yes. All data is encrypted in transit and at rest. We follow industry best practices for data protection and are working toward SOC 2 certification.',
+    answer: 'Yes. All data is encrypted in transit and at rest. We use bcrypt password hashing, SSL database connections, and follow industry best practices for data protection.',
   },
 ];
 
