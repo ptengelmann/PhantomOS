@@ -3,17 +3,17 @@ import { CalendarDays, Sparkles, Users, Code } from 'lucide-react';
 const updates = [
   {
     date: 'December 2025',
-    title: 'Pilot Program Launch',
-    icon: Sparkles,
+    title: 'Building for Launch',
+    icon: Code,
     content: [
-      'We\'ve officially launched our pilot program with select game publishers. Working closely with early partners to validate our product and roadmap.',
-      'Currently focused on core analytics, manual tagging workflows, and Shopify integration. Learning what matters most to merchandise teams.',
+      'Platform development in full swing. Building core analytics, manual tagging workflows, and Shopify integration.',
+      'Pilot program launching early 2026 (January-February) with select game publishers. Finalizing the product and onboarding process.',
     ],
   },
   {
     date: 'November 2025',
     title: 'Platform Development Begins',
-    icon: Code,
+    icon: Sparkles,
     content: [
       'Started building PhantomOS after extensive conversations with game publishers about their merchandise operations.',
       'Initial focus: solving the fundamental problem of understanding what characters and IP elements drive sales.',
