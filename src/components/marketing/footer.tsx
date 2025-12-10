@@ -35,7 +35,7 @@ export function MarketingFooter() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center mb-3">
               <span className="text-2xl font-bold text-white tracking-tight">
-                PhantomOS<span className="text-[#737373]">.</span>
+                Phantom<span className="italic font-light">OS</span><span className="text-[#737373]">.</span>
               </span>
             </Link>
             <p className="text-sm text-[#a3a3a3] leading-relaxed">
