@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 const footerLinks = {
   product: [
@@ -35,13 +34,9 @@ export function MarketingFooter() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center mb-3">
-              <Image
-                src="/logo.png"
-                alt="PhantomOS"
-                width={350}
-                height={70}
-                className="w-auto h-14 max-w-full object-contain invert"
-              />
+              <span className="text-2xl font-bold text-white tracking-tight">
+                PhantomOS<span className="text-[#737373]">.</span>
+              </span>
             </Link>
             <p className="text-sm text-[#a3a3a3] leading-relaxed">
               The operating system for gaming merchandise. Know what your fans love.
