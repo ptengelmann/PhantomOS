@@ -1,6 +1,3 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Zap, ArrowUpRight, ChevronRight, FileSpreadsheet } from 'lucide-react';
@@ -9,160 +6,8 @@ import { ArrowRight, Brain, Tag, BarChart3, Plug, Sparkles, TrendingUp, Users, Z
 const SIGNUP_URL = '/waitlist';
 const SIGNUP_CTA = 'Join the Pilot Program';
 
-// Feature Carousel Component
-function FeatureCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const features = [
-    {
-      id: 'intelligence',
-      name: 'Fan Intelligence Hub',
-      slug: '/features/intelligence',
-      icon: Brain,
-      description: 'AI analyzes your sales patterns and product catalog to surface actionable insights about what your fans actually want.',
-      preview: (
-        <div className="space-y-4">
-          <div className="bg-white border border-[#e5e5e5] p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-10 h-10 bg-[#0a0a0a] flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <div className="text-xs text-[#737373] uppercase tracking-wide mb-1">Opportunity</div>
-                <div className="text-sm font-medium text-[#0a0a0a]">Shadow Knight products show 40% higher conversion</div>
-              </div>
-              <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1">94%</div>
-            </div>
-            <p className="text-xs text-[#737373] leading-relaxed">Analysis shows this character drives significantly more revenue. Consider expanding product line.</p>
-          </div>
-          <div className="bg-white border border-[#e5e5e5] p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-10 h-10 bg-[#0a0a0a] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <div className="text-xs text-[#737373] uppercase tracking-wide mb-1">Trend</div>
-                <div className="text-sm font-medium text-[#0a0a0a]">Pixel character trending up 67% this month</div>
-              </div>
-              <div className="text-xs bg-[#0a0a0a] text-white px-2 py-1">88%</div>
-            </div>
-            <p className="text-xs text-[#737373] leading-relaxed">Fan demand increasing. Stock more Pixel merchandise.</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'tagging',
-      name: 'AI Asset Tagging',
-      slug: '/features/tagging',
-      icon: Tag,
-      description: 'Automatically map products to characters and themes. What used to take weeks now takes minutes with AI-powered suggestions.',
-      preview: (
-        <div className="bg-white border border-[#e5e5e5] p-8">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4 pb-4 border-b border-[#e5e5e5]">
-              <div className="w-16 h-16 bg-[#fafafa] border border-[#e5e5e5]" />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-[#0a0a0a] mb-2">Shadow Knight Premium T-Shirt</div>
-                <div className="flex items-center gap-2">
-                  <div className="text-xs px-2 py-1 bg-[#0a0a0a] text-white">Shadow Knight</div>
-                  <div className="text-xs px-2 py-1 border border-[#e5e5e5] text-[#737373]">Apparel</div>
-                  <div className="text-xs text-[#737373]">AI Suggested · 94%</div>
-                </div>
-              </div>
-              <button className="px-4 py-2 bg-[#0a0a0a] text-white text-xs font-medium">Accept</button>
-            </div>
-            <div className="flex items-center gap-4 pb-4 border-b border-[#e5e5e5]">
-              <div className="w-16 h-16 bg-[#fafafa] border border-[#e5e5e5]" />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-[#0a0a0a] mb-2">Pixel Plush Keychain</div>
-                <div className="flex items-center gap-2">
-                  <div className="text-xs px-2 py-1 bg-[#0a0a0a] text-white">Pixel</div>
-                  <div className="text-xs px-2 py-1 border border-[#e5e5e5] text-[#737373]">Collectible</div>
-                  <div className="text-xs text-[#737373]">AI Suggested · 96%</div>
-                </div>
-              </div>
-              <button className="px-4 py-2 bg-[#0a0a0a] text-white text-xs font-medium">Accept</button>
-            </div>
-            <div className="text-center pt-2">
-              <div className="text-xs text-[#a3a3a3]">Auto-tagging 156 products...</div>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'analytics',
-      name: 'Revenue Analytics',
-      slug: '/features/analytics',
-      icon: BarChart3,
-      description: 'See exactly how much revenue each character, theme, or IP asset generates. Filter by time period, region, or sales channel.',
-      preview: (
-        <div className="bg-white border border-[#e5e5e5] p-8">
-          <div className="mb-6">
-            <div className="text-xs text-[#737373] uppercase tracking-wide mb-4">Revenue by Character</div>
-            <div className="space-y-4">
-              {[
-                { name: 'Shadow Knight', revenue: 89400, percentage: 92 },
-                { name: 'Pixel', revenue: 67200, percentage: 69 },
-                { name: 'Luna Starfire', revenue: 45800, percentage: 47 },
-                { name: 'Iron Fang', revenue: 24100, percentage: 25 },
-              ].map((char, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-[#0a0a0a]">{char.name}</span>
-                    <span className="text-[#737373]">${(char.revenue / 1000).toFixed(1)}K</span>
-                  </div>
-                  <div className="h-2 bg-[#fafafa] border border-[#e5e5e5]">
-                    <div className="h-full bg-[#0a0a0a]" style={{ width: `${char.percentage}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'connectors',
-      name: 'Data Connectors',
-      slug: '/features/connectors',
-      icon: Plug,
-      description: 'One-click OAuth for Shopify. CSV import for everything else. All your merchandise data aggregated in one place.',
-      preview: (
-        <div className="bg-white border border-[#e5e5e5] p-8">
-          <div className="space-y-6">
-            <div className="flex items-center gap-6 p-6 bg-[#fafafa] border border-[#e5e5e5]">
-              <div className="w-20 h-20 bg-white border border-[#e5e5e5] flex items-center justify-center p-4">
-                <Image src="/logos/shopify.svg" alt="Shopify" width={64} height={64} className="object-contain w-full h-full" />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-[#0a0a0a] mb-1">Shopify Store</div>
-                <div className="text-xs text-[#737373]">Connected • Last synced 2 min ago</div>
-              </div>
-              <div className="text-xs bg-[#0a0a0a] text-white px-3 py-1">Active</div>
-            </div>
-            <div className="flex items-center gap-6 p-6 border border-[#e5e5e5]">
-              <div className="w-20 h-20 bg-[#fafafa] border border-[#e5e5e5] flex items-center justify-center">
-                <FileSpreadsheet className="w-10 h-10 text-[#737373]" />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-[#0a0a0a] mb-1">CSV Import</div>
-                <div className="text-xs text-[#737373]">Upload product catalogs & sales data</div>
-              </div>
-              <button className="px-4 py-2 border border-[#e5e5e5] text-xs font-medium hover:border-[#0a0a0a] transition-colors">
-                Import
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
-  const activeFeature = features[activeIndex];
-  const Icon = activeFeature.icon;
-
+// Feature Bento Grid Component
+function FeatureBentoGrid() {
   return (
     <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
       <div className="max-w-7xl mx-auto px-6">
@@ -176,88 +21,149 @@ function FeatureCarousel() {
           </p>
         </div>
 
-        {/* Custom Carousel */}
-        <div className="grid lg:grid-cols-12 gap-12 items-start">
-          {/* Navigation Tabs - Left Side */}
-          <div className="lg:col-span-4 space-y-2">
-            {features.map((feature, index) => {
-              const FeatureIcon = feature.icon;
-              return (
-                <button
-                  key={feature.id}
-                  onClick={() => setActiveIndex(index)}
-                  className={`w-full text-left p-6 border transition-all group ${
-                    activeIndex === index
-                      ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
-                      : 'bg-white border-[#e5e5e5] hover:border-[#0a0a0a]'
-                  }`}
-                >
-                  <div className="flex items-center gap-4 mb-3">
-                    <FeatureIcon className={`w-6 h-6 ${activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'}`} />
-                    <span className={`font-semibold ${activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'}`}>
-                      {feature.name}
-                    </span>
-                  </div>
-                  <p className={`text-sm font-light leading-relaxed ${
-                    activeIndex === index ? 'text-[#a3a3a3]' : 'text-[#737373]'
-                  }`}>
-                    {feature.description}
-                  </p>
-                  <div className="flex items-center gap-2 mt-4">
-                    <span className={`text-xs font-medium ${
-                      activeIndex === index ? 'text-white' : 'text-[#0a0a0a]'
-                    }`}>
-                      Learn more
-                    </span>
-                    <ArrowRight className={`w-4 h-4 transition-transform ${
-                      activeIndex === index ? 'text-white translate-x-1' : 'text-[#737373] group-hover:translate-x-1'
-                    }`} />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Preview - Right Side */}
-          <div className="lg:col-span-8">
-            <Link
-              href={activeFeature.slug}
-              className="block group"
-            >
-              <div className="bg-[#fafafa] border-2 border-[#e5e5e5] p-8 group-hover:border-[#0a0a0a] transition-all">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-[#0a0a0a] text-lg">{activeFeature.name}</div>
-                      <div className="text-xs text-[#737373]">Click to explore feature →</div>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="w-6 h-6 text-[#737373] group-hover:text-[#0a0a0a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                </div>
-
-                {/* Animated Preview */}
-                <div className="transition-opacity duration-300">
-                  {activeFeature.preview}
-                </div>
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Fan Intelligence - Large Card */}
+          <Link
+            href="/features/intelligence"
+            className="group lg:col-span-2 bg-[#0a0a0a] p-8 lg:p-10 hover:bg-[#171717] transition-all"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-14 h-14 bg-white flex items-center justify-center">
+                <Brain className="w-7 h-7 text-[#0a0a0a]" />
               </div>
-            </Link>
+              <ArrowUpRight className="w-6 h-6 text-[#525252] group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">Fan Intelligence Hub</h3>
+            <p className="text-[#a3a3a3] font-light leading-relaxed mb-8 max-w-lg">
+              AI analyzes your sales patterns to surface actionable insights about what your fans actually want.
+            </p>
+            {/* Preview */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#171717] border border-[#333] p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                  <span className="text-xs text-[#737373] uppercase tracking-wide">Opportunity</span>
+                </div>
+                <p className="text-sm text-white font-medium">Shadow Knight +40% conversion</p>
+                <div className="mt-2 text-xs bg-white text-[#0a0a0a] px-2 py-1 inline-block">94% confidence</div>
+              </div>
+              <div className="bg-[#171717] border border-[#333] p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Sparkles className="w-5 h-5 text-white" />
+                  <span className="text-xs text-[#737373] uppercase tracking-wide">Trending</span>
+                </div>
+                <p className="text-sm text-white font-medium">Pixel character +67% this month</p>
+                <div className="mt-2 text-xs bg-white text-[#0a0a0a] px-2 py-1 inline-block">88% confidence</div>
+              </div>
+            </div>
+          </Link>
 
-            {/* Dots Indicator */}
-            <div className="flex items-center justify-center gap-2 mt-6">
-              {features.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveIndex(index)}
-                  className={`h-1 transition-all ${
-                    activeIndex === index ? 'w-8 bg-[#0a0a0a]' : 'w-1 bg-[#e5e5e5] hover:bg-[#a3a3a3]'
-                  }`}
-                />
+          {/* AI Asset Tagging - Tall Card */}
+          <Link
+            href="/features/tagging"
+            className="group bg-white border-2 border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-all row-span-2"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-14 h-14 bg-[#0a0a0a] flex items-center justify-center">
+                <Tag className="w-7 h-7 text-white" />
+              </div>
+              <ArrowUpRight className="w-6 h-6 text-[#a3a3a3] group-hover:text-[#0a0a0a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+            </div>
+            <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">AI Asset Tagging</h3>
+            <p className="text-[#737373] font-light leading-relaxed mb-6">
+              Automatically map products to characters. What used to take weeks now takes minutes.
+            </p>
+            {/* Preview */}
+            <div className="space-y-3 flex-1">
+              {[
+                { name: 'Shadow Knight T-Shirt', tag: 'Shadow Knight', score: '94%' },
+                { name: 'Pixel Plush Keychain', tag: 'Pixel', score: '96%' },
+                { name: 'Luna Starfire Poster', tag: 'Luna Starfire', score: '91%' },
+                { name: 'Iron Fang Hoodie', tag: 'Iron Fang', score: '89%' },
+                { name: 'Crimson Guard Figure', tag: 'Crimson Guard', score: '92%' },
+                { name: 'Phantom Warriors Mug', tag: 'Brand', score: '87%' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-[#fafafa] border border-[#e5e5e5]">
+                  <div className="w-10 h-10 bg-[#e5e5e5]" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-[#0a0a0a] truncate">{item.name}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] px-1.5 py-0.5 bg-[#0a0a0a] text-white">{item.tag}</span>
+                      <span className="text-[10px] text-[#737373]">{item.score}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="text-center text-xs text-[#a3a3a3] pt-2">
+                Auto-tagging 156 products...
+              </div>
+            </div>
+          </Link>
+
+          {/* Revenue Analytics */}
+          <Link
+            href="/features/analytics"
+            className="group bg-white border-2 border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-all"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-14 h-14 bg-[#0a0a0a] flex items-center justify-center">
+                <BarChart3 className="w-7 h-7 text-white" />
+              </div>
+              <ArrowUpRight className="w-6 h-6 text-[#a3a3a3] group-hover:text-[#0a0a0a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+            </div>
+            <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Revenue Analytics</h3>
+            <p className="text-[#737373] font-light leading-relaxed mb-6">
+              See exactly how much revenue each character generates.
+            </p>
+            {/* Mini Chart */}
+            <div className="space-y-3">
+              {[
+                { name: 'Shadow Knight', pct: 92 },
+                { name: 'Pixel', pct: 69 },
+                { name: 'Luna Starfire', pct: 47 },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-[#0a0a0a] font-medium">{item.name}</span>
+                    <span className="text-[#737373]">{item.pct}%</span>
+                  </div>
+                  <div className="h-1.5 bg-[#e5e5e5]">
+                    <div className="h-full bg-[#0a0a0a]" style={{ width: `${item.pct}%` }} />
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
+          </Link>
+
+          {/* Data Connectors */}
+          <Link
+            href="/features/connectors"
+            className="group bg-white border-2 border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-all"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-14 h-14 bg-[#0a0a0a] flex items-center justify-center">
+                <Plug className="w-7 h-7 text-white" />
+              </div>
+              <ArrowUpRight className="w-6 h-6 text-[#a3a3a3] group-hover:text-[#0a0a0a] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+            </div>
+            <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Data Connectors</h3>
+            <p className="text-[#737373] font-light leading-relaxed mb-6">
+              One-click Shopify OAuth. CSV import for everything else.
+            </p>
+            {/* Connector Icons */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-[#fafafa] border border-[#e5e5e5] p-2 flex items-center justify-center">
+                <Image src="/logos/shopify.svg" alt="Shopify" width={32} height={32} className="object-contain" />
+              </div>
+              <div className="w-12 h-12 bg-[#fafafa] border border-[#e5e5e5] flex items-center justify-center">
+                <FileSpreadsheet className="w-6 h-6 text-[#737373]" />
+              </div>
+              <div className="w-12 h-12 bg-[#fafafa] border border-dashed border-[#e5e5e5] flex items-center justify-center">
+                <span className="text-xs text-[#a3a3a3]">+2</span>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
     </section>
@@ -472,8 +378,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Carousel */}
-      <FeatureCarousel />
+      {/* Features Bento Grid */}
+      <FeatureBentoGrid />
 
       {/* CTA Section */}
       <section className="py-24 lg:py-32 bg-white relative overflow-hidden">
