@@ -293,7 +293,7 @@ export default function FeaturesPage() {
           <div className="max-w-3xl mb-16">
             <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">ADDITIONAL FEATURES</div>
             <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] tracking-tight mb-6">
-              Built for Scale
+              Built for <span className="italic font-light">Scale</span>
             </h2>
             <p className="text-lg text-[#737373] font-light">
               Everything you need to run a professional merchandise operation, from team collaboration to enterprise security.
@@ -322,7 +322,7 @@ export default function FeaturesPage() {
       <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-            Ready to See It in Action?
+            Ready to See It in <span className="italic font-light">Action</span>?
           </h2>
           <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
             Start your free 30-day pilot. Connect your data in minutes and discover which IP assets drive your revenue.
