@@ -5,7 +5,7 @@ const footerLinks = {
     { name: 'Features', href: '/features' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Roadmap', href: '/roadmap' },
-    { name: 'Changelog', href: '/changelog' },
+    { name: 'Updates', href: '/updates' },
   ],
   features: [
     { name: 'Fan Intelligence', href: '/features/intelligence' },
@@ -15,7 +15,6 @@ const footerLinks = {
   ],
   company: [
     { name: 'About', href: '/about' },
-    { name: 'Updates', href: '/updates' },
     { name: 'Careers', href: '/careers' },
     { name: 'Contact', href: '/contact' },
   ],
