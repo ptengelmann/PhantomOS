@@ -1,5 +1,15 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Target, Users, Lightbulb } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'PhantomOS is the operating system for gaming merchandise. We help game publishers understand what their fans love and optimize IP monetization.',
+  openGraph: {
+    title: 'About | PhantomOS',
+    description: 'The operating system for gaming merchandise. Built for game publishers.',
+  },
+};
 
 export default function AboutPage() {
   return (

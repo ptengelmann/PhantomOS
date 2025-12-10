@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -16,6 +17,15 @@ import {
   Check,
   ArrowUpRight
 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Features',
+  description: 'Discover PhantomOS features: AI-powered fan intelligence, automated asset tagging, revenue analytics, and seamless data connectors for gaming merchandise.',
+  openGraph: {
+    title: 'Features | PhantomOS',
+    description: 'AI-powered tools to understand what your fans love and optimize your merchandise strategy.',
+  },
+};
 
 const mainFeatures = [
   {

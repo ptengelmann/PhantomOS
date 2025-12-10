@@ -1,5 +1,15 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { Check, Sparkles, Users, MessageSquare, ArrowRight, Building2, Rocket } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Pricing',
+  description: 'Join the PhantomOS pilot program. Free during pilot phase for qualified gaming publishers. Shape the future of merchandise intelligence.',
+  openGraph: {
+    title: 'Pricing | PhantomOS',
+    description: 'Free pilot program for gaming publishers. Shape the future of merchandise intelligence.',
+  },
+};
 
 const currentFeatures = [
   'Shopify & CSV data connectors',

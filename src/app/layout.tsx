@@ -14,14 +14,43 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PhantomOS - The Gaming Commerce OS",
-  description: "The HubSpot for Gaming IP Monetization. Transform gaming merchandise from guesswork to data-driven, scalable commerce.",
-  keywords: ["gaming", "merchandise", "commerce", "IP monetization", "game publishers"],
+  metadataBase: new URL('https://phantom-os.vercel.app'),
+  title: {
+    default: "PhantomOS - The Gaming Commerce OS",
+    template: "%s | PhantomOS",
+  },
+  description: "The operating system for gaming merchandise. AI-powered insights to understand what your fans love and optimize your IP monetization strategy.",
+  keywords: ["gaming merchandise", "IP monetization", "game publishers", "merchandise analytics", "fan intelligence", "gaming commerce", "Shopify gaming", "merchandise optimization"],
   authors: [{ name: "PhantomOS" }],
+  creator: "PhantomOS",
+  publisher: "PhantomOS",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: "PhantomOS - The Gaming Commerce OS",
-    description: "The HubSpot for Gaming IP Monetization",
+    description: "The operating system for gaming merchandise. Know what your fans love.",
+    url: 'https://phantom-os.vercel.app',
+    siteName: 'PhantomOS',
+    locale: 'en_US',
     type: "website",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "PhantomOS - The Gaming Commerce OS",
+    description: "The operating system for gaming merchandise. Know what your fans love.",
+  },
+  verification: {
+    // Add these when you have them
+    // google: 'your-google-verification-code',
   },
 };
 
