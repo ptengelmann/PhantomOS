@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { ArrowRight } from 'lucide-react';
@@ -46,16 +45,9 @@ export default function LoginPage() {
       <div className="relative min-h-screen flex flex-col items-center justify-center p-6">
         {/* Logo */}
         <Link href="/" className="mb-12">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="PhantomOS"
-              width={48}
-              height={48}
-              className="w-12 h-12 object-contain"
-            />
-            <span className="text-2xl font-bold text-[#0a0a0a] tracking-tight">PhantomOS</span>
-          </div>
+          <span className="text-3xl font-bold text-[#0a0a0a] tracking-tight">
+            Phantom<span className="italic font-light">OS</span><span className="text-[#a3a3a3]">.</span>
+          </span>
         </Link>
 
         {/* Login Card */}

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from '@/components/ui';
 import { CheckCircle, XCircle, Loader2, Users } from 'lucide-react';
@@ -128,15 +127,10 @@ function InviteContent() {
     return (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Image
-              src="/logo.png"
-              alt="PhantomOS"
-              width={40}
-              height={40}
-              className="w-10 h-10 object-contain"
-            />
-            <span className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
+          <div className="flex items-center justify-center mb-8">
+            <span className="text-2xl font-bold text-[#0a0a0a] tracking-tight">
+              Phantom<span className="italic font-light">OS</span><span className="text-[#a3a3a3]">.</span>
+            </span>
           </div>
 
           <Card>
@@ -161,15 +155,10 @@ function InviteContent() {
     return (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Image
-              src="/logo.png"
-              alt="PhantomOS"
-              width={40}
-              height={40}
-              className="w-10 h-10 object-contain"
-            />
-            <span className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
+          <div className="flex items-center justify-center mb-8">
+            <span className="text-2xl font-bold text-[#0a0a0a] tracking-tight">
+              Phantom<span className="italic font-light">OS</span><span className="text-[#a3a3a3]">.</span>
+            </span>
           </div>
 
           <Card>
@@ -193,15 +182,10 @@ function InviteContent() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <Image
-            src="/logo.png"
-            alt="PhantomOS"
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain"
-          />
-          <span className="text-2xl font-semibold text-[#0a0a0a] tracking-tight">PhantomOS</span>
+        <div className="flex items-center justify-center mb-8">
+          <span className="text-2xl font-bold text-[#0a0a0a] tracking-tight">
+            Phantom<span className="italic font-light">OS</span><span className="text-[#a3a3a3]">.</span>
+          </span>
         </div>
 
         <Card>
