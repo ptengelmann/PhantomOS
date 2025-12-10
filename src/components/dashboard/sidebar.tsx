@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import {
@@ -56,14 +55,9 @@ export function Sidebar() {
       {/* Logo */}
       <div className="h-16 flex items-center justify-center border-b border-[#e5e5e5]">
         <Link href="/overview" className="flex items-center justify-center">
-          <Image
-            src="/logo.png"
-            alt="PhantomOS"
-            width={200}
-            height={48}
-            className="h-12 w-auto object-contain"
-            priority
-          />
+          <span className="text-xl font-bold text-[#0a0a0a] tracking-tight">
+            Phantom<span className="italic font-light">OS</span><span className="text-[#a3a3a3]">.</span>
+          </span>
         </Link>
       </div>
 
