@@ -28,20 +28,54 @@ export async function GET(request: NextRequest) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Revenue over time
-    const revenueByDate = await db.execute(sql`
-      SELECT
-        DATE_TRUNC(${groupBy}, order_date) as date,
-        SUM(revenue) as total_revenue,
-        COUNT(*) as order_count,
-        SUM(quantity) as units_sold
-      FROM sales
-      WHERE publisher_id = ${publisherId}
-        AND order_date >= ${start.toISOString()}
-        AND order_date <= ${end.toISOString()}
-      GROUP BY DATE_TRUNC(${groupBy}, order_date)
-      ORDER BY date ASC
-    `);
+    // Revenue over time - validated groupBy to prevent SQL injection
+    const validGroupBy = ['day', 'week', 'month'].includes(groupBy) ? groupBy : 'day';
+
+    // Build query based on groupBy (safe since we validated above)
+    let revenueByDate;
+    if (validGroupBy === 'day') {
+      revenueByDate = await db.execute(sql`
+        SELECT
+          DATE_TRUNC('day', order_date) as date,
+          SUM(revenue) as total_revenue,
+          COUNT(*) as order_count,
+          SUM(quantity) as units_sold
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${start.toISOString()}
+          AND order_date <= ${end.toISOString()}
+        GROUP BY DATE_TRUNC('day', order_date)
+        ORDER BY date ASC
+      `);
+    } else if (validGroupBy === 'week') {
+      revenueByDate = await db.execute(sql`
+        SELECT
+          DATE_TRUNC('week', order_date) as date,
+          SUM(revenue) as total_revenue,
+          COUNT(*) as order_count,
+          SUM(quantity) as units_sold
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${start.toISOString()}
+          AND order_date <= ${end.toISOString()}
+        GROUP BY DATE_TRUNC('week', order_date)
+        ORDER BY date ASC
+      `);
+    } else {
+      revenueByDate = await db.execute(sql`
+        SELECT
+          DATE_TRUNC('month', order_date) as date,
+          SUM(revenue) as total_revenue,
+          COUNT(*) as order_count,
+          SUM(quantity) as units_sold
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${start.toISOString()}
+          AND order_date <= ${end.toISOString()}
+        GROUP BY DATE_TRUNC('month', order_date)
+        ORDER BY date ASC
+      `);
+    }
 
     // Top performing products
     const topProducts = await db.execute(sql`

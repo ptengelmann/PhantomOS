@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products, sales, productAssets, ipAssets } from '@/lib/db/schema';
 import { eq, sql, desc } from 'drizzle-orm';
 import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     let publisherId: string;
 
@@ -17,6 +17,14 @@ export async function GET() {
       }
       publisherId = session.user.publisherId;
     }
+
+    // Get date range from query params
+    const { searchParams } = new URL(request.url);
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
+
+    const endDate = endDateParam ? new Date(endDateParam) : new Date();
+    const startDate = startDateParam ? new Date(startDateParam) : new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     // Check if we have any data
     const [productCountResult] = await db
@@ -94,17 +102,57 @@ export async function GET() {
     const totalOrders = Number(revenueResult?.totalOrders || 0);
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-    // Get revenue by month (last 12 months)
-    const revenueByMonth = await db
-      .select({
-        month: sql<string>`TO_CHAR(order_date, 'Mon')`,
-        revenue: sql<number>`COALESCE(SUM(CAST(revenue AS DECIMAL)), 0)`,
-      })
-      .from(sales)
-      .where(eq(sales.publisherId, publisherId))
-      .groupBy(sql`TO_CHAR(order_date, 'Mon'), DATE_TRUNC('month', order_date)`)
-      .orderBy(sql`DATE_TRUNC('month', order_date)`)
-      .limit(12);
+    // Determine grouping based on date range
+    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Get revenue over time with orders and AOV - use separate queries based on grouping
+    let revenueByPeriod;
+    if (daysDiff <= 14) {
+      // Daily for up to 2 weeks
+      revenueByPeriod = await db.execute(sql`
+        SELECT
+          TO_CHAR(DATE_TRUNC('day', order_date), 'Mon DD') as date,
+          COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) as revenue,
+          COUNT(*) as orders,
+          CASE WHEN COUNT(*) > 0 THEN COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) / COUNT(*) ELSE 0 END as aov
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${startDate.toISOString()}
+          AND order_date <= ${endDate.toISOString()}
+        GROUP BY DATE_TRUNC('day', order_date)
+        ORDER BY DATE_TRUNC('day', order_date) ASC
+      `);
+    } else if (daysDiff <= 90) {
+      // Weekly for up to 3 months
+      revenueByPeriod = await db.execute(sql`
+        SELECT
+          TO_CHAR(DATE_TRUNC('week', order_date), 'Mon DD') as date,
+          COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) as revenue,
+          COUNT(*) as orders,
+          CASE WHEN COUNT(*) > 0 THEN COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) / COUNT(*) ELSE 0 END as aov
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${startDate.toISOString()}
+          AND order_date <= ${endDate.toISOString()}
+        GROUP BY DATE_TRUNC('week', order_date)
+        ORDER BY DATE_TRUNC('week', order_date) ASC
+      `);
+    } else {
+      // Monthly for longer periods
+      revenueByPeriod = await db.execute(sql`
+        SELECT
+          TO_CHAR(DATE_TRUNC('month', order_date), 'Mon YYYY') as date,
+          COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) as revenue,
+          COUNT(*) as orders,
+          CASE WHEN COUNT(*) > 0 THEN COALESCE(SUM(CAST(revenue AS DECIMAL)), 0) / COUNT(*) ELSE 0 END as aov
+        FROM sales
+        WHERE publisher_id = ${publisherId}
+          AND order_date >= ${startDate.toISOString()}
+          AND order_date <= ${endDate.toISOString()}
+        GROUP BY DATE_TRUNC('month', order_date)
+        ORDER BY DATE_TRUNC('month', order_date) ASC
+      `);
+    }
 
     // Get products by category (shows categories even without sales)
     const productsByCategory = await db
@@ -221,9 +269,11 @@ export async function GET() {
         productCount,
         connectedSources: 0,
       },
-      revenueData: revenueByMonth.map(r => ({
-        date: r.month,
+      revenueData: (revenueByPeriod.rows as Array<{ date: string; revenue: string; orders: string; aov: string }>).map((r) => ({
+        date: r.date,
         revenue: Number(r.revenue),
+        orders: Number(r.orders),
+        aov: Number(r.aov),
       })),
       categoryData,
       assetData,

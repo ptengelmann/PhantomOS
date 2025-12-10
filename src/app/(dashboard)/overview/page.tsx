@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target } from 'lucide-react';
+import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart } from 'lucide-react';
 import Link from 'next/link';
 import { Header, StatsCard } from '@/components/dashboard';
 import { RevenueChart, AssetPerformanceChart, CategoryBreakdown } from '@/components/charts';
@@ -23,6 +23,8 @@ interface DashboardStats {
 interface RevenueDataPoint {
   date: string;
   revenue: number;
+  orders?: number;
+  aov?: number;
 }
 
 interface CategoryData {
@@ -50,6 +52,29 @@ interface RecentOrder {
   date: string;
 }
 
+type DateRange = '7d' | '30d' | '90d' | '12m';
+type ChartDataType = 'revenue' | 'orders' | 'aov';
+type ChartViewType = 'line' | 'bar' | 'area';
+
+const dateRangeOptions: { value: DateRange; label: string }[] = [
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+  { value: '12m', label: 'Last 12 months' },
+];
+
+const chartDataOptions: { value: ChartDataType; label: string; icon: React.ReactNode }[] = [
+  { value: 'revenue', label: 'Revenue', icon: <DollarSign className="w-4 h-4" /> },
+  { value: 'orders', label: 'Orders', icon: <Package className="w-4 h-4" /> },
+  { value: 'aov', label: 'AOV', icon: <TrendingUp className="w-4 h-4" /> },
+];
+
+const chartViewOptions: { value: ChartViewType; label: string; icon: React.ReactNode }[] = [
+  { value: 'line', label: 'Line', icon: <LineChartIcon className="w-4 h-4" /> },
+  { value: 'bar', label: 'Bar', icon: <BarChart3 className="w-4 h-4" /> },
+  { value: 'area', label: 'Area', icon: <AreaChart className="w-4 h-4" /> },
+];
+
 export default function OverviewPage() {
   const [loading, setLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
@@ -59,10 +84,13 @@ export default function OverviewPage() {
   const [assetData, setAssetData] = useState<AssetData[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [connectorCount, setConnectorCount] = useState(0);
+  const [dateRange, setDateRange] = useState<DateRange>('30d');
+  const [chartDataType, setChartDataType] = useState<ChartDataType>('revenue');
+  const [chartViewType, setChartViewType] = useState<ChartViewType>('line');
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [dateRange]);
 
   const handleExportReport = () => {
     if (!stats || !categoryData) return;
@@ -121,9 +149,29 @@ export default function OverviewPage() {
 
   const loadDashboardData = async () => {
     try {
-      // Load dashboard stats
+      // Calculate date range
+      const now = new Date();
+      let startDate: Date;
+      switch (dateRange) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '90d':
+          startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          break;
+        case '12m':
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      // Load dashboard stats with date range
       const [statsRes, connectorsRes] = await Promise.all([
-        fetch('/api/dashboard/stats'),
+        fetch(`/api/dashboard/stats?startDate=${startDate.toISOString()}&endDate=${now.toISOString()}`),
         fetch('/api/connectors'),
       ]);
 
@@ -468,17 +516,88 @@ export default function OverviewPage() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
+          <div className="col-span-2 flex flex-col">
             {revenueData.length > 0 ? (
-              <RevenueChart data={revenueData} title="Revenue Trend" />
+              <Card className="flex-1 flex flex-col">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle>
+                        {chartDataType === 'revenue' ? 'Revenue Trend' : chartDataType === 'orders' ? 'Orders Trend' : 'Average Order Value'}
+                      </CardTitle>
+                      <CardDescription>
+                        {chartDataType === 'revenue' ? 'Revenue over time' : chartDataType === 'orders' ? 'Order count over time' : 'AOV trend over time'}
+                      </CardDescription>
+                    </div>
+                    {/* Chart Controls */}
+                    <div className="flex items-center gap-2">
+                      {/* Date Range */}
+                      <select
+                        value={dateRange}
+                        onChange={(e) => setDateRange(e.target.value as DateRange)}
+                        className="h-8 px-2 text-xs border border-[#e5e5e5] bg-white text-[#0a0a0a] focus:outline-none focus:ring-1 focus:ring-[#0a0a0a]"
+                      >
+                        {dateRangeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Data Type Toggle */}
+                      <div className="flex border border-[#e5e5e5]">
+                        {chartDataOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setChartDataType(option.value)}
+                            className={`h-8 px-2 flex items-center gap-1 text-xs transition-colors ${
+                              chartDataType === option.value
+                                ? 'bg-[#0a0a0a] text-white'
+                                : 'bg-white text-[#737373] hover:bg-[#f5f5f5]'
+                            }`}
+                            title={option.label}
+                          >
+                            {option.icon}
+                          </button>
+                        ))}
+                      </div>
+                      {/* Chart Type Toggle */}
+                      <div className="flex border border-[#e5e5e5]">
+                        {chartViewOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setChartViewType(option.value)}
+                            className={`h-8 px-2 flex items-center gap-1 text-xs transition-colors ${
+                              chartViewType === option.value
+                                ? 'bg-[#0a0a0a] text-white'
+                                : 'bg-white text-[#737373] hover:bg-[#f5f5f5]'
+                            }`}
+                            title={option.label}
+                          >
+                            {option.icon}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <RevenueChart
+                    data={revenueData}
+                    title=""
+                    dataKey={chartDataType === 'revenue' ? 'revenue' : chartDataType === 'orders' ? 'orders' : 'aov'}
+                    valuePrefix={chartDataType === 'aov' || chartDataType === 'revenue' ? '$' : ''}
+                    chartType={chartViewType}
+                  />
+                </CardContent>
+              </Card>
             ) : (
-              <Card>
+              <Card className="flex-1 flex flex-col">
                 <CardHeader>
                   <CardTitle>Revenue Trend</CardTitle>
                   <CardDescription>Monthly revenue over time</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-[300px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                <CardContent className="flex-1 flex items-center justify-center">
+                  <div className="h-full w-full flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
                     <div className="text-center">
                       <TrendingUp className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
                       <p className="text-[#737373] font-medium">No sales data yet</p>
@@ -491,32 +610,34 @@ export default function OverviewPage() {
               </Card>
             )}
           </div>
-          {categoryData.length > 0 ? (
-            <CategoryBreakdown
-              data={categoryData}
-              title="Products by Category"
-              description="Product distribution across categories"
-              valuePrefix=""
-            />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Products by Category</CardTitle>
-                <CardDescription>Product distribution</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
-                  <div className="text-center">
-                    <Package className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
-                    <p className="text-[#737373] font-medium">No products yet</p>
-                    <p className="text-sm text-[#a3a3a3] mt-1">
-                      Connect data source to see products
-                    </p>
+          <div className="flex flex-col">
+            {categoryData.length > 0 ? (
+              <CategoryBreakdown
+                data={categoryData}
+                title="Products by Category"
+                description="Product distribution across categories"
+                valuePrefix=""
+              />
+            ) : (
+              <Card className="flex-1 flex flex-col">
+                <CardHeader>
+                  <CardTitle>Products by Category</CardTitle>
+                  <CardDescription>Product distribution</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex items-center justify-center">
+                  <div className="h-full w-full flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                    <div className="text-center">
+                      <Package className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
+                      <p className="text-[#737373] font-medium">No products yet</p>
+                      <p className="text-sm text-[#a3a3a3] mt-1">
+                        Connect data source to see products
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
 
         {/* Asset Performance */}
