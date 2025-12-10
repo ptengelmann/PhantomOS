@@ -1,13 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const features = [
+  {
+    name: 'Fan Intelligence Hub',
+    href: '/features/intelligence',
+    description: 'AI-powered insights into your merchandise performance',
+  },
+  {
+    name: 'Asset Tagging',
+    href: '/features/tagging',
+    description: 'Map products to IP assets with AI assistance',
+  },
+  {
+    name: 'Revenue Analytics',
+    href: '/features/analytics',
+    description: 'Track revenue by character, theme, and more',
+  },
+  {
+    name: 'Data Connectors',
+    href: '/features/connectors',
+    description: 'Connect Shopify, Amazon, and more',
+  },
+];
+
 const navLinks = [
-  { name: 'Features', href: '/features' },
   { name: 'FAQ', href: '/faq' },
   { name: 'Roadmap', href: '/roadmap' },
 ];
@@ -15,7 +37,9 @@ const navLinks = [
 export function MarketingNavbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [featuresOpen, setFeaturesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Track scroll for navbar effect
   useEffect(() => {
@@ -25,6 +49,20 @@ export function MarketingNavbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setFeaturesOpen(false);
+      }
+    }
+
+    if (featuresOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [featuresOpen]);
 
   return (
     <>
@@ -36,7 +74,7 @@ export function MarketingNavbar() {
       >
         <nav
           className={cn(
-            'flex items-center gap-1 px-2 py-2 transition-all duration-300',
+            'flex items-center gap-2 px-4 py-2.5 transition-all duration-300',
             'bg-white/90 backdrop-blur-md border border-[#e5e5e5] shadow-sm',
             scrolled ? 'shadow-md' : 'shadow-sm'
           )}
@@ -53,7 +91,49 @@ export function MarketingNavbar() {
           <div className="hidden md:block w-px h-5 bg-[#e5e5e5]" />
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-1">
+            {/* Features Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setFeaturesOpen(!featuresOpen)}
+                className={cn(
+                  'flex items-center gap-1 px-3 py-1.5 text-sm transition-colors',
+                  featuresOpen || pathname.startsWith('/features')
+                    ? 'text-[#0a0a0a] font-medium'
+                    : 'text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa]'
+                )}
+              >
+                Features
+                <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', featuresOpen && 'rotate-180')} />
+              </button>
+
+              {featuresOpen && (
+                <div className="absolute top-full left-0 mt-2 w-72 bg-white border border-[#e5e5e5] shadow-lg p-2">
+                  {features.map((feature) => (
+                    <Link
+                      key={feature.name}
+                      href={feature.href}
+                      onClick={() => setFeaturesOpen(false)}
+                      className="block p-3 hover:bg-[#fafafa] transition-colors"
+                    >
+                      <p className="text-sm font-medium text-[#0a0a0a]">{feature.name}</p>
+                      <p className="text-xs text-[#737373] mt-0.5">{feature.description}</p>
+                    </Link>
+                  ))}
+                  <div className="border-t border-[#e5e5e5] mt-2 pt-2">
+                    <Link
+                      href="/features"
+                      onClick={() => setFeaturesOpen(false)}
+                      className="flex items-center justify-between p-3 text-sm text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
+                    >
+                      View all features
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -74,16 +154,16 @@ export function MarketingNavbar() {
           <div className="hidden md:block w-px h-5 bg-[#e5e5e5]" />
 
           {/* CTA */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-1">
             <Link
               href="/login"
-              className="px-3 py-1.5 text-sm text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
+              className="px-4 py-1.5 text-sm text-[#737373] hover:text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
             >
               Sign in
             </Link>
             <Link
               href="/waitlist"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0a] text-white text-sm font-medium hover:bg-[#262626] transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-[#0a0a0a] text-white text-sm font-medium hover:bg-[#262626] transition-colors"
             >
               Join Waitlist
               <ArrowRight className="w-3.5 h-3.5" />
@@ -105,6 +185,23 @@ export function MarketingNavbar() {
         <div className="fixed inset-0 z-40 bg-white md:hidden">
           <div className="flex flex-col h-full pt-20 px-6">
             <div className="flex-1 space-y-1">
+              {/* Features Section */}
+              <div className="py-3 border-b border-[#f5f5f5]">
+                <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-wide mb-3">Features</p>
+                <div className="space-y-2">
+                  {features.map((feature) => (
+                    <Link
+                      key={feature.name}
+                      href={feature.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block py-2 text-[#737373] hover:text-[#0a0a0a]"
+                    >
+                      {feature.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
