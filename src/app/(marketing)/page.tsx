@@ -173,144 +173,236 @@ function FeatureBentoGrid() {
 export default function LandingPage() {
   return (
     <div className="bg-white">
-      {/* Hero Section - Asymmetric Layout */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white">
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5f5f5_1px,transparent_1px),linear-gradient(to_bottom,#f5f5f5_1px,transparent_1px)] bg-[size:6rem_6rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+      {/* Hero Section - Centered with Dashboard Below */}
+      <section className="relative overflow-hidden bg-white">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5f5f5_1px,transparent_1px),linear-gradient(to_bottom,#f5f5f5_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)]" />
 
-        <div className="relative max-w-7xl mx-auto px-6 py-32 w-full">
-          <div className="grid lg:grid-cols-12 gap-16 items-center">
-            {/* Left: Content - 7 cols */}
-            <div className="lg:col-span-7 space-y-12">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white text-sm font-medium group hover:gap-3 transition-all cursor-default">
-                <Sparkles className="w-4 h-4" />
-                <span className="tracking-wide">AI-POWERED INSIGHTS</span>
-                <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </div>
+        <div className="relative max-w-7xl mx-auto px-6">
+          {/* Centered Hero Content */}
+          <div className="pt-24 lg:pt-32 pb-16 text-center max-w-4xl mx-auto">
+            {/* Tag */}
+            <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">AI-POWERED INSIGHTS</div>
 
-              {/* Headline */}
-              <div className="space-y-8">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#0a0a0a] leading-[1.1] tracking-tight">
-                  Know What
-                  <br />
-                  Your Fans
-                  <br />
-                  <span className="italic font-light">Actually</span> Love
-                </h1>
+            {/* Headline */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#0a0a0a] leading-[1.1] tracking-tight mb-8">
+              Know What Your Fans
+              <br />
+              <span className="italic font-light">Actually</span> Love
+            </h1>
 
-                <div className="w-24 h-px bg-[#0a0a0a]" />
-              </div>
+            {/* Subheadline */}
+            <p className="text-xl text-[#525252] leading-relaxed max-w-2xl mx-auto font-light mb-10">
+              PhantomOS reveals which characters and IP assets drive your merchandise revenue.
+              <span className="text-[#0a0a0a] font-normal"> Stop guessing. Start knowing.</span>
+            </p>
 
-              {/* Subheadline */}
-              <p className="text-xl text-[#525252] leading-relaxed max-w-xl font-light">
-                PhantomOS reveals which characters and IP assets drive your merchandise revenue.
-                <span className="text-[#0a0a0a] font-normal"> Stop guessing. Start knowing.</span>
-              </p>
-
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                <Link
-                  href={SIGNUP_URL}
-                  className="group relative px-6 py-3 bg-[#0a0a0a] text-white font-medium overflow-hidden flex items-center justify-center gap-2 hover:gap-3 transition-all"
-                >
-                  <span className="relative z-10">{SIGNUP_CTA}</span>
-                  <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
-                  <div className="absolute inset-0 bg-[#171717] transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </Link>
-                <Link
-                  href="#features"
-                  className="group px-6 py-3 bg-white text-[#0a0a0a] font-medium border border-[#e5e5e5] hover:border-[#0a0a0a] transition-all text-center flex items-center justify-center gap-2"
-                >
-                  See How It Works
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-
-              {/* Trust Line */}
-              <p className="text-sm text-[#a3a3a3] tracking-wide">
-                FREE 30-DAY PILOT · NO CREDIT CARD · 5-MINUTE SETUP
-              </p>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+              <Link
+                href={SIGNUP_URL}
+                className="group relative px-8 py-4 bg-[#0a0a0a] text-white font-medium overflow-hidden flex items-center justify-center gap-2 hover:gap-3 transition-all"
+              >
+                <span className="relative z-10">{SIGNUP_CTA}</span>
+                <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-[#171717] transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              </Link>
+              <Link
+                href="#features"
+                className="group px-8 py-4 bg-white text-[#0a0a0a] font-medium border-2 border-[#e5e5e5] hover:border-[#0a0a0a] transition-all flex items-center justify-center gap-2"
+              >
+                See How It Works
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
 
-            {/* Right: Visual - 5 cols */}
-            <div className="lg:col-span-5 relative">
-              {/* Floating Card 1 - Top */}
-              <div className="absolute -top-12 -right-8 z-20 bg-white border-2 border-[#0a0a0a] p-6 shadow-2xl animate-float">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-[#737373] uppercase tracking-wider">Revenue Growth</p>
-                    <p className="text-2xl font-bold text-[#0a0a0a]">+34%</p>
+            {/* Trust Line */}
+            <p className="text-sm text-[#a3a3a3] tracking-wide">
+              FREE 30-DAY PILOT · NO CREDIT CARD · 5-MINUTE SETUP
+            </p>
+          </div>
+
+          {/* Dashboard Preview - Hidden on mobile, shown on tablet+ */}
+          <div className="relative pb-0 hidden md:block">
+            {/* Dashboard Container with Browser Chrome */}
+            <div className="bg-[#0a0a0a] border-2 border-[#0a0a0a] shadow-2xl">
+              {/* Browser Chrome */}
+              <div className="flex items-center gap-3 px-4 py-3 bg-[#171717] border-b border-[#333]">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-[#525252]" />
+                  <div className="w-3 h-3 rounded-full bg-[#525252]" />
+                  <div className="w-3 h-3 rounded-full bg-[#525252]" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="px-4 py-1 bg-[#0a0a0a] text-xs text-[#737373] font-mono">
+                    app.phantomos.com/overview
                   </div>
                 </div>
+                <div className="w-16" />
               </div>
 
-              {/* Main Dashboard Preview */}
-              <div className="relative bg-white border-2 border-[#0a0a0a] shadow-2xl">
-                {/* Browser Chrome */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-[#fafafa] border-b-2 border-[#0a0a0a]">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 bg-[#0a0a0a]" />
-                    <div className="w-3 h-3 border border-[#0a0a0a]" />
-                    <div className="w-3 h-3 border border-[#0a0a0a]" />
+              {/* Dashboard Content - Bento Grid */}
+              <div className="p-3 lg:p-4 bg-[#fafafa]">
+                <div className="grid grid-cols-12 gap-2 lg:gap-3">
+                  {/* Stats Row */}
+                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
+                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Total Revenue</div>
+                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">$227,849</div>
+                    <div className="text-[10px] lg:text-xs text-[#22c55e] font-medium mt-1">+24.5% ↑</div>
                   </div>
-                </div>
+                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
+                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Total Orders</div>
+                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">2,847</div>
+                    <div className="text-[10px] lg:text-xs text-[#22c55e] font-medium mt-1">+18.2% ↑</div>
+                  </div>
+                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
+                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Products Mapped</div>
+                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">156</div>
+                    <div className="text-[10px] lg:text-xs text-[#737373] font-medium mt-1">of 164 total</div>
+                  </div>
+                  <div className="col-span-6 lg:col-span-3 bg-[#0a0a0a] p-3 lg:p-4">
+                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">AI Insights</div>
+                    <div className="text-lg lg:text-2xl font-bold text-white">12 New</div>
+                    <div className="text-[10px] lg:text-xs text-[#a3a3a3] font-medium mt-1">View recommendations →</div>
+                  </div>
 
-                {/* Dashboard Content */}
-                <div className="p-8 bg-white">
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {[
-                      { label: 'Revenue', value: '$227K', growth: '+24%' },
-                      { label: 'Orders', value: '2.8K', growth: '+18%' },
-                      { label: 'Products', value: '156', growth: '+12%' },
-                    ].map((stat, i) => (
-                      <div key={i} className="bg-[#fafafa] border border-[#e5e5e5] p-4">
-                        <div className="text-xs text-[#737373] mb-2 tracking-wide uppercase">{stat.label}</div>
-                        <div className="text-xl font-bold text-[#0a0a0a] mb-1">{stat.value}</div>
-                        <div className="text-xs text-[#0a0a0a]">{stat.growth}</div>
+                  {/* Main Chart - Bar Chart */}
+                  <div className="col-span-12 lg:col-span-8 row-span-2 bg-white border border-[#e5e5e5] p-4 lg:p-5 flex flex-col">
+                    <div className="flex items-center justify-between mb-3 lg:mb-4">
+                      <div>
+                        <div className="text-xs lg:text-sm font-semibold text-[#0a0a0a]">Revenue by Character</div>
+                        <div className="text-[10px] lg:text-xs text-[#737373]">Which IP assets drive your sales</div>
                       </div>
-                    ))}
+                      <div className="flex gap-1">
+                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#0a0a0a] text-white text-[10px] lg:text-xs">30D</div>
+                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">90D</div>
+                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">1Y</div>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex items-end gap-2 lg:gap-3">
+                      {[
+                        { pct: 95, label: 'Shadow', value: '$89.4K' },
+                        { pct: 72, label: 'Pixel', value: '$67.2K' },
+                        { pct: 58, label: 'Luna', value: '$45.8K' },
+                        { pct: 42, label: 'Iron', value: '$24.1K' },
+                        { pct: 35, label: 'Nova', value: '$18.3K' },
+                        { pct: 28, label: 'Echo', value: '$12.7K' },
+                        { pct: 22, label: 'Other', value: '$10.2K' },
+                      ].map((bar, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center group">
+                          <div className="w-full flex flex-col items-center justify-end h-24 lg:h-32">
+                            <div className="text-[8px] lg:text-[10px] text-[#737373] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">{bar.value}</div>
+                            <div
+                              className="w-full bg-[#0a0a0a] group-hover:bg-[#333] transition-colors"
+                              style={{ height: `${bar.pct}%` }}
+                            />
+                          </div>
+                          <span className="text-[8px] lg:text-[9px] text-[#a3a3a3] mt-1 lg:mt-2 truncate w-full text-center">{bar.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Chart Preview */}
-                  <div className="bg-[#fafafa] border border-[#e5e5e5] p-6">
-                    <div className="flex items-end justify-between gap-1 h-32">
-                      {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((height, i) => (
-                        <div
-                          key={i}
-                          className="flex-1 bg-[#0a0a0a] transition-all duration-1000 ease-out hover:bg-[#525252]"
-                          style={{
-                            height: `${height}%`,
-                            animationDelay: `${i * 50}ms`,
-                          }}
-                        />
-                      ))}
+                  {/* Top Performer */}
+                  <div className="col-span-6 lg:col-span-4 bg-white border border-[#e5e5e5] p-3 lg:p-5">
+                    <div className="flex items-center justify-between mb-2 lg:mb-4">
+                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">Top Performer</div>
+                      <Sparkles className="w-3 h-3 lg:w-4 lg:h-4 text-[#a3a3a3]" />
+                    </div>
+                    <div className="flex items-center gap-2 lg:gap-3 mb-2 lg:mb-4">
+                      <div className="w-8 h-8 lg:w-12 lg:h-12 bg-[#0a0a0a] flex items-center justify-center text-white font-bold text-xs lg:text-base">
+                        SK
+                      </div>
+                      <div>
+                        <div className="font-semibold text-[#0a0a0a] text-xs lg:text-base">Shadow Knight</div>
+                        <div className="text-[10px] lg:text-xs text-[#737373]">40% of revenue</div>
+                      </div>
+                    </div>
+                    <div className="space-y-1 lg:space-y-2">
+                      <div className="flex justify-between text-[10px] lg:text-xs">
+                        <span className="text-[#737373]">Revenue</span>
+                        <span className="font-medium text-[#0a0a0a]">$89,423</span>
+                      </div>
+                      <div className="h-1 lg:h-1.5 bg-[#e5e5e5]">
+                        <div className="h-full bg-[#0a0a0a] w-[92%]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI Insight Card */}
+                  <div className="col-span-6 lg:col-span-4 bg-white border border-[#e5e5e5] p-3 lg:p-5">
+                    <div className="flex items-center gap-2 mb-2 lg:mb-3">
+                      <Brain className="w-3 h-3 lg:w-4 lg:h-4 text-[#0a0a0a]" />
+                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">AI Insight</div>
+                      <div className="ml-auto text-[8px] lg:text-[10px] px-1 lg:px-1.5 py-0.5 bg-[#0a0a0a] text-white">94%</div>
+                    </div>
+                    <div className="text-xs lg:text-sm font-medium text-[#0a0a0a] mb-1 lg:mb-2">
+                      Shadow Knight +34% conversion
+                    </div>
+                    <div className="text-[10px] lg:text-xs text-[#737373] leading-relaxed hidden lg:block">
+                      Consider expanding the Shadow Knight product line.
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Floating Card 2 - Bottom */}
-              <div className="absolute -bottom-8 -left-8 z-20 bg-[#0a0a0a] text-white p-6 shadow-2xl animate-float-delayed">
-                <div className="flex items-center gap-3">
-                  <Brain className="w-8 h-8" />
-                  <div>
-                    <p className="text-xs text-[#a3a3a3] uppercase tracking-wider">AI Insights</p>
-                    <p className="text-lg font-semibold">12 New</p>
+            {/* Fade to white at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          </div>
+
+          {/* Mobile Dashboard Preview - Simplified version for mobile */}
+          <div className="relative pb-8 md:hidden">
+            <div className="bg-[#0a0a0a] border-2 border-[#0a0a0a] shadow-xl">
+              {/* Browser Chrome */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-[#171717] border-b border-[#333]">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="px-2 py-0.5 bg-[#0a0a0a] text-[10px] text-[#737373] font-mono">
+                    app.phantomos.com
+                  </div>
+                </div>
+              </div>
+
+              {/* Simplified Mobile Dashboard */}
+              <div className="p-3 bg-[#fafafa]">
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="bg-white border border-[#e5e5e5] p-3">
+                    <div className="text-[10px] text-[#737373] uppercase mb-1">Revenue</div>
+                    <div className="text-lg font-bold text-[#0a0a0a]">$227K</div>
+                    <div className="text-[10px] text-[#22c55e]">+24.5%</div>
+                  </div>
+                  <div className="bg-[#0a0a0a] p-3">
+                    <div className="text-[10px] text-[#737373] uppercase mb-1">AI Insights</div>
+                    <div className="text-lg font-bold text-white">12 New</div>
+                    <div className="text-[10px] text-[#a3a3a3]">View all →</div>
+                  </div>
+                </div>
+
+                {/* Mini Bar Chart */}
+                <div className="bg-white border border-[#e5e5e5] p-3">
+                  <div className="text-xs font-medium text-[#0a0a0a] mb-3">Revenue by Character</div>
+                  <div className="flex items-end gap-2 h-20">
+                    {[95, 72, 58, 42, 35].map((pct, i) => (
+                      <div key={i} className="flex-1 bg-[#0a0a0a]" style={{ height: `${pct}%` }} />
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Fade to white at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
           </div>
         </div>
       </section>
 
       {/* Problem/Solution - Split Design */}
-      <section id="features" className="pt-16 lg:pt-20 pb-24 lg:pb-32 bg-white">
+      <section id="features" className="pt-8 lg:pt-12 pb-24 lg:pb-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-3xl mb-20">
             <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">THE PROBLEM</div>
