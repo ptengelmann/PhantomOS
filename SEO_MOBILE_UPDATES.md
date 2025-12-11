@@ -51,8 +51,10 @@ Added unique metadata to key marketing pages:
 
 1. **Responsive Navbar** (`src/components/marketing/navbar.tsx`)
    - Desktop: Full navigation with mega menu dropdown
+   - Desktop: Floating pill navbar appears on scroll (after 100px)
    - Mobile: Hamburger menu with animated toggle
    - Smooth slide-in mobile menu
+   - Floating pill hidden on mobile (desktop only)
 
 2. **Responsive Grid Layouts**
    - All pages use Tailwind responsive breakpoints (`sm:`, `md:`, `lg:`, `xl:`)
