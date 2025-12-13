@@ -522,10 +522,23 @@ SK-001,5,149.95,2025-06-15,North America
 
 ```typescript
 // Public routes (no auth)
-const publicRoutes = ['/', '/features', '/pricing', '/roadmap', '/waitlist', '/faq'];
+const marketingRoutes = [
+  '/',
+  '/features',
+  '/pricing',
+  '/roadmap',
+  '/waitlist',
+  '/contact',
+  '/about',
+  '/careers',
+  '/faq',
+  '/privacy',
+  '/terms',
+  '/security'
+];
 
 // Auth routes (accessible when logged out)
-const authRoutes = ['/login', '/register', '/forgot-password'];
+const authRoutes = ['/login', '/register', '/forgot-password', '/invite'];
 
 // Everything else requires authentication
 ```
@@ -537,14 +550,58 @@ When `PILOT_MODE=true`:
 - `ALLOWED_EMAILS` list bypasses restrictions
 - Only approved waitlist entries can register
 
+### Role-Based Access Control (RBAC)
+
+PhantomOS implements role-based permissions to control who can modify data.
+
+**User Roles:**
+
+| Role | View Data | Edit/Delete | Invite Users | Manage Publisher |
+|------|-----------|-------------|--------------|------------------|
+| `owner` | Yes | Yes | Yes | Yes |
+| `admin` | Yes | Yes | Yes | No |
+| `member` | Yes | No (403) | No | No |
+| `analyst` | Yes | No (403) | No | No |
+
+**Protected Write Endpoints:**
+
+All POST/PUT/DELETE operations on these routes require `owner` or `admin` role:
+
+- `/api/products/import` - CSV product import
+- `/api/products/mapping` - Asset mapping (confirm/skip)
+- `/api/products/[id]/assets` - Add/remove product assets
+- `/api/connectors/[id]` - Delete connectors
+- `/api/connectors/shopify/auth` - Initiate Shopify OAuth
+- `/api/connectors/shopify/sync/*` - Sync products/orders
+- `/api/assets` - Create IP assets
+- `/api/sales/import` - CSV sales import
+
+**Implementation:**
+
+```typescript
+// src/lib/auth/index.ts
+const WRITE_ROLES = ['owner', 'admin'];
+
+export function canWrite(role: string): boolean {
+  return WRITE_ROLES.includes(role);
+}
+
+// Usage in API routes:
+if (!canWrite(session.user.role)) {
+  return NextResponse.json({ error: 'Write access required' }, { status: 403 });
+}
+```
+
 ### Security Measures
 
-1. **Password Hashing:** bcrypt with salt rounds
-2. **Session:** JWT with HttpOnly cookies
+1. **Password Hashing:** bcrypt with 12 salt rounds
+2. **Session:** JWT with HttpOnly cookies (30-day expiration)
 3. **CSRF:** Built into NextAuth
 4. **Input Validation:** Zod schemas on API routes
 5. **SQL Injection:** Prevented by Drizzle ORM parameterized queries
 6. **Connector Credentials:** Stored in encrypted JSONB
+7. **Role-Based Access:** Write operations require owner/admin role
+8. **Publisher Scoping:** All data queries filtered by publisherId from session
 
 ---
 
@@ -619,7 +676,9 @@ When `PILOT_MODE=true`:
 
 ## Scripts
 
-### seed-demo-data.ts
+### Demo Data
+
+#### seed-demo-data.ts
 
 Creates fictional "Phantom Warriors" demo data:
 - 1 Game IP with 6 characters (Shadow Knight, Luna Starfire, Iron Fang, The Architect, Pixel, Crimson Guard)
@@ -632,6 +691,49 @@ Creates fictional "Phantom Warriors" demo data:
 **Usage:**
 ```bash
 npx tsx scripts/seed-demo-data.ts
+```
+
+### User Management
+
+#### create-demo-user.ts
+
+Creates a read-only user account under the demo publisher (for demos/presentations).
+
+```bash
+npx tsx scripts/create-demo-user.ts <email> <password> [name]
+# Example:
+npx tsx scripts/create-demo-user.ts demo@example.com Password123 "Demo User"
+```
+- Role: `member` (read-only access)
+- Shares data with demo publisher
+
+#### create-company.ts
+
+Creates a new publisher with fresh account (no demo data) for real customers.
+
+```bash
+npx tsx scripts/create-company.ts <company-name> <email> <password> [user-name]
+# Example:
+npx tsx scripts/create-company.ts "Riot Games" admin@riot.com Password123 "John Smith"
+```
+- Creates new publisher
+- User becomes `owner` with full access
+- Empty dashboard until they connect data
+
+#### reset-password.ts
+
+Resets password for an existing user.
+
+```bash
+npx tsx scripts/reset-password.ts <email> <new-password>
+```
+
+#### check-user.ts
+
+Verifies user exists and displays account details (for debugging).
+
+```bash
+npx tsx scripts/check-user.ts <email>
 ```
 
 ### Other Scripts
@@ -655,4 +757,4 @@ npx tsx scripts/seed-demo-data.ts
 
 ---
 
-*Last updated: December 2024*
+*Last updated: December 2025*

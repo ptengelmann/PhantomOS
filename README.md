@@ -33,6 +33,7 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 | **Data Connectors** | Shopify OAuth, CSV import for products and sales |
 | **Settings** | Account management, team invites with secure tokens |
 | **Pilot Waitlist** | Gated access system for controlled launch |
+| **Role-Based Access** | Owner/Admin can edit; Member/Analyst are read-only |
 
 ---
 
@@ -213,6 +214,35 @@ Monochromatic minimalism:
 | `npx drizzle-kit push` | Push schema to database |
 | `npx drizzle-kit studio` | Open Drizzle Studio |
 | `npx tsx scripts/seed-demo-data.ts` | Seed demo data |
+
+---
+
+## User Management
+
+Scripts for managing users and companies (run with `DATABASE_URL` env var):
+
+```bash
+# Create demo user (read-only access to demo data)
+npx tsx scripts/create-demo-user.ts email@example.com Password123 "User Name"
+
+# Create new company (fresh account, no demo data)
+npx tsx scripts/create-company.ts "Company Name" admin@company.com Password123 "Admin Name"
+
+# Reset user password
+npx tsx scripts/reset-password.ts email@example.com NewPassword123
+
+# Check user account details
+npx tsx scripts/check-user.ts email@example.com
+```
+
+### User Roles
+
+| Role | Access Level |
+|------|--------------|
+| `owner` | Full access - edit, delete, invite, manage |
+| `admin` | Full access - edit, delete, invite |
+| `member` | Read-only - view data only |
+| `analyst` | Read-only - view data only |
 
 ---
 

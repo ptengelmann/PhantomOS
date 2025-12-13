@@ -11,7 +11,9 @@ The core platform is functional with:
 - Shopify OAuth and CSV import
 - Asset tagging system
 - Dashboard analytics
-- Team management
+- Team management with invitations
+- Role-Based Access Control (RBAC)
+- Pilot waitlist and admin approval system
 
 ---
 
@@ -213,13 +215,14 @@ Features for large publishers and studios.
 | Phase | Target | Status |
 |-------|--------|--------|
 | MVP | Q4 2024 | Complete |
-| Merch Studio | Q1 2025 | Planning |
-| Production | Q1-Q2 2025 | Planning |
-| Storefront | Q2 2025 | Planning |
-| Creators | Q3 2025 | Planning |
+| Pilot Launch | Q1 2025 | Active |
+| Merch Studio | Q2 2025 | Planning |
+| Production | Q2-Q3 2025 | Planning |
+| Storefront | Q3 2025 | Planning |
+| Creators | Q4 2025 | Planning |
 | Additional Connectors | Ongoing | In Progress |
-| Advanced AI | Q3-Q4 2025 | Planning |
-| Enterprise | Q4 2025 | Planning |
+| Advanced AI | Q4 2025 - Q1 2026 | Planning |
+| Enterprise | 2026 | Planning |
 
 ---
 
