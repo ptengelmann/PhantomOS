@@ -269,6 +269,10 @@ Features for large publishers and studios.
   - Year and category filters
   - Category badges (Feature, Fix, Security, etc.)
 - Added How It Works page with step-by-step user flow
+- Fixed demo mode bypassing real data throughout the app:
+  - Settings profile/organization APIs now return real user data for logged-in users
+  - All write endpoints check session before demo mode
+  - Demo data only shown for anonymous/unauthenticated access
 - Fixed RBAC bypass in demo mode - role checks now enforced for all logged-in users
 - Added write protection to all tagging and mapping routes
 - Updated hero CTA to link to How It Works page
