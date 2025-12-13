@@ -34,6 +34,7 @@ const features = [
 ];
 
 const navLinks = [
+  { name: 'How It Works', href: '/how-it-works' },
   { name: 'FAQ', href: '/faq' },
   { name: 'Roadmap', href: '/roadmap' },
   { name: 'Updates', href: '/updates' },
