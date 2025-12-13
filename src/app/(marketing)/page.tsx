@@ -208,7 +208,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-[#171717] transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
               </Link>
               <Link
-                href="#features"
+                href="/how-it-works"
                 className="group px-8 py-4 bg-white text-[#0a0a0a] font-medium border-2 border-[#e5e5e5] hover:border-[#0a0a0a] transition-all flex items-center justify-center gap-2"
               >
                 See How It Works

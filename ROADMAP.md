@@ -4,16 +4,44 @@ This document outlines the planned features and enhancements for PhantomOS.
 
 ---
 
-## Current Phase: MVP Complete
+## Current Phase: MVP Complete + Pilot Active
 
-The core platform is functional with:
-- Fan Intelligence Hub with real AI insights
-- Shopify OAuth and CSV import
-- Asset tagging system
-- Dashboard analytics
-- Team management with invitations
-- Role-Based Access Control (RBAC)
-- Pilot waitlist and admin approval system
+The core platform is fully functional and in active pilot testing. Last updated: December 2025.
+
+### Core Features (Complete)
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Fan Intelligence Hub** | Complete | AI-powered insights dashboard with real-time recommendations |
+| **AI Asset Tagging** | Complete | Claude-powered auto-tagging maps products to IP assets |
+| **Revenue Analytics** | Complete | Track revenue by character, franchise, and product category |
+| **Shopify Integration** | Complete | OAuth connection with auto-sync of products and orders |
+| **CSV Import** | Complete | Universal import for any data source |
+| **Dashboard** | Complete | Real-time analytics with chart controls and date filtering |
+| **Team Management** | Complete | Invite team members with role assignments |
+| **RBAC** | Complete | Role-based access control (owner/admin = write, member/analyst = read-only) |
+| **Pilot System** | Complete | Waitlist with admin approval and token-based invitations |
+
+### Marketing & SEO (Complete)
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Landing Page** | Complete | Hero section with dashboard preview |
+| **How It Works** | Complete | Step-by-step guide explaining the platform |
+| **Features Pages** | Complete | Individual pages for Intelligence, Tagging, Analytics, Connectors |
+| **About/Careers** | Complete | Company information pages |
+| **SEO Optimization** | Complete | Sitemap, robots.txt, page metadata |
+| **Responsive Design** | Complete | Mobile-friendly with floating navbar |
+
+### Security (Complete)
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Authentication** | Complete | NextAuth.js with JWT sessions |
+| **Password Security** | Complete | bcrypt hashing for all passwords |
+| **RBAC Enforcement** | Complete | Write operations protected by role checks |
+| **Demo Mode Isolation** | Complete | RBAC enforced even when demo mode enabled |
+| **Tenant Isolation** | Complete | All queries scoped to publisher ID |
 
 ---
 
@@ -214,8 +242,8 @@ Features for large publishers and studios.
 
 | Phase | Target | Status |
 |-------|--------|--------|
-| MVP | Q4 2024 | Complete |
-| Pilot Launch | Q1 2025 | Active |
+| MVP | Q4 2024 | **Complete** |
+| Pilot Launch | Q1 2025 | **Active** |
 | Merch Studio | Q2 2025 | Planning |
 | Production | Q2-Q3 2025 | Planning |
 | Storefront | Q3 2025 | Planning |
@@ -223,6 +251,28 @@ Features for large publishers and studios.
 | Additional Connectors | Ongoing | In Progress |
 | Advanced AI | Q4 2025 - Q1 2026 | Planning |
 | Enterprise | 2026 | Planning |
+
+---
+
+## Recent Updates
+
+### December 2025
+- Added How It Works page with step-by-step user flow
+- Fixed RBAC bypass in demo mode - role checks now enforced for all logged-in users
+- Added write protection to all tagging and mapping routes
+- Updated hero CTA to link to How It Works page
+
+### November 2025
+- Added Role-Based Access Control (RBAC) system
+- Implemented team invitation system with role assignment
+- Added user management with owner/admin/member/analyst roles
+- Protected all write endpoints with role-based authorization
+
+### October 2025
+- Redesigned marketing pages with minimal black/white aesthetic
+- Added floating pill navbar with mega menu
+- Implemented SEO: sitemap, robots.txt, page metadata
+- Created feature-specific landing pages
 
 ---
 
