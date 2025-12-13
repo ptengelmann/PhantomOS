@@ -6,29 +6,34 @@ import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/li
 
 // Helper to get and verify publisherId
 async function getPublisherId() {
+  const session = await getServerSession();
+  if (session?.user?.publisherId) {
+    return session.user.publisherId;
+  }
   if (isDemoMode()) {
     return getDemoPublisherId();
   }
-  const session = await getServerSession();
-  if (!session?.user?.publisherId) {
-    return null;
-  }
-  return session.user.publisherId;
+  return null;
 }
 
-// Helper to check write access
+// Helper to check write access - ALWAYS checks RBAC when user is logged in
 async function checkWriteAccess(): Promise<{ allowed: boolean; publisherId: string | null }> {
+  const session = await getServerSession();
+
+  if (session?.user?.publisherId) {
+    // User is logged in - always check RBAC regardless of demo mode
+    if (!canWrite(session.user.role)) {
+      return { allowed: false, publisherId: session.user.publisherId };
+    }
+    return { allowed: true, publisherId: session.user.publisherId };
+  }
+
+  // No session - fall back to demo mode if enabled
   if (isDemoMode()) {
     return { allowed: true, publisherId: getDemoPublisherId() };
   }
-  const session = await getServerSession();
-  if (!session?.user?.publisherId) {
-    return { allowed: false, publisherId: null };
-  }
-  if (!canWrite(session.user.role)) {
-    return { allowed: false, publisherId: session.user.publisherId };
-  }
-  return { allowed: true, publisherId: session.user.publisherId };
+
+  return { allowed: false, publisherId: null };
 }
 
 // Confirm product-asset mapping

@@ -22,17 +22,19 @@ export async function POST(request: NextRequest) {
     // SECURITY: Require write access (owner/admin only)
     let publisherId: string;
 
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+    const session = await getServerSession();
+
+    if (session?.user?.publisherId) {
+      // User is logged in - always check RBAC regardless of demo mode
       if (!canWrite(session.user.role)) {
         return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
+    } else if (isDemoMode()) {
+      // No session but demo mode - allow anonymous access
+      publisherId = getDemoPublisherId();
+    } else {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await request.formData();
