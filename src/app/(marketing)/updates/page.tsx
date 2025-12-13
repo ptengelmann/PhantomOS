@@ -1,36 +1,276 @@
-import { CalendarDays, Sparkles, Users, Code } from 'lucide-react';
+'use client';
 
-const updates = [
+import { useState, useMemo } from 'react';
+import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type UpdateCategory = 'feature' | 'improvement' | 'fix' | 'security' | 'announcement';
+
+interface Update {
+  id: string;
+  date: string;
+  month: string;
+  year: string;
+  title: string;
+  summary: string;
+  category: UpdateCategory;
+  icon: typeof Code;
+  content: string[];
+  highlights?: string[];
+}
+
+const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg: string }> = {
+  feature: { label: 'Feature', color: 'text-[#0a0a0a]', bg: 'bg-[#0a0a0a] text-white' },
+  improvement: { label: 'Improvement', color: 'text-[#525252]', bg: 'bg-[#f5f5f5] text-[#525252]' },
+  fix: { label: 'Fix', color: 'text-[#dc2626]', bg: 'bg-[#fef2f2] text-[#dc2626]' },
+  security: { label: 'Security', color: 'text-[#7c3aed]', bg: 'bg-[#f5f3ff] text-[#7c3aed]' },
+  announcement: { label: 'Announcement', color: 'text-[#0369a1]', bg: 'bg-[#f0f9ff] text-[#0369a1]' },
+};
+
+const updates: Update[] = [
   {
-    date: 'December 2025',
-    title: 'Building for Launch',
-    icon: Code,
+    id: 'dec-2025-rbac',
+    date: 'December 13, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Role-Based Access Control Enhanced',
+    summary: 'Fixed RBAC bypass in demo mode - role checks now enforced for all logged-in users.',
+    category: 'security',
+    icon: Shield,
     content: [
-      'Platform development in full swing. Building core analytics, manual tagging workflows, and Shopify integration.',
-      'Pilot program launching early 2026 (January-February) with select game publishers. Finalizing the product and onboarding process.',
+      'Fixed a critical issue where demo mode was bypassing RBAC checks for logged-in users. Now all authenticated users have role permissions enforced regardless of demo mode status.',
+      'Member and Analyst roles now correctly receive 403 Forbidden when attempting write operations like tagging products or modifying mappings.',
     ],
+    highlights: ['11 API endpoints patched', 'Session-first authentication', 'Demo mode isolation'],
   },
   {
-    date: 'November 2025',
-    title: 'Platform Development Begins',
+    id: 'dec-2025-how-it-works',
+    date: 'December 13, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'How It Works Page',
+    summary: 'New comprehensive guide explaining the PhantomOS workflow from setup to insights.',
+    category: 'feature',
     icon: Sparkles,
+    content: [
+      'Added a dedicated How It Works page that walks users through the four-step process: Connect Data, AI Tagging, Revenue Analytics, and Actionable Insights.',
+      'Includes visual demos, timeline showing "0 to insights in 20 minutes", and links to detailed feature pages.',
+    ],
+    highlights: ['4-step guide', 'Interactive visuals', 'Timeline showcase'],
+  },
+  {
+    id: 'dec-2025-updates-page',
+    date: 'December 13, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Updates Page Redesign',
+    summary: 'Interactive updates page with filtering, search, and expandable cards.',
+    category: 'improvement',
+    icon: Zap,
+    content: [
+      'Completely redesigned the updates page to be more scalable and interactive. Now supports filtering by year, category, and search.',
+      'Updates are now expandable cards - click to see full details. Much better UX when there are 20+ updates to browse.',
+    ],
+    highlights: ['Year filtering', 'Category badges', 'Expandable cards', 'Search'],
+  },
+  {
+    id: 'dec-2025-tagging-routes',
+    date: 'December 12, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Write Protection for Tagging Routes',
+    summary: 'Added missing RBAC protection to auto-tag and bulk mapping endpoints.',
+    category: 'fix',
+    icon: Bug,
+    content: [
+      'Discovered that the /api/products/auto-tag and /api/products/mapping/bulk routes were missing RBAC checks. Fixed by adding canWrite() validation.',
+      'All write operations now require owner or admin role.',
+    ],
+    highlights: ['Auto-tag protected', 'Bulk mapping protected'],
+  },
+  {
+    id: 'nov-2025-rbac',
+    date: 'November 28, 2025',
+    month: 'November',
+    year: '2025',
+    title: 'Role-Based Access Control',
+    summary: 'Introduced RBAC system with owner, admin, member, and analyst roles.',
+    category: 'feature',
+    icon: Shield,
+    content: [
+      'Implemented comprehensive role-based access control. Owner and Admin roles have full write access, while Member and Analyst roles are read-only.',
+      'All write endpoints now validate user roles before allowing modifications. This enables publishers to safely share dashboards with team members and external analysts.',
+    ],
+    highlights: ['4 role types', 'Write protection', 'Team collaboration'],
+  },
+  {
+    id: 'nov-2025-team-invites',
+    date: 'November 25, 2025',
+    month: 'November',
+    year: '2025',
+    title: 'Team Invitation System',
+    summary: 'Invite team members with role assignment and secure token-based onboarding.',
+    category: 'feature',
+    icon: Users,
+    content: [
+      'Publishers can now invite team members directly from the Settings page. Each invitation includes a role assignment that determines access level.',
+      'Invitations use secure tokens with expiration. New users are automatically linked to the correct publisher account on signup.',
+    ],
+    highlights: ['Email invitations', 'Role assignment', 'Secure tokens'],
+  },
+  {
+    id: 'nov-2025-platform-dev',
+    date: 'November 15, 2025',
+    month: 'November',
+    year: '2025',
+    title: 'Platform Development Begins',
+    summary: 'Started building PhantomOS after extensive customer discovery.',
+    category: 'announcement',
+    icon: Code,
     content: [
       'Started building PhantomOS after extensive conversations with game publishers about their merchandise operations.',
       'Initial focus: solving the fundamental problem of understanding what characters and IP elements drive sales.',
     ],
   },
   {
+    id: 'oct-2025-discovery',
     date: 'October 2025',
+    month: 'October',
+    year: '2025',
     title: 'Customer Discovery',
+    summary: 'Talked to 20+ game publishers about merchandise operations.',
+    category: 'announcement',
     icon: Users,
     content: [
       'Talked to 20+ game publishers about how they manage merchandise revenue. Discovered a consistent pattern: teams manually track sales in spreadsheets, guess at what fans want, and struggle to justify inventory decisions.',
       'The problem is clear. Time to build.',
     ],
+    highlights: ['20+ interviews', 'Problem validated', 'Market research'],
   },
 ];
 
+// Get unique years from updates
+const years = [...new Set(updates.map(u => u.year))].sort((a, b) => b.localeCompare(a));
+const categories = Object.keys(categoryConfig) as UpdateCategory[];
+
+function UpdateCard({ update, isExpanded, onToggle }: { update: Update; isExpanded: boolean; onToggle: () => void }) {
+  const Icon = update.icon;
+  const config = categoryConfig[update.category];
+
+  return (
+    <div
+      className={cn(
+        'bg-white border transition-all duration-300',
+        isExpanded ? 'border-[#0a0a0a] shadow-lg' : 'border-[#e5e5e5] hover:border-[#a3a3a3]'
+      )}
+    >
+      {/* Header - Always visible */}
+      <button
+        onClick={onToggle}
+        className="w-full p-6 text-left flex items-start gap-4"
+      >
+        <div className={cn(
+          'w-10 h-10 flex items-center justify-center flex-shrink-0 transition-colors',
+          isExpanded ? 'bg-[#0a0a0a]' : 'bg-[#f5f5f5]'
+        )}>
+          <Icon className={cn('w-5 h-5', isExpanded ? 'text-white' : 'text-[#737373]')} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <span className={cn('text-xs font-medium px-2 py-0.5', config.bg)}>
+              {config.label}
+            </span>
+            <div className="flex items-center gap-1.5 text-xs text-[#a3a3a3]">
+              <CalendarDays className="w-3 h-3" />
+              {update.date}
+            </div>
+          </div>
+
+          <h3 className="text-lg font-bold text-[#0a0a0a] mb-1">{update.title}</h3>
+          <p className="text-sm text-[#737373] line-clamp-2">{update.summary}</p>
+
+          {update.highlights && !isExpanded && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              {update.highlights.slice(0, 3).map((highlight, i) => (
+                <span key={i} className="text-xs px-2 py-1 bg-[#fafafa] text-[#525252]">
+                  {highlight}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={cn(
+          'w-8 h-8 flex items-center justify-center flex-shrink-0 transition-transform duration-300',
+          isExpanded ? 'rotate-180' : ''
+        )}>
+          <ChevronDown className="w-5 h-5 text-[#a3a3a3]" />
+        </div>
+      </button>
+
+      {/* Expanded Content */}
+      <div className={cn(
+        'overflow-hidden transition-all duration-300',
+        isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+      )}>
+        <div className="px-6 pb-6 pt-0 border-t border-[#f5f5f5]">
+          <div className="pl-14 pt-4">
+            <div className="space-y-3">
+              {update.content.map((paragraph, i) => (
+                <p key={i} className="text-[#525252] leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {update.highlights && (
+              <div className="mt-6 pt-4 border-t border-[#f5f5f5]">
+                <div className="text-xs text-[#a3a3a3] uppercase tracking-wider mb-3">Highlights</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {update.highlights.map((highlight, i) => (
+                    <span key={i} className="text-xs px-3 py-1.5 bg-[#0a0a0a] text-white">
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UpdatesPage() {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<UpdateCategory | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filteredUpdates = useMemo(() => {
+    return updates.filter(update => {
+      const matchesYear = selectedYear === 'all' || update.year === selectedYear;
+      const matchesCategory = selectedCategory === 'all' || update.category === selectedCategory;
+      const matchesSearch = searchQuery === '' ||
+        update.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        update.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        update.content.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesYear && matchesCategory && matchesSearch;
+    });
+  }, [selectedYear, selectedCategory, searchQuery]);
+
+  const clearFilters = () => {
+    setSelectedYear('all');
+    setSelectedCategory('all');
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = selectedYear !== 'all' || selectedCategory !== 'all' || searchQuery !== '';
+
   return (
     <div className="min-h-screen bg-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
@@ -40,64 +280,193 @@ export default function UpdatesPage() {
         <section className="max-w-7xl mx-auto px-6 py-24 text-center">
           <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-6">UPDATES</div>
           <h1 className="text-5xl md:text-6xl font-bold text-[#0a0a0a] mb-6 tracking-tight">
-            Community <span className="italic font-light">Updates</span>
+            What's <span className="italic font-light">New</span>
           </h1>
-          <p className="text-xl text-[#737373] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[#737373] max-w-3xl mx-auto leading-relaxed mb-8">
             Follow our journey building revenue intelligence for game publishers.
-            We'll share progress, new features, and what we're learning from pilot partners.
+            Features, fixes, and improvements - all in one place.
           </p>
+
+          {/* Stats */}
+          <div className="flex items-center justify-center gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-[#22c55e] rounded-full" />
+              <span className="text-[#737373]">{updates.length} updates</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-[#0a0a0a] rounded-full" />
+              <span className="text-[#737373]">{updates.filter(u => u.category === 'feature').length} features</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-[#7c3aed] rounded-full" />
+              <span className="text-[#737373]">{updates.filter(u => u.category === 'security').length} security</span>
+            </div>
+          </div>
         </section>
 
-        {/* Updates Timeline */}
-        <section className="max-w-4xl mx-auto px-6 pb-24">
-          <div className="space-y-6">
-            {updates.map((update, index) => {
-              const Icon = update.icon;
-              return (
-                <div key={index} className="bg-white border border-[#e5e5e5] p-8">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-12 h-12 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-6 h-6 text-[#0a0a0a]" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <CalendarDays className="w-4 h-4 text-[#a3a3a3]" />
-                        <span className="text-xs tracking-[0.1em] text-[#a3a3a3] uppercase">
-                          {update.date}
-                        </span>
-                      </div>
-                      <h2 className="text-2xl font-bold text-[#0a0a0a] mb-4">{update.title}</h2>
-                      <div className="space-y-3">
-                        {update.content.map((paragraph, pIndex) => (
-                          <p key={pIndex} className="text-[#737373] leading-relaxed">
-                            {paragraph}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Filters Bar */}
+        <section className="max-w-4xl mx-auto px-6 mb-8">
+          <div className="bg-[#fafafa] border border-[#e5e5e5] p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a3a3a3]" />
+                <input
+                  type="text"
+                  placeholder="Search updates..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    <X className="w-4 h-4 text-[#a3a3a3] hover:text-[#0a0a0a]" />
+                  </button>
+                )}
+              </div>
+
+              {/* Desktop Filters */}
+              <div className="hidden md:flex items-center gap-2">
+                {/* Year Filter */}
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a] cursor-pointer"
+                >
+                  <option value="all">All Years</option>
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+
+                {/* Category Filter */}
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value as UpdateCategory | 'all')}
+                  className="px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a] cursor-pointer"
+                >
+                  <option value="all">All Types</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
+                  ))}
+                </select>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="px-4 py-2.5 text-sm text-[#737373] hover:text-[#0a0a0a] transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Mobile Filter Toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="md:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm"
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="w-5 h-5 bg-[#0a0a0a] text-white text-xs flex items-center justify-center">
+                    {(selectedYear !== 'all' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0)}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Mobile Filters Dropdown */}
+            {showFilters && (
+              <div className="md:hidden mt-4 pt-4 border-t border-[#e5e5e5] space-y-3">
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm"
+                >
+                  <option value="all">All Years</option>
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value as UpdateCategory | 'all')}
+                  className="w-full px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm"
+                >
+                  <option value="all">All Types</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
+                  ))}
+                </select>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="w-full px-4 py-2.5 text-sm text-[#737373] border border-[#e5e5e5]"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Results count */}
+          {hasActiveFilters && (
+            <div className="mt-4 text-sm text-[#737373]">
+              Showing {filteredUpdates.length} of {updates.length} updates
+            </div>
+          )}
+        </section>
+
+        {/* Updates List */}
+        <section className="max-w-4xl mx-auto px-6 pb-24">
+          {filteredUpdates.length > 0 ? (
+            <div className="space-y-4">
+              {filteredUpdates.map((update) => (
+                <UpdateCard
+                  key={update.id}
+                  update={update}
+                  isExpanded={expandedId === update.id}
+                  onToggle={() => setExpandedId(expandedId === update.id ? null : update.id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 bg-[#f5f5f5] flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-[#a3a3a3]" />
+              </div>
+              <h3 className="text-lg font-medium text-[#0a0a0a] mb-2">No updates found</h3>
+              <p className="text-[#737373] mb-4">Try adjusting your search or filters</p>
+              <button
+                onClick={clearFilters}
+                className="px-6 py-2 bg-[#0a0a0a] text-white text-sm font-medium"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Social CTA */}
         <section className="bg-[#0a0a0a] py-24">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Follow Our <span className="italic font-light">Journey</span>
+              Stay in the <span className="italic font-light">Loop</span>
             </h2>
             <p className="text-lg text-[#a3a3a3] mb-10 max-w-2xl mx-auto leading-relaxed">
-              Stay updated with new features, pilot program news, and product updates.
-              Follow us on your preferred platform.
+              Get notified about new features, updates, and pilot program news.
             </p>
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors"
+                className="flex items-center gap-3 px-6 py-3 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -108,23 +477,12 @@ export default function UpdatesPage() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors"
+                className="flex items-center gap-3 px-6 py-3 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
                 LinkedIn
-              </a>
-              <a
-                href="https://reddit.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
-                </svg>
-                Reddit
               </a>
             </div>
           </div>
