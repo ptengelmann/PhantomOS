@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, requireWriteAccess, canWrite } from '@/lib/auth';
 
 interface CSVProduct {
   name: string;
@@ -18,6 +18,7 @@ interface CSVProduct {
 export async function POST(request: NextRequest) {
   try {
     // SECURITY: Get publisherId from session, not form data
+    // SECURITY: Require write access (owner/admin only)
     let publisherId: string;
 
     if (isDemoMode()) {
@@ -26,6 +27,9 @@ export async function POST(request: NextRequest) {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }

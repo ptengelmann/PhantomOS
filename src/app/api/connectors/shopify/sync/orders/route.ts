@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { connectors, products, sales } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
 
 interface ShopifyOrder {
   id: number;
@@ -36,7 +36,7 @@ interface ShopifyOrder {
 // Sync orders from Shopify
 export async function POST(request: NextRequest) {
   try {
-    // Get publisherId from session
+    // SECURITY: Require write access (owner/admin only)
     let publisherId: string;
 
     if (isDemoMode()) {
@@ -45,6 +45,9 @@ export async function POST(request: NextRequest) {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }

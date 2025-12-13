@@ -152,3 +152,26 @@ export function getDemoPublisherId() {
 export function isDemoMode() {
   return process.env.DEMO_MODE === 'true';
 }
+
+// Role-based access control
+// Roles: owner, admin = full access | member, analyst = read-only
+const WRITE_ROLES = ['owner', 'admin'];
+
+export function canWrite(role: string): boolean {
+  return WRITE_ROLES.includes(role);
+}
+
+// Helper for API routes that require write access
+export async function requireWriteAccess() {
+  const session = await getServerSession();
+
+  if (!session?.user?.publisherId) {
+    throw new Error('Unauthorized');
+  }
+
+  if (!canWrite(session.user.role)) {
+    throw new Error('Forbidden: Write access required');
+  }
+
+  return session;
+}

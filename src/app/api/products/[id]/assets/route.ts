@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { productAssets, ipAssets, products, gameIps } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
 
 // GET - Get assets for a specific product
 export async function GET(
@@ -81,12 +81,16 @@ export async function POST(
     const { id: productId } = await params;
     let publisherId: string;
 
+    // SECURITY: Require write access (owner/admin only)
     if (isDemoMode()) {
       publisherId = getDemoPublisherId();
     } else {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }
@@ -171,12 +175,16 @@ export async function DELETE(
     const { id: productId } = await params;
     let publisherId: string;
 
+    // SECURITY: Require write access (owner/admin only)
     if (isDemoMode()) {
       publisherId = getDemoPublisherId();
     } else {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }

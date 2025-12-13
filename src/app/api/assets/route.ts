@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ipAssets, gameIps } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
 
 // GET - List all IP assets grouped by Game IP
 export async function GET() {
@@ -70,6 +70,7 @@ export async function GET() {
 // POST - Create a new IP asset (and optionally game IP)
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Require write access (owner/admin only)
     let publisherId: string;
 
     if (isDemoMode()) {
@@ -78,6 +79,9 @@ export async function POST(request: NextRequest) {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }
