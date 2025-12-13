@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { db } from '@/lib/db';
 import { products, productAssets, ipAssets, gameIps } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -19,7 +19,7 @@ interface TagSuggestion {
 // Auto-tag unmapped products using AI
 export async function POST(request: NextRequest) {
   try {
-    // Get publisherId from session
+    // SECURITY: Require write access (owner/admin only)
     let publisherId: string;
 
     if (isDemoMode()) {
@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
       const session = await getServerSession();
       if (!session?.user?.publisherId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (!canWrite(session.user.role)) {
+        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
       }
       publisherId = session.user.publisherId;
     }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products, productAssets } from '@/lib/db/schema';
 import { eq, inArray, and } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
 
 // Helper to get and verify publisherId
 async function getPublisherId() {
@@ -16,6 +16,21 @@ async function getPublisherId() {
   return session.user.publisherId;
 }
 
+// Helper to check write access
+async function checkWriteAccess(): Promise<{ allowed: boolean; publisherId: string | null }> {
+  if (isDemoMode()) {
+    return { allowed: true, publisherId: getDemoPublisherId() };
+  }
+  const session = await getServerSession();
+  if (!session?.user?.publisherId) {
+    return { allowed: false, publisherId: null };
+  }
+  if (!canWrite(session.user.role)) {
+    return { allowed: false, publisherId: session.user.publisherId };
+  }
+  return { allowed: true, publisherId: session.user.publisherId };
+}
+
 interface BulkMapping {
   productId: string;
   assetIds: string[];
@@ -24,10 +39,13 @@ interface BulkMapping {
 // Bulk confirm product-asset mappings
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Get publisherId from session
-    const publisherId = await getPublisherId();
+    // SECURITY: Require write access (owner/admin only)
+    const { allowed, publisherId } = await checkWriteAccess();
     if (!publisherId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: 'Write access required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -126,10 +144,13 @@ export async function POST(request: NextRequest) {
 // Bulk skip products
 export async function PUT(request: NextRequest) {
   try {
-    // SECURITY: Get publisherId from session
-    const publisherId = await getPublisherId();
+    // SECURITY: Require write access (owner/admin only)
+    const { allowed, publisherId } = await checkWriteAccess();
     if (!publisherId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: 'Write access required' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -176,10 +197,13 @@ export async function PUT(request: NextRequest) {
 // Apply AI suggestions as bulk mappings
 export async function PATCH(request: NextRequest) {
   try {
-    // SECURITY: Get publisherId from session
-    const publisherId = await getPublisherId();
+    // SECURITY: Require write access (owner/admin only)
+    const { allowed, publisherId } = await checkWriteAccess();
     if (!publisherId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: 'Write access required' }, { status: 403 });
     }
 
     const body = await request.json();
