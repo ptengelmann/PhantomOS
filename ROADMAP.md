@@ -257,10 +257,22 @@ Features for large publishers and studios.
 ## Recent Updates
 
 ### December 2025
+- Made Settings page fully functional:
+  - Profile: name and avatar changes now save to database
+  - Avatar upload with file picker and base64 storage
+  - Organization: name and website changes save to database
+  - Proper loading states, success/error feedback
+  - RBAC enforced (only owner/admin can edit org settings)
+- Redesigned Updates page with interactive features:
+  - Expandable cards (click to see details)
+  - Search functionality
+  - Year and category filters
+  - Category badges (Feature, Fix, Security, etc.)
 - Added How It Works page with step-by-step user flow
 - Fixed RBAC bypass in demo mode - role checks now enforced for all logged-in users
 - Added write protection to all tagging and mapping routes
 - Updated hero CTA to link to How It Works page
+- Added How It Works to navbar navigation
 
 ### November 2025
 - Added Role-Based Access Control (RBAC) system
