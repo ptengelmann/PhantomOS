@@ -40,7 +40,7 @@ export default withAuth(
         const { pathname } = req.nextUrl;
 
         // Marketing routes are always public
-        const marketingRoutes = ['/', '/features', '/pricing', '/roadmap', '/waitlist', '/contact'];
+        const marketingRoutes = ['/', '/features', '/pricing', '/roadmap', '/waitlist', '/contact', '/about', '/careers', '/faq', '/privacy', '/terms', '/security'];
         const isMarketingRoute = marketingRoutes.some((route) =>
           pathname === route || pathname.startsWith('/features/')
         );
