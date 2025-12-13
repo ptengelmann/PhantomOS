@@ -414,7 +414,7 @@ SK-001,5,149.95,2025-06-15,North America
 **`(marketing)`** - Public marketing site
 - No auth required
 - Shared layout: MarketingNavbar + MarketingFooter
-- Pages: /, /features, /faq, /roadmap, /waitlist
+- Pages: /, /features, /faq, /roadmap, /waitlist, /how-it-works, /updates, /pricing, /about, /contact
 
 **`(dashboard)`** - Protected application
 - Auth required (middleware)
@@ -592,6 +592,30 @@ if (!canWrite(session.user.role)) {
 }
 ```
 
+### Demo Mode (Session-First Pattern)
+
+When `DEMO_MODE=true`, APIs follow a session-first pattern:
+
+```typescript
+// Correct pattern - check session FIRST
+const session = await getServerSession();
+
+if (session?.user?.id) {
+  // User is logged in - use REAL data, enforce RBAC
+  if (!canWrite(session.user.role)) {
+    return NextResponse.json({ error: 'Write access required' }, { status: 403 });
+  }
+  // Process with real user data
+} else if (isDemoMode()) {
+  // No session - fall back to demo data for anonymous access
+}
+```
+
+This ensures:
+- Logged-in users always see their real data
+- RBAC is always enforced for authenticated users
+- Demo mode only applies to anonymous/unauthenticated access
+
 ### Security Measures
 
 1. **Password Hashing:** bcrypt with 12 salt rounds
@@ -602,6 +626,7 @@ if (!canWrite(session.user.role)) {
 6. **Connector Credentials:** Stored in encrypted JSONB
 7. **Role-Based Access:** Write operations require owner/admin role
 8. **Publisher Scoping:** All data queries filtered by publisherId from session
+9. **Demo Mode Isolation:** Session checked before demo fallback to prevent data leakage
 
 ---
 

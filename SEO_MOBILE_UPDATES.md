@@ -18,11 +18,13 @@ Created `src/app/robots.ts` to control search engine crawling:
 Created `src/app/sitemap.ts` with all public pages:
 - Homepage (priority: 1.0)
 - Features pages (priority: 0.8-0.9)
+- How It Works (priority: 0.9)
 - Pricing (priority: 0.9)
 - Waitlist (priority: 0.8)
 - About, Contact (priority: 0.5-0.6)
 - Legal pages (priority: 0.3)
 - Roadmap, Updates (priority: 0.7)
+- FAQ (priority: 0.6)
 
 ### 3. Enhanced Root Metadata (`src/app/layout.tsx`)
 - Added `metadataBase` for proper URL resolution
@@ -42,6 +44,8 @@ Added unique metadata to key marketing pages:
 | `/features` | Features | AI-powered tools, asset tagging, analytics |
 | `/pricing` | Pricing | Pilot program, free for qualified publishers |
 | `/about` | About | Company mission, game publishers focus |
+| `/how-it-works` | How It Works | 4-step guide, setup process, AI tagging |
+| `/updates` | Updates | Changelog, features, improvements, fixes |
 
 ---
 
@@ -82,6 +86,9 @@ Added unique metadata to key marketing pages:
 - `src/app/(marketing)/features/page.tsx` - Added page metadata
 - `src/app/(marketing)/pricing/page.tsx` - Added page metadata
 - `src/app/(marketing)/about/page.tsx` - Added page metadata
+- `src/app/(marketing)/how-it-works/layout.tsx` - SEO metadata for How It Works
+- `src/app/(marketing)/updates/layout.tsx` - SEO metadata for Updates
+- `src/app/sitemap.ts` - Added How It Works and FAQ pages
 
 ---
 
@@ -106,4 +113,4 @@ Added unique metadata to key marketing pages:
 
 ---
 
-*Generated: December 2024*
+*Last Updated: December 2025*

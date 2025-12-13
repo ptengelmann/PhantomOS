@@ -11,8 +11,10 @@
 - [x] Category breakdown
 - [x] Recent orders table
 - [x] Export report functionality
-- [ ] AI Insights page (Fan Intelligence) - needs content/demo data
-- [ ] AI auto-tagging demo working
+- [x] AI Insights page (Fan Intelligence Hub)
+- [x] AI auto-tagging with Claude integration
+- [x] Settings page with working profile/organization forms
+- [x] Role-based access control (owner/admin/member/analyst)
 
 ### Data Connectors
 - [x] Shopify OAuth integration
@@ -23,7 +25,7 @@
 - [x] Demo publisher with sample data
 - [x] Impressive demo data ($227K revenue, 77 products, 1,917 orders)
 - [x] Phantom Warriors game IP with 6 characters
-- [ ] Demo AI insights examples
+- [x] Demo mode with session-first pattern (shows real data for logged-in users)
 
 ---
 
@@ -38,8 +40,9 @@
 - [x] Contact page
 - [x] Waitlist/signup page
 - [x] Roadmap page
-- [x] Updates page
+- [x] Updates page (interactive with filters, search, expandable cards)
 - [x] FAQ page
+- [x] How It Works page (4-step guide with visuals)
 
 ### Legal Pages
 - [x] Privacy Policy (basic)
@@ -92,9 +95,11 @@
 - [ ] Full mobile QA test on real devices
 
 ### Security
-- [x] Authentication system
+- [x] Authentication system (NextAuth.js with JWT)
 - [x] Protected API routes
 - [x] Environment variables for secrets
+- [x] Role-based access control (RBAC) for write operations
+- [x] Session-first pattern for demo mode security
 - [ ] Rate limiting on APIs
 - [ ] HTTPS enforced (Vercel handles)
 
@@ -141,8 +146,8 @@
 ## Priority Actions Before Investors
 
 ### High Priority (Do Now)
-1. [ ] Enhance demo data to be more impressive
-2. [ ] Ensure AI Insights page has compelling content
+1. [x] Demo data is impressive ($227K+ revenue)
+2. [x] AI Insights page has compelling content (Fan Intelligence Hub)
 3. [ ] Buy domain (phantomos.com)
 4. [ ] Add Google Analytics
 5. [ ] Full mobile test
@@ -170,4 +175,4 @@
 
 ---
 
-*Last Updated: December 2024*
+*Last Updated: December 2025*
