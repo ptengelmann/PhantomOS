@@ -30,8 +30,9 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 | Feature | Description |
 |---------|-------------|
 | **Dashboard** | Revenue metrics, growth trends, category breakdown, asset performance charts |
+| **Sales Map** | Interactive world map showing revenue distribution by region (NA, EU, APAC, LATAM) |
 | **Fan Intelligence Hub** | AI-powered insights with history tracking - mark recommendations as actioned, view past analyses |
-| **Asset Tagging** | Map products to game IPs and characters with AI suggestions |
+| **Asset Tagging** | Map products to game IPs and characters with AI suggestions that learn from confirmed tags |
 | **Data Connectors** | Shopify OAuth, CSV import for products and sales |
 | **Settings** | Account management, team invites with secure tokens |
 | **Pilot Waitlist** | Gated access system for controlled launch |
@@ -139,7 +140,7 @@ phantomos/
 │   │   └── api/              # REST endpoints
 │   ├── components/
 │   │   ├── ui/               # Button, Card, Input, Badge, Table, Select
-│   │   ├── charts/           # RevenueChart, AssetPerformanceChart, CategoryBreakdown
+│   │   ├── charts/           # RevenueChart, AssetPerformanceChart, CategoryBreakdown, SalesMap
 │   │   ├── dashboard/        # Sidebar, Header, StatsCard, ConnectorWizard
 │   │   ├── marketing/        # Navbar, Footer
 │   │   └── providers/        # SessionProvider, AnalyticsProvider

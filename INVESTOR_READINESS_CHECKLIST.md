@@ -9,10 +9,12 @@
 - [x] Product catalog view
 - [x] Asset tagging system
 - [x] Category breakdown
-- [x] Recent orders table
+- [x] Recent orders table with map view toggle
+- [x] Interactive sales map (revenue by region)
 - [x] Export report functionality
 - [x] AI Insights page (Fan Intelligence Hub)
 - [x] AI auto-tagging with Claude integration
+- [x] AI few-shot learning (learns from confirmed tags)
 - [x] AI insights persistence to database
 - [x] AI insights history with action tracking (prove AI value over time)
 - [x] Settings page with working profile/organization forms
@@ -176,7 +178,7 @@
 6. [ ] Full mobile test
 
 ### Medium Priority (Nice to Have)
-1. [ ] OpenGraph image for social sharing
+1. [x] OpenGraph image for social sharing
 2. [ ] Lighthouse performance optimization
 3. [ ] Demo video/walkthrough
 4. [ ] More testimonials/social proof on site
