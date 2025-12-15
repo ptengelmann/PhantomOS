@@ -223,11 +223,11 @@ const updates: Update[] = [
     month: 'November',
     year: '2025',
     title: 'Platform Development Begins',
-    summary: 'Started building PhantomOS after extensive customer discovery.',
+    summary: 'Started building PhantomOS after extensive market research.',
     category: 'announcement',
     icon: Code,
     content: [
-      'Started building PhantomOS after extensive conversations with game publishers about their merchandise operations.',
+      'Started building PhantomOS after extensive research into gaming merchandise operations.',
       'Initial focus: solving the fundamental problem of understanding what characters and IP elements drive sales.',
     ],
   },
@@ -236,15 +236,15 @@ const updates: Update[] = [
     date: 'October 2025',
     month: 'October',
     year: '2025',
-    title: 'Customer Discovery',
-    summary: 'Talked to 20+ game publishers about merchandise operations.',
+    title: 'Market Research',
+    summary: 'Researched the gaming merchandise space to identify gaps.',
     category: 'announcement',
     icon: Users,
     content: [
-      'Talked to 20+ game publishers about how they manage merchandise revenue. Discovered a consistent pattern: teams manually track sales in spreadsheets, guess at what fans want, and struggle to justify inventory decisions.',
+      'Conducted extensive research into how game publishers manage merchandise revenue. Identified a consistent pattern: teams manually track sales in spreadsheets, guess at what fans want, and struggle to justify inventory decisions.',
       'The problem is clear. Time to build.',
     ],
-    highlights: ['20+ interviews', 'Problem validated', 'Market research'],
+    highlights: ['Problem identified', 'Gap validated', 'Market research'],
   },
 ];
 
