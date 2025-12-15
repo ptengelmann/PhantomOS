@@ -115,8 +115,8 @@ export default function HowItWorksPage() {
                 {[
                   { name: 'Shopify', status: 'connected', count: '2,847 products' },
                   { name: 'CSV Upload', status: 'ready', count: 'Drag & drop' },
-                  { name: 'Amazon', status: 'coming', count: 'Q1 2025' },
-                  { name: 'WooCommerce', status: 'coming', count: 'Q2 2025' },
+                  { name: 'Amazon', status: 'coming', count: 'Q1 2026' },
+                  { name: 'WooCommerce', status: 'coming', count: 'Q1 2026' },
                 ].map((source, i) => (
                   <div key={i} className={`p-4 border ${source.status === 'connected' ? 'border-[#0a0a0a] bg-white' : 'border-[#e5e5e5] bg-[#fafafa]'}`}>
                     <div className="flex items-center justify-between mb-2">

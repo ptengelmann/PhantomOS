@@ -254,51 +254,31 @@ export default function RoadmapPage() {
         </div>
       </section>
 
-      {/* Feature Request */}
-      <section className="py-24 lg:py-32 bg-[#fafafa] border-y border-[#e5e5e5]">
+      {/* CTA */}
+      <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0a0a0a] mb-6 tracking-tight">
-            Help Shape the Roadmap
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            Help Shape the <span className="italic font-light">Future</span>
           </h2>
-          <p className="text-xl text-[#737373] font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
             Join our pilot program and influence which features we build next. Your feedback directly shapes our priorities.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/waitlist"
-              className="group px-8 py-4 bg-[#0a0a0a] text-white font-medium hover:bg-[#171717] transition-all inline-flex items-center justify-center gap-2"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-all"
             >
               Join the Pilot Program
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="mailto:feedback@phantomos.com"
-              className="px-8 py-4 border border-[#e5e5e5] text-[#0a0a0a] font-medium hover:border-[#0a0a0a] transition-all text-center"
+              className="px-8 py-4 border border-[#525252] text-white font-medium hover:border-white transition-all text-center"
             >
               Request a Feature
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 lg:py-32 bg-[#0a0a0a] text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-            Start Using PhantomOS Today
-          </h2>
-          <p className="text-xl text-[#a3a3a3] mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-            All live features are available now in our pilot program. No waiting, no roadblocks.
-          </p>
-
-          <Link
-            href="/waitlist"
-            className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-[#0a0a0a] font-medium hover:bg-[#f5f5f5] transition-all"
-          >
-            Get Started Free
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
         </div>
       </section>
     </div>
