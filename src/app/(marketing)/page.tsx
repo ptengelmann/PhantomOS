@@ -496,8 +496,8 @@ export default function LandingPage() {
                     <Brain className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-[#0a0a0a] mb-1">AI That Gets Smarter</h3>
-                    <p className="text-sm text-[#737373]">Every product you tag teaches our AI. More publishers = better suggestions for everyone.</p>
+                    <h3 className="font-semibold text-[#0a0a0a] mb-1">AI That Learns From Data</h3>
+                    <p className="text-sm text-[#737373]">Every confirmed tag improves future suggestions. More mappings across publishers = smarter recommendations for everyone.</p>
                   </div>
                 </div>
 

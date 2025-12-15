@@ -1,10 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getServerSession, isDemoMode } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { sql } from 'drizzle-orm';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// Fetch confirmed mappings to use as few-shot examples
+async function getConfirmedMappingExamples(category?: string, limit: number = 15): Promise<string> {
+  try {
+    // Get confirmed mappings from across all publishers (the network effect!)
+    const examples = await db.execute(sql`
+      SELECT
+        p.name as product_name,
+        p.category as product_category,
+        ia.name as asset_name,
+        ia.asset_type
+      FROM product_assets pa
+      JOIN products p ON p.id = pa.product_id
+      JOIN ip_assets ia ON ia.id = pa.asset_id
+      ORDER BY
+        CASE WHEN p.category = ${category || ''} THEN 0 ELSE 1 END,
+        pa.created_at DESC
+      LIMIT ${limit}
+    `);
+
+    if (examples.rows.length === 0) {
+      return '';
+    }
+
+    const exampleList = examples.rows
+      .map((ex: any) => `- "${ex.product_name}" → ${ex.asset_name} (${ex.asset_type})`)
+      .join('\n');
+
+    return `
+LEARNED PATTERNS (from ${examples.rows.length} confirmed mappings):
+These are real examples of products that have been correctly tagged. Use these patterns to inform your suggestions:
+${exampleList}
+
+`;
+  } catch (error) {
+    console.error('Failed to fetch mapping examples:', error);
+    return '';
+  }
+}
 
 interface Asset {
   id: string;
@@ -54,6 +95,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch few-shot examples from confirmed mappings (the learning part!)
+    const learnedExamples = await getConfirmedMappingExamples(product.category);
+
     // Build the prompt for Claude
     const assetList = assets
       .map((a, idx) => `${idx + 1}. ${a.name} (${a.type})${a.description ? `: ${a.description}` : ''}`)
@@ -63,7 +107,7 @@ export async function POST(request: NextRequest) {
 
 Game IP Context:
 ${gameIp ? `- Game: ${gameIp.name}\n- Description: ${gameIp.description || 'N/A'}` : 'No game IP context provided'}
-
+${learnedExamples}
 Product to Tag:
 - Name: ${product.name}
 - Description: ${product.description || 'N/A'}
@@ -74,11 +118,14 @@ ${product.tags?.length ? `- Tags: ${product.tags.join(', ')}` : ''}
 Available IP Assets:
 ${assetList}
 
-Task: Analyze the product name, description, and any other available information to determine which IP assets this product features. Consider:
+Task: Analyze the product name, description, and any other available information to determine which IP assets this product features. Use the learned patterns above to guide your suggestions - these are real examples of correct mappings.
+
+Consider:
 1. Direct mentions of character/asset names
 2. Visual descriptions (colors, symbols, motifs)
 3. Thematic elements (dark themes → villain characters, heroic themes → protagonist)
 4. Product category context (collectibles often feature specific characters)
+5. Patterns from the learned examples above
 
 Respond with a JSON array of suggested assets, ordered by confidence. For each suggestion include:
 - assetId: the asset's ID
@@ -168,6 +215,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Fetch few-shot examples for bulk tagging (the learning part!)
+    const learnedExamples = await getConfirmedMappingExamples(undefined, 20);
+
     // Process products in batches to avoid rate limiting
     const batchSize = 5;
     const results: Array<{ productId: string; suggestions: TagSuggestion[] }> = [];
@@ -190,14 +240,16 @@ export async function PUT(request: NextRequest) {
       const prompt = `You are an AI assistant helping to tag gaming merchandise products with the correct IP assets.
 
 Game IP: ${gameIp?.name || 'Unknown'}
-
+${learnedExamples}
 Available IP Assets:
 ${assetList}
 
 Products to Tag:
 ${productsList}
 
-For each product, analyze and suggest which assets it features. Respond with a JSON object where keys are product IDs and values are arrays of suggestions.
+For each product, analyze and suggest which assets it features. Use the learned patterns above to guide your suggestions - these are real examples of correct mappings.
+
+Respond with a JSON object where keys are product IDs and values are arrays of suggestions.
 
 Response format (JSON only):
 {
