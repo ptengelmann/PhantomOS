@@ -31,7 +31,8 @@
       "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_aLVzUD2uPgh5@ep-square-shadow-abgcaciu-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require\" npx drizzle-kit push:*)",
       "Bash(git checkout:*)",
       "Bash(npm i:*)",
-      "Bash(timeout 15 npm run dev:*)"
+      "Bash(timeout 15 npm run dev:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []

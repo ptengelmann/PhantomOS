@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History } from 'lucide-react';
+import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type UpdateCategory = 'feature' | 'improvement' | 'fix' | 'security' | 'announcement';
@@ -28,6 +28,40 @@ const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg:
 };
 
 const updates: Update[] = [
+  {
+    id: 'dec-2025-sales-map',
+    date: 'December 15, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Interactive Sales Map',
+    summary: 'New world map visualization showing revenue distribution by region. See where your fans are buying from at a glance.',
+    category: 'feature',
+    icon: Map,
+    content: [
+      'Added an interactive world map to the dashboard overview. Toggle between the traditional Recent Orders table and the new geographic map view.',
+      'The map displays revenue intensity by region - darker shades indicate higher sales volume. Hover over any region to see exact revenue figures and order counts.',
+      'Currently supports North America, Europe, Asia Pacific, and Latin America regions. Perfect for identifying geographic expansion opportunities.',
+      'Built with react-simple-maps for a clean, monochromatic aesthetic that matches the PhantomOS design language.',
+    ],
+    highlights: ['World map view', 'Revenue by region', 'Interactive tooltips', 'Toggle between views'],
+  },
+  {
+    id: 'dec-2025-few-shot-learning',
+    date: 'December 15, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'AI Learning from Confirmed Tags',
+    summary: 'AI tagging now learns from your confirmed mappings. Every product you tag teaches the system to make better suggestions.',
+    category: 'improvement',
+    icon: Sparkles,
+    content: [
+      'Implemented few-shot prompting for AI auto-tagging. When you confirm a product-to-asset mapping, that example is used to improve future suggestions.',
+      'The AI fetches up to 15 recent confirmed mappings as examples when suggesting tags for new products. Examples from the same category are prioritized.',
+      'This creates a network effect: more publishers tagging products = smarter suggestions for everyone. Your data contributions improve the entire platform.',
+      'Unlike traditional ML training, this approach works immediately with any amount of data and doesn\'t require expensive model fine-tuning.',
+    ],
+    highlights: ['Few-shot prompting', 'Category-aware examples', 'Network effect', 'Immediate learning'],
+  },
   {
     id: 'dec-2025-ai-insights-history',
     date: 'December 15, 2025',
