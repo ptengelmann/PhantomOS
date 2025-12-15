@@ -473,6 +473,123 @@ export default function LandingPage() {
       {/* Features Bento Grid */}
       <FeatureBentoGrid />
 
+      {/* Why PhantomOS - The Moat */}
+      <section className="py-24 lg:py-32 bg-white border-t border-[#e5e5e5]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left - Text */}
+            <div>
+              <div className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase mb-4">WHY PHANTOMOS?</div>
+              <h2 className="text-4xl md:text-5xl font-bold text-[#0a0a0a] mb-6 tracking-tight leading-[1.15]">
+                We're Building the
+                <br />
+                <span className="italic font-light">IP Asset Graph</span>
+              </h2>
+              <p className="text-lg text-[#737373] leading-relaxed font-light mb-8">
+                Not another analytics dashboard. We're building a proprietary database of which game characters
+                sell merchandise. <span className="text-[#0a0a0a] font-normal">This data doesn't exist anywhere else.</span>
+              </p>
+
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#0a0a0a] mb-1">AI That Gets Smarter</h3>
+                    <p className="text-sm text-[#737373]">Every product you tag teaches our AI. More publishers = better suggestions for everyone.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#0a0a0a] mb-1">Cross-Publisher Benchmarks</h3>
+                    <p className="text-sm text-[#737373]">See how your characters perform vs. industry averages. Only possible with network scale.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#0a0a0a] mb-1">Your Data Gets More Valuable</h3>
+                    <p className="text-sm text-[#737373]">Historical mappings and attribution data compound over time. Switching means losing years of insights.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Visual */}
+            <div className="bg-[#0a0a0a] p-8 lg:p-10">
+              <div className="text-xs tracking-[0.2em] text-[#737373] uppercase mb-6">THE IP ASSET GRAPH</div>
+              <div className="space-y-4">
+                {/* Product to Character Mapping Visual */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">PRODUCT</div>
+                    <div className="text-sm text-white font-medium">Shadow Knight Hoodie</div>
+                    <div className="text-xs text-[#525252] mt-1">SKU: APP-HOD-001</div>
+                  </div>
+                  <div className="text-[#525252]">→</div>
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">CHARACTER</div>
+                    <div className="text-sm text-white font-medium">Shadow Knight</div>
+                    <div className="text-xs text-[#525252] mt-1">40% of revenue</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">PRODUCT</div>
+                    <div className="text-sm text-white font-medium">Pixel Plush Keychain</div>
+                    <div className="text-xs text-[#525252] mt-1">SKU: COL-PLU-042</div>
+                  </div>
+                  <div className="text-[#525252]">→</div>
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">CHARACTER</div>
+                    <div className="text-sm text-white font-medium">Pixel</div>
+                    <div className="text-xs text-[#525252] mt-1">23% of revenue</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">PRODUCT</div>
+                    <div className="text-sm text-white font-medium">Luna Poster Set</div>
+                    <div className="text-xs text-[#525252] mt-1">SKU: ART-POS-017</div>
+                  </div>
+                  <div className="text-[#525252]">→</div>
+                  <div className="flex-1 bg-[#171717] border border-[#333] p-4">
+                    <div className="text-xs text-[#737373] mb-1">CHARACTER</div>
+                    <div className="text-sm text-white font-medium">Luna Starfire</div>
+                    <div className="text-xs text-[#525252] mt-1">18% of revenue</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-[#333]">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#737373]">Mappings in network</span>
+                  <span className="text-white font-bold">47,000+</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <span className="text-[#737373]">Unique characters</span>
+                  <span className="text-white font-bold">2,400+</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <span className="text-[#737373]">AI tagging accuracy</span>
+                  <span className="text-white font-bold">94%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 lg:py-32 bg-white relative overflow-hidden">
         {/* Large text background */}
