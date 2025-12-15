@@ -43,11 +43,20 @@ export const metadata: Metadata = {
     siteName: 'PhantomOS',
     locale: 'en_US',
     type: "website",
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'PhantomOS - Revenue Intelligence for Gaming Merchandise',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: "PhantomOS - The Gaming Commerce OS",
     description: "The operating system for gaming merchandise. Know what your fans love.",
+    images: ['/og-image.png'],
   },
   verification: {
     // Add these when you have them

@@ -82,7 +82,7 @@
 - [x] Page-specific metadata
 - [x] OpenGraph tags
 - [x] Twitter Card tags
-- [ ] OpenGraph image (1200x630)
+- [x] OpenGraph image (1200x630)
 - [ ] Google Search Console verification
 
 ### Performance
