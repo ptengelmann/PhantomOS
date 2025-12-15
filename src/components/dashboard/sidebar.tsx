@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -35,6 +36,12 @@ const bottomNavigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering user info after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Get user initials for avatar
   const getInitials = (name: string) => {
@@ -46,8 +53,9 @@ export function Sidebar() {
       .slice(0, 2);
   };
 
-  const userName = session?.user?.name || 'User';
-  const userInitials = getInitials(userName);
+  // Use consistent values during SSR and initial hydration
+  const userName = mounted ? (session?.user?.name || 'User') : 'User';
+  const userInitials = mounted ? getInitials(userName) : '...';
   const planName = 'Growth Plan'; // Could be derived from subscription tier
 
   return (
