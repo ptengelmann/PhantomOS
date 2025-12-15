@@ -16,6 +16,14 @@ let isInitialized = false;
 export function initAnalytics(): void {
   if (typeof window === 'undefined') return;
   if (isInitialized) return;
+
+  // Debug logging
+  console.log('[Analytics] Initializing...', {
+    hasKey: !!POSTHOG_KEY,
+    keyPreview: POSTHOG_KEY ? POSTHOG_KEY.substring(0, 10) + '...' : 'NOT SET',
+    host: POSTHOG_HOST
+  });
+
   if (!POSTHOG_KEY) {
     console.warn('[Analytics] NEXT_PUBLIC_POSTHOG_KEY not set - analytics disabled');
     return;
@@ -24,14 +32,12 @@ export function initAnalytics(): void {
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
     person_profiles: 'identified_only',
-    capture_pageview: false, // We'll handle this manually for more control
+    capture_pageview: true, // Enable auto page views
     capture_pageleave: true,
     autocapture: true,
     persistence: 'localStorage',
-    loaded: (posthog) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[Analytics] Posthog initialized');
-      }
+    loaded: () => {
+      console.log('[Analytics] Posthog loaded successfully!');
     },
   });
 

@@ -21,6 +21,8 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 2. **Map** - AI-assisted product tagging to characters, themes, logos
 3. **Analyze** - Revenue by IP asset, trend detection, demand forecasting
 
+**Our moat:** The IP Asset Graph - a proprietary database of product-to-character mappings that doesn't exist anywhere else. See `COMPETITIVE_MOAT.md` for details.
+
 ---
 
 ## Live Features
@@ -34,6 +36,7 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 | **Settings** | Account management, team invites with secure tokens |
 | **Pilot Waitlist** | Gated access system for controlled launch |
 | **Role-Based Access** | Owner/Admin can edit; Member/Analyst are read-only |
+| **Analytics Tracking** | Posthog integration for user behavior insights |
 
 ---
 
@@ -41,12 +44,13 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 15 (App Router), React 19, TypeScript |
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL (serverless) |
 | ORM | Drizzle ORM |
-| Auth | NextAuth.js v5 (credentials) |
+| Auth | NextAuth.js v4 (credentials, JWT) |
 | AI | Anthropic Claude API (claude-sonnet-4-20250514) |
+| Analytics | Posthog (EU region) |
 | Charts | Recharts |
 | Icons | Lucide React |
 
@@ -76,10 +80,18 @@ npm run dev
 Seed with fictional "Phantom Warriors" game data:
 
 ```bash
-npx tsx scripts/seed-demo-data.ts
+DATABASE_URL="your-connection-string" npx tsx scripts/seed-demo-data.ts
 ```
 
 Creates: 1 Game IP, 6 characters, 60 products, 6 months of sales (~$227K revenue)
+
+### Generate Analytics Snapshots
+
+Populate analytics_snapshots and ai_insights tables:
+
+```bash
+DATABASE_URL="your-connection-string" npx tsx scripts/generate-analytics.ts --insights
+```
 
 ---
 
@@ -95,6 +107,10 @@ NEXTAUTH_URL=http://localhost:3000
 
 # AI
 ANTHROPIC_API_KEY=sk-ant-...
+
+# Analytics (Posthog)
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com  # or https://us.i.posthog.com
 
 # Shopify OAuth
 SHOPIFY_API_KEY=your-shopify-api-key
@@ -125,11 +141,13 @@ phantomos/
 │   │   ├── ui/               # Button, Card, Input, Badge, Table, Select
 │   │   ├── charts/           # RevenueChart, AssetPerformanceChart, CategoryBreakdown
 │   │   ├── dashboard/        # Sidebar, Header, StatsCard, ConnectorWizard
-│   │   └── marketing/        # Navbar, Footer
+│   │   ├── marketing/        # Navbar, Footer
+│   │   └── providers/        # SessionProvider, AnalyticsProvider
 │   └── lib/
-│       ├── db/schema.ts      # Drizzle schema (10 tables)
+│       ├── db/schema.ts      # Drizzle schema (12 tables)
 │       ├── ai/index.ts       # Claude AI integration
 │       ├── auth/index.ts     # NextAuth config
+│       ├── analytics/        # Posthog integration
 │       └── utils/index.ts    # Helpers
 ├── scripts/                   # Database scripts
 ├── middleware.ts              # Route protection
@@ -150,8 +168,10 @@ phantomos/
 | `products` | Merchandise items |
 | `product_assets` | Many-to-many: products ↔ IP assets |
 | `sales` | Order/revenue records |
-| `waitlist_entries` | Pilot program applications |
-| `invite_tokens` | Registration tokens for approved users |
+| `analytics_snapshots` | Pre-computed daily/weekly/monthly metrics |
+| `ai_insights` | Persisted AI-generated recommendations |
+| `waitlist` | Pilot program applications |
+| `invitations` | Registration tokens for approved users |
 
 See `ARCHITECTURE.md` for complete schema details.
 
@@ -170,7 +190,9 @@ See `ARCHITECTURE.md` for complete schema details.
 ### AI
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/ai/insights` | Generate Claude insights |
+| GET | `/api/ai/insights` | Retrieve stored insights |
+| POST | `/api/ai/insights` | Generate & persist Claude insights |
+| PATCH | `/api/ai/insights` | Mark insight as read |
 | POST | `/api/ai/tagging` | AI product tag suggestions |
 | POST | `/api/ai/forecast` | Revenue forecasting |
 
@@ -214,6 +236,7 @@ Monochromatic minimalism:
 | `npx drizzle-kit push` | Push schema to database |
 | `npx drizzle-kit studio` | Open Drizzle Studio |
 | `npx tsx scripts/seed-demo-data.ts` | Seed demo data |
+| `npx tsx scripts/generate-analytics.ts` | Generate analytics snapshots |
 
 ---
 
@@ -246,16 +269,29 @@ npx tsx scripts/check-user.ts email@example.com
 
 ---
 
+## Documentation
+
+| File | Purpose |
+|------|---------|
+| `README.md` | This file - quick start guide |
+| `ARCHITECTURE.md` | Technical architecture details |
+| `ROADMAP.md` | Product roadmap and priorities |
+| `COMPETITIVE_MOAT.md` | Defensibility and moat strategy |
+| `INVESTOR_READINESS_CHECKLIST.md` | Launch readiness tracking |
+
+---
+
 ## Roadmap
 
-**Live Now:** Dashboard, Fan Intelligence Hub, Asset Tagging, Shopify + CSV connectors
+**Current Focus:** Intelligence Platform (Phase 1)
+- Grow the IP Asset Graph
+- Improve AI tagging accuracy
+- Expand pilot program
 
-**Coming Soon:**
-- Merch Studio (AI design tools)
-- Production (print-on-demand integration)
-- Storefront (direct-to-consumer)
-- Creators (influencer partnerships)
-- More connectors (Amazon, WooCommerce, BigCommerce)
+**Future Vision (Post-PMF):**
+- Advanced AI (image recognition, NL queries)
+- Additional connectors (Amazon, WooCommerce)
+- Enterprise features (SSO, audit logging)
 
 See `ROADMAP.md` for full details.
 
