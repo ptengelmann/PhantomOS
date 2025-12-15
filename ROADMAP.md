@@ -167,6 +167,7 @@ When evaluating new features or opportunities:
 ## Recent Updates
 
 ### December 2025
+- Enhanced Asset Tagging UX with auto-loading AI suggestions, progress bar, keyboard shortcuts
 - Made Settings page fully functional with profile and org editing
 - Redesigned Updates page with interactive features
 - Added How It Works page with step-by-step user flow

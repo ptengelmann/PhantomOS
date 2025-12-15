@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map } from 'lucide-react';
+import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type UpdateCategory = 'feature' | 'improvement' | 'fix' | 'security' | 'announcement';
@@ -28,6 +28,24 @@ const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg:
 };
 
 const updates: Update[] = [
+  {
+    id: 'dec-2025-asset-tagging-ux',
+    date: 'December 15, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Enhanced Asset Tagging Experience',
+    summary: 'Faster, smarter product tagging with auto-loading AI suggestions, progress tracking, and keyboard shortcuts.',
+    category: 'improvement',
+    icon: Tag,
+    content: [
+      'AI suggestions now load automatically when you select an unmapped product. No more clicking "AI Suggest" for every item - the system anticipates your workflow.',
+      'Added a progress bar showing your tagging completion: "42/100 tagged (42%)". Gives you a sense of accomplishment and helps track remaining work.',
+      'New "Next Unmapped" button instantly jumps to the next product needing attention. Press N on your keyboard for even faster navigation.',
+      'Full keyboard shortcuts: Arrow keys or J/K to navigate products, A to accept the top AI suggestion, S to skip it, N to jump to next unmapped.',
+      'Redesigned the AI suggestions panel to match the PhantomOS design system - monochrome styling with clear confidence indicators.',
+    ],
+    highlights: ['Auto-load suggestions', 'Progress bar', 'Keyboard shortcuts', 'Next Unmapped navigation'],
+  },
   {
     id: 'dec-2025-sales-map',
     date: 'December 15, 2025',

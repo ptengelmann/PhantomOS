@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Tag,
   Package,
@@ -15,7 +15,9 @@ import {
   Zap,
   Loader2,
   ShoppingBag,
-  Plug
+  Plug,
+  ArrowRight,
+  Keyboard
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/dashboard';
@@ -153,6 +155,72 @@ export default function ProductsPage() {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Navigate to next unmapped product
+  const goToNextUnmapped = useCallback(() => {
+    const unmappedProducts = products.filter(
+      p => p.mappingStatus === 'unmapped' || p.mappingStatus === 'suggested'
+    );
+    if (unmappedProducts.length === 0) return;
+
+    // Find current index in unmapped list
+    const currentIndex = selectedProduct
+      ? unmappedProducts.findIndex(p => p.id === selectedProduct.id)
+      : -1;
+
+    // Go to next unmapped (or first if at end or no selection)
+    const nextIndex = currentIndex < unmappedProducts.length - 1 ? currentIndex + 1 : 0;
+    setSelectedProduct(unmappedProducts[nextIndex]);
+  }, [products, selectedProduct]);
+
+  // Navigate to previous/next product in current filtered list
+  const goToPrevProduct = useCallback(() => {
+    if (filteredProducts.length === 0) return;
+    const currentIndex = selectedProduct
+      ? filteredProducts.findIndex(p => p.id === selectedProduct.id)
+      : 0;
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : filteredProducts.length - 1;
+    setSelectedProduct(filteredProducts[prevIndex]);
+  }, [filteredProducts, selectedProduct]);
+
+  const goToNextProduct = useCallback(() => {
+    if (filteredProducts.length === 0) return;
+    const currentIndex = selectedProduct
+      ? filteredProducts.findIndex(p => p.id === selectedProduct.id)
+      : -1;
+    const nextIndex = currentIndex < filteredProducts.length - 1 ? currentIndex + 1 : 0;
+    setSelectedProduct(filteredProducts[nextIndex]);
+  }, [filteredProducts, selectedProduct]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'k': // Vim-style
+          e.preventDefault();
+          goToPrevProduct();
+          break;
+        case 'ArrowDown':
+        case 'j': // Vim-style
+          e.preventDefault();
+          goToNextProduct();
+          break;
+        case 'n': // Next unmapped
+          e.preventDefault();
+          goToNextUnmapped();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToPrevProduct, goToNextProduct, goToNextUnmapped]);
 
   // Loading state with skeleton UI
   if (loading) {
@@ -322,21 +390,50 @@ export default function ProductsPage() {
           description="Manage your product catalog"
         />
 
-        {/* Stats Bar */}
+        {/* Stats Bar with Progress */}
         <div className="p-4 border-b border-[#e5e5e5] bg-[#fafafa]">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-[#0a0a0a]">{stats.total}</p>
-              <p className="text-xs text-[#737373]">Total Products</p>
+          {/* Progress Bar */}
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-[#0a0a0a]">Tagging Progress</span>
+              <span className="text-xs text-[#737373]">
+                {stats.mapped}/{stats.total} tagged ({stats.total > 0 ? Math.round((stats.mapped / stats.total) * 100) : 0}%)
+              </span>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-[#22c55e]">{stats.mapped}</p>
-              <p className="text-xs text-[#737373]">Mapped</p>
+            <div className="h-2 bg-[#e5e5e5] overflow-hidden">
+              <div
+                className="h-full bg-[#0a0a0a] transition-all duration-300"
+                style={{ width: `${stats.total > 0 ? (stats.mapped / stats.total) * 100 : 0}%` }}
+              />
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-[#eab308]">{stats.unmapped}</p>
-              <p className="text-xs text-[#737373]">Unmapped</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-xl font-semibold text-[#0a0a0a]">{stats.total}</p>
+                <p className="text-xs text-[#737373]">Total</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-semibold text-[#0a0a0a]">{stats.mapped}</p>
+                <p className="text-xs text-[#737373]">Mapped</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-semibold text-[#737373]">{stats.unmapped}</p>
+                <p className="text-xs text-[#737373]">Unmapped</p>
+              </div>
             </div>
+            {stats.unmapped > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextUnmapped}
+                className="flex-shrink-0"
+                title="Keyboard: N"
+              >
+                <ArrowRight className="w-4 h-4 mr-1" />
+                Next Unmapped
+              </Button>
+            )}
           </div>
         </div>
 
@@ -461,15 +558,19 @@ export default function ProductsPage() {
       {/* Right Panel - Product Details */}
       <div className="w-1/2 flex flex-col bg-[#fafafa]">
         {selectedProduct ? (
-          <ProductDetailPanel product={selectedProduct} onUpdate={loadProducts} />
+          <ProductDetailPanel product={selectedProduct} onUpdate={loadProducts} onNextUnmapped={goToNextUnmapped} />
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-8">
               <Tag className="w-12 h-12 mx-auto mb-4 text-[#a3a3a3]" />
               <p className="font-medium text-[#0a0a0a] mb-1">Select a product</p>
-              <p className="text-sm text-[#737373] max-w-xs">
+              <p className="text-sm text-[#737373] max-w-xs mb-4">
                 Click on a product from the left panel to view details and manage IP asset mappings.
               </p>
+              <div className="inline-flex items-center gap-3 text-xs text-[#a3a3a3]">
+                <span><span className="font-mono bg-[#f5f5f5] px-1.5 py-0.5 border border-[#e5e5e5]">↑</span><span className="font-mono bg-[#f5f5f5] px-1.5 py-0.5 border border-[#e5e5e5]">↓</span> navigate</span>
+                <span><span className="font-mono bg-[#f5f5f5] px-1.5 py-0.5 border border-[#e5e5e5]">N</span> next unmapped</span>
+              </div>
             </div>
           </div>
         )}
@@ -519,7 +620,7 @@ interface AISuggestion {
 }
 
 // Product Detail Panel
-function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate: () => void }) {
+function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Product; onUpdate: () => void; onNextUnmapped: () => void }) {
   const [linkedAssets, setLinkedAssets] = useState<LinkedAsset[]>([]);
   const [availableGameIps, setAvailableGameIps] = useState<GameIP[]>([]);
   const [loadingAssets, setLoadingAssets] = useState(true);
@@ -532,6 +633,7 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
+  const [autoLoadedForProduct, setAutoLoadedForProduct] = useState<string | null>(null);
 
   useEffect(() => {
     loadAssets();
@@ -539,6 +641,93 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
     setAiSuggestions([]);
     setShowAISuggestions(false);
   }, [product.id]);
+
+  // Auto-load AI suggestions for unmapped products
+  useEffect(() => {
+    const isUnmapped = product.mappingStatus === 'unmapped' || product.mappingStatus === 'suggested';
+    const hasAvailableAssets = availableGameIps.some(gip => gip.assets.length > 0);
+
+    // Only auto-load once per product, and only if unmapped and assets exist
+    if (isUnmapped && hasAvailableAssets && !loadingAssets && autoLoadedForProduct !== product.id) {
+      setAutoLoadedForProduct(product.id);
+      // Delay slightly to let UI settle - call internal function to avoid dependency issues
+      const doAutoLoad = async () => {
+        const allAssets = availableGameIps.flatMap(gip =>
+          gip.assets.map(a => ({
+            id: a.id,
+            name: a.name,
+            type: a.assetType,
+          }))
+        );
+        if (allAssets.length === 0) return;
+
+        setLoadingAI(true);
+        setShowAISuggestions(true);
+
+        try {
+          const response = await fetch('/api/ai/tagging', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product: {
+                id: product.id,
+                name: product.name,
+                description: product.description,
+                sku: product.sku,
+                category: product.category,
+              },
+              assets: allAssets,
+              gameIp: availableGameIps.length > 0 ? {
+                name: availableGameIps[0].name,
+              } : undefined,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setAiSuggestions(data.suggestions || []);
+          } else {
+            setAiSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Failed to get AI suggestions:', error);
+          setAiSuggestions([]);
+        } finally {
+          setLoadingAI(false);
+        }
+      };
+      setTimeout(doAutoLoad, 100);
+    }
+  }, [product.id, product.mappingStatus, availableGameIps, loadingAssets, autoLoadedForProduct]);
+
+  // Keyboard shortcuts for AI suggestions (A = accept, S = skip)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
+        return;
+      }
+
+      // Only handle if suggestions are showing and we have suggestions
+      if (!showAISuggestions || aiSuggestions.length === 0 || saving) return;
+
+      const firstSuggestion = aiSuggestions[0];
+
+      switch (e.key.toLowerCase()) {
+        case 'a': // Accept first suggestion
+          e.preventDefault();
+          handleAcceptSuggestion(firstSuggestion);
+          break;
+        case 's': // Skip/dismiss first suggestion
+          e.preventDefault();
+          handleDismissSuggestion(firstSuggestion.assetId);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAISuggestions, aiSuggestions, saving]);
 
   const loadAssets = async () => {
     setLoadingAssets(true);
@@ -837,67 +1026,67 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
 
             {/* AI Suggestions */}
             {showAISuggestions && (
-              <div className="mt-4 border border-purple-200 bg-purple-50">
-                <div className="p-3 border-b border-purple-200 bg-purple-100 flex items-center justify-between">
+              <div className="mt-4 border border-[#e5e5e5] bg-[#fafafa]">
+                <div className="p-3 border-b border-[#e5e5e5] bg-[#f5f5f5] flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-medium text-purple-900">AI Suggestions</span>
+                    <Sparkles className="w-4 h-4 text-[#0a0a0a]" />
+                    <span className="text-sm font-medium text-[#0a0a0a]">AI Suggestions</span>
                   </div>
                   <button
                     onClick={() => setShowAISuggestions(false)}
-                    className="text-purple-400 hover:text-purple-600"
+                    className="text-[#a3a3a3] hover:text-[#0a0a0a]"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 {loadingAI ? (
                   <div className="p-6 text-center">
-                    <Loader2 className="w-6 h-6 animate-spin text-purple-500 mx-auto mb-2" />
-                    <p className="text-sm text-purple-700">Analyzing product...</p>
+                    <Loader2 className="w-6 h-6 animate-spin text-[#737373] mx-auto mb-2" />
+                    <p className="text-sm text-[#737373]">Analyzing product...</p>
                   </div>
                 ) : aiSuggestions.length === 0 ? (
                   <div className="p-4 text-center">
-                    <p className="text-sm text-purple-700">No matching assets found.</p>
-                    <p className="text-xs text-purple-500 mt-1">Try creating more assets or check the product name.</p>
+                    <p className="text-sm text-[#737373]">No matching assets found.</p>
+                    <p className="text-xs text-[#a3a3a3] mt-1">Try creating more assets or check the product name.</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-purple-200">
+                  <div className="divide-y divide-[#e5e5e5]">
                     {aiSuggestions.map((suggestion) => (
-                      <div key={suggestion.assetId} className="p-3">
+                      <div key={suggestion.assetId} className="p-3 bg-white">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3 flex-1">
-                            <div className="w-8 h-8 bg-purple-200 flex items-center justify-center text-purple-700 text-xs font-medium flex-shrink-0">
+                            <div className="w-8 h-8 bg-[#0a0a0a] flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                               {suggestion.assetName.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-medium text-purple-900">{suggestion.assetName}</p>
-                                <span className={`text-xs px-1.5 py-0.5 ${
+                                <p className="text-sm font-medium text-[#0a0a0a]">{suggestion.assetName}</p>
+                                <span className={`text-xs px-1.5 py-0.5 border ${
                                   suggestion.confidence >= 80
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'bg-[#f5f5f5] border-[#0a0a0a] text-[#0a0a0a] font-medium'
                                     : suggestion.confidence >= 60
-                                      ? 'bg-yellow-100 text-yellow-700'
-                                      : 'bg-gray-100 text-gray-700'
+                                      ? 'bg-[#fafafa] border-[#a3a3a3] text-[#737373]'
+                                      : 'bg-white border-[#e5e5e5] text-[#a3a3a3]'
                                 }`}>
                                   {suggestion.confidence}%
                                 </span>
                               </div>
-                              <p className="text-xs text-purple-600">{suggestion.reason}</p>
+                              <p className="text-xs text-[#737373]">{suggestion.reason}</p>
                             </div>
                           </div>
                           <div className="flex gap-1 flex-shrink-0">
                             <button
                               onClick={() => handleAcceptSuggestion(suggestion)}
                               disabled={saving}
-                              className="p-1.5 bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                              title="Accept"
+                              className="p-1.5 bg-[#0a0a0a] text-white hover:bg-[#262626] transition-colors"
+                              title="Accept (A)"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDismissSuggestion(suggestion.assetId)}
-                              className="p-1.5 bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
-                              title="Dismiss"
+                              className="p-1.5 bg-[#f5f5f5] text-[#737373] hover:bg-[#e5e5e5] transition-colors"
+                              title="Skip (S)"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -905,6 +1094,14 @@ function ProductDetailPanel({ product, onUpdate }: { product: Product; onUpdate:
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+                {/* Keyboard shortcut hint */}
+                {aiSuggestions.length > 0 && !loadingAI && (
+                  <div className="p-2 border-t border-[#e5e5e5] bg-[#fafafa] text-center">
+                    <p className="text-xs text-[#a3a3a3]">
+                      <span className="font-mono bg-white px-1 border border-[#e5e5e5]">A</span> accept · <span className="font-mono bg-white px-1 border border-[#e5e5e5]">S</span> skip · <span className="font-mono bg-white px-1 border border-[#e5e5e5]">N</span> next unmapped
+                    </p>
                   </div>
                 )}
               </div>
