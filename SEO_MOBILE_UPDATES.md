@@ -30,6 +30,7 @@ Created `src/app/sitemap.ts` with all public pages:
 - Added `metadataBase` for proper URL resolution
 - Title template: `%s | PhantomOS` for consistent page titles
 - Expanded keywords for better SEO targeting
+
 - Added `creator` and `publisher` fields
 - Enhanced robots directives with googleBot settings
 - Complete OpenGraph metadata (title, description, url, siteName, locale, type)

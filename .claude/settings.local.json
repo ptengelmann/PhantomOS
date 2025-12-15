@@ -19,7 +19,19 @@
       "Bash(git push:*)",
       "Bash(npm install:*)",
       "Bash(npx tsx:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(identify:*)",
+      "Bash(curl:*)",
+      "Bash(git fetch:*)",
+      "Bash(cat:*)",
+      "Bash(git restore:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_aLVzUD2uPgh5@ep-square-shadow-abgcaciu-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require\" npx tsx:*)",
+      "Bash(wc:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_aLVzUD2uPgh5@ep-square-shadow-abgcaciu-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require\" npx drizzle-kit push:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm i:*)",
+      "Bash(timeout 15 npm run dev:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart } from 'lucide-react';
+import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart, Map, List } from 'lucide-react';
 import Link from 'next/link';
 import { Header, StatsCard } from '@/components/dashboard';
-import { RevenueChart, AssetPerformanceChart, CategoryBreakdown } from '@/components/charts';
+import { RevenueChart, AssetPerformanceChart, CategoryBreakdown, SalesMap } from '@/components/charts';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Button } from '@/components/ui';
 
 interface DashboardStats {
@@ -52,9 +52,17 @@ interface RecentOrder {
   date: string;
 }
 
+interface RegionalSalesData {
+  region: string;
+  revenue: number;
+  orderCount: number;
+  percentage: number;
+}
+
 type DateRange = '7d' | '30d' | '90d' | '12m';
 type ChartDataType = 'revenue' | 'orders' | 'aov';
 type ChartViewType = 'line' | 'bar' | 'area';
+type OrdersViewType = 'table' | 'map';
 
 const dateRangeOptions: { value: DateRange; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },
@@ -87,6 +95,9 @@ export default function OverviewPage() {
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [chartDataType, setChartDataType] = useState<ChartDataType>('revenue');
   const [chartViewType, setChartViewType] = useState<ChartViewType>('line');
+  const [ordersViewType, setOrdersViewType] = useState<OrdersViewType>('table');
+  const [regionalData, setRegionalData] = useState<RegionalSalesData[]>([]);
+  const [regionalTotalRevenue, setRegionalTotalRevenue] = useState(0);
 
   useEffect(() => {
     loadDashboardData();
@@ -170,14 +181,21 @@ export default function OverviewPage() {
       }
 
       // Load dashboard stats with date range
-      const [statsRes, connectorsRes] = await Promise.all([
+      const [statsRes, connectorsRes, regionalRes] = await Promise.all([
         fetch(`/api/dashboard/stats?startDate=${startDate.toISOString()}&endDate=${now.toISOString()}`),
         fetch('/api/connectors'),
+        fetch('/api/dashboard/regional-sales'),
       ]);
 
       if (connectorsRes.ok) {
         const connectorsData = await connectorsRes.json();
         setConnectorCount(connectorsData.connectors?.length || 0);
+      }
+
+      if (regionalRes.ok) {
+        const regionalDataRes = await regionalRes.json();
+        setRegionalData(regionalDataRes.regions || []);
+        setRegionalTotalRevenue(regionalDataRes.totalRevenue || 0);
       }
 
       if (statsRes.ok) {
@@ -677,48 +695,92 @@ export default function OverviewPage() {
           </Card>
         )}
 
-        {/* Recent Orders */}
+        {/* Recent Orders / Sales Map */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>Latest sales activity</CardDescription>
+              <CardTitle>{ordersViewType === 'table' ? 'Recent Orders' : 'Sales by Region'}</CardTitle>
+              <CardDescription>{ordersViewType === 'table' ? 'Latest sales activity' : 'Geographic distribution of revenue'}</CardDescription>
+            </div>
+            <div className="flex border border-[#e5e5e5]">
+              <button
+                onClick={() => setOrdersViewType('table')}
+                className={`h-8 px-3 flex items-center gap-2 text-xs transition-colors ${
+                  ordersViewType === 'table'
+                    ? 'bg-[#0a0a0a] text-white'
+                    : 'bg-white text-[#737373] hover:bg-[#f5f5f5]'
+                }`}
+                title="Table View"
+              >
+                <List className="w-4 h-4" />
+                <span className="hidden sm:inline">Table</span>
+              </button>
+              <button
+                onClick={() => setOrdersViewType('map')}
+                className={`h-8 px-3 flex items-center gap-2 text-xs transition-colors ${
+                  ordersViewType === 'map'
+                    ? 'bg-[#0a0a0a] text-white'
+                    : 'bg-white text-[#737373] hover:bg-[#f5f5f5]'
+                }`}
+                title="Map View"
+              >
+                <Map className="w-4 h-4" />
+                <span className="hidden sm:inline">Map</span>
+              </button>
             </div>
           </CardHeader>
           <CardContent>
-            {recentOrders.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Region</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentOrders.slice(0, 10).map((order, index) => (
-                    <TableRow key={`${order.id}-${index}`}>
-                      <TableCell className="font-mono text-xs">{order.id}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{order.product}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{order.region}</Badge>
-                      </TableCell>
-                      <TableCell className="font-medium">${order.amount}</TableCell>
-                      <TableCell className="text-[#737373] text-xs">{order.date}</TableCell>
+            {ordersViewType === 'table' ? (
+              recentOrders.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Region</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Date</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentOrders.slice(0, 10).map((order, index) => (
+                      <TableRow key={`${order.id}-${index}`}>
+                        <TableCell className="font-mono text-xs">{order.id}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">{order.product}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{order.region}</Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">${order.amount}</TableCell>
+                        <TableCell className="text-[#737373] text-xs">{order.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="py-8 text-center">
+                  <ShoppingBag className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
+                  <p className="text-[#737373] font-medium">No orders yet</p>
+                  <p className="text-sm text-[#a3a3a3] mt-1">
+                    Orders will appear here when sales come in
+                  </p>
+                </div>
+              )
             ) : (
-              <div className="py-8 text-center">
-                <ShoppingBag className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
-                <p className="text-[#737373] font-medium">No orders yet</p>
-                <p className="text-sm text-[#a3a3a3] mt-1">
-                  Orders will appear here when sales come in
-                </p>
-              </div>
+              regionalData.length > 0 ? (
+                <div className="h-[400px]">
+                  <SalesMap data={regionalData} totalRevenue={regionalTotalRevenue} />
+                </div>
+              ) : (
+                <div className="h-[400px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                  <div className="text-center">
+                    <Globe className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
+                    <p className="text-[#737373] font-medium">No regional data yet</p>
+                    <p className="text-sm text-[#a3a3a3] mt-1">
+                      Sales data with regions will appear here
+                    </p>
+                  </div>
+                </div>
+              )
             )}
           </CardContent>
         </Card>
