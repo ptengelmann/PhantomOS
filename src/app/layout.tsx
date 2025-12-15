@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SessionProvider } from "@/components/providers";
+import { SessionProvider, AnalyticsProvider } from "@/components/providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -64,7 +65,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <Suspense fallback={null}>
+            <AnalyticsProvider>{children}</AnalyticsProvider>
+          </Suspense>
+        </SessionProvider>
       </body>
     </html>
   );

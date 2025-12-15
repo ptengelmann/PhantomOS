@@ -1,301 +1,200 @@
 # PhantomOS Roadmap
 
-This document outlines the planned features and enhancements for PhantomOS.
+## Our Mission
+
+**Build the definitive IP Asset Graph for gaming merchandise.**
+
+Every product-to-character mapping makes our platform smarter. Every publisher who connects their store expands our proprietary database. This compounds into an unassailable moat.
 
 ---
 
-## Current Phase: MVP Complete + Pilot Active
+## Phase 1: Intelligence Platform (CURRENT FOCUS)
 
-The core platform is fully functional and in active pilot testing. Last updated: December 2025.
+**Status: MVP Complete, Pilot Active**
+
+This is our core product and the foundation of everything else. We are 100% focused here until we achieve product-market fit.
+
+### Why This Phase Matters
+
+The IP Asset Graph is our moat. Phase 1 is entirely about:
+1. **Accumulating mappings** — Every product tagged to a character grows our data asset
+2. **Proving value** — Show publishers insights they can't get anywhere else
+3. **Building AI accuracy** — More data = better auto-tagging = faster onboarding
 
 ### Core Features (Complete)
 
-| Feature | Status | Description |
+| Feature | Status | Moat Impact |
 |---------|--------|-------------|
-| **Fan Intelligence Hub** | Complete | AI-powered insights dashboard with real-time recommendations |
-| **AI Asset Tagging** | Complete | Claude-powered auto-tagging maps products to IP assets |
-| **Revenue Analytics** | Complete | Track revenue by character, franchise, and product category |
-| **Shopify Integration** | Complete | OAuth connection with auto-sync of products and orders |
-| **CSV Import** | Complete | Universal import for any data source |
-| **Dashboard** | Complete | Real-time analytics with chart controls and date filtering |
-| **Team Management** | Complete | Invite team members with role assignments |
-| **RBAC** | Complete | Role-based access control (owner/admin = write, member/analyst = read-only) |
-| **Pilot System** | Complete | Waitlist with admin approval and token-based invitations |
+| **AI Asset Tagging** | Complete | PRIMARY — generates product-character mappings |
+| **Fan Intelligence Hub** | Complete | Shows value of the IP Asset Graph |
+| **Revenue Analytics** | Complete | Proves ROI, tracks by character |
+| **Shopify Integration** | Complete | Ingests real product and sales data |
+| **CSV Import** | Complete | Universal data onboarding |
+| **Dashboard** | Complete | Daily engagement driver |
+| **Team Management** | Complete | Multi-user = stickier accounts |
+| **RBAC** | Complete | Enterprise-ready security |
 
-### Marketing & SEO (Complete)
+### Current Priorities (Next 90 Days)
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Landing Page** | Complete | Hero section with dashboard preview |
-| **How It Works** | Complete | Step-by-step guide explaining the platform |
-| **Features Pages** | Complete | Individual pages for Intelligence, Tagging, Analytics, Connectors |
-| **About/Careers** | Complete | Company information pages |
-| **SEO Optimization** | Complete | Sitemap, robots.txt, page metadata |
-| **Responsive Design** | Complete | Mobile-friendly with floating navbar |
+| Priority | Goal | Why |
+|----------|------|-----|
+| **Pilot expansion** | 10 → 25 publishers | More data = better AI |
+| **AI tagging accuracy** | 75% → 85% | Faster onboarding |
+| **Product mappings** | 5K → 25K | Core data asset growth |
+| **Engagement metrics** | Weekly → Daily DAU | Prove retention |
+| **Amazon connector** | Launch | Unlock largest channel |
 
-### Security (Complete)
+### Success Metrics for Phase 1
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Authentication** | Complete | NextAuth.js with JWT sessions |
-| **Password Security** | Complete | bcrypt hashing for all passwords |
-| **RBAC Enforcement** | Complete | Write operations protected by role checks |
-| **Demo Mode Isolation** | Complete | RBAC enforced even when demo mode enabled |
-| **Tenant Isolation** | Complete | All queries scoped to publisher ID |
+| Metric | Current | Target |
+|--------|---------|--------|
+| Publishers in pilot | 10 | 50 |
+| Total product-asset mappings | 5,000 | 100,000 |
+| AI tagging acceptance rate | 70% | 90% |
+| Monthly active users | 25 | 200 |
+| NPS score | — | 50+ |
 
----
-
-## Phase 2: Merch Studio
-
-**AI-Powered Merchandise Design Tools**
-
-Transform how publishers create merchandise by leveraging AI to generate designs, mockups, and product variations.
-
-### Features
-
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **AI Design Generator** | Generate merchandise designs from IP assets using AI image generation | High |
-| **Template Library** | Pre-built templates for apparel, posters, accessories | High |
-| **Mockup Previews** | See designs on product mockups (t-shirts, mugs, etc.) | High |
-| **Character Variations** | Generate different poses/styles of existing characters | Medium |
-| **Style Transfer** | Apply art styles (chibi, realistic, pixel art) to assets | Medium |
-| **Batch Generation** | Create multiple design variations at once | Medium |
-| **Design Versioning** | Track design iterations and approvals | Low |
-
-### User Flow
-1. Select IP asset (character, logo, theme)
-2. Choose product type (t-shirt, poster, sticker)
-3. AI generates design options
-4. User refines and approves
-5. Export production-ready files
+**We will NOT move to Phase 2 until these metrics are hit.**
 
 ---
 
-## Phase 3: Production
+## Long-Term Vision
 
-**Order Management & Fulfillment Orchestration**
+The following phases represent our product vision after achieving PMF with the Intelligence Platform. These are opportunities enabled by the IP Asset Graph — not near-term commitments.
 
-Connect to print-on-demand and manufacturing partners to streamline production.
+### Phase 2: Advanced AI
 
-### Features
+**Unlock:** After 100K+ product mappings
 
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **Print-on-Demand Integration** | Connect to Printful, Printify, Gooten | High |
-| **Order Routing** | Automatically route orders to optimal fulfillment partner | High |
-| **Production Tracking** | Track order status from design to delivery | High |
-| **Quality Control** | Review system for production samples | Medium |
-| **Inventory Management** | Track stock levels for warehoused items | Medium |
-| **Cost Calculator** | Estimate production costs and margins | Medium |
-| **Bulk Orders** | Handle large quantity manufacturing runs | Low |
+| Feature | Enabled By |
+|---------|------------|
+| Image recognition tagging | Training data from human-verified mappings |
+| Cross-publisher benchmarks | Network of publisher data |
+| Demand forecasting | Historical sales × character patterns |
+| Natural language queries | Structured IP Asset Graph |
 
-### Integrations
-- **Printful** - Global print-on-demand
-- **Printify** - Multi-supplier network
-- **Gooten** - Enterprise fulfillment
-- **Pietra** - Premium manufacturing
-- **Custom API** - Direct factory connections
+### Phase 3: Additional Connectors
 
----
+**Unlock:** After proving Shopify value
 
-## Phase 4: Storefront
+| Connector | Priority | Rationale |
+|-----------|----------|-----------|
+| Amazon Seller Central | High | 40%+ of merch sales |
+| Amazon Vendor Central | High | Large publisher standard |
+| WooCommerce | Medium | Indie publisher preference |
+| BigCommerce | Medium | Mid-market coverage |
+| Etsy | Low | Niche/fan-made segment |
 
-**Direct-to-Consumer E-Commerce**
+### Phase 4: Enterprise Features
 
-Enable publishers to sell directly to fans without needing external platforms.
+**Unlock:** After landing first enterprise deal
 
-### Features
-
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **Hosted Storefronts** | Publisher-branded stores on phantom.store/{publisher} | High |
-| **Custom Domains** | Connect publisher's own domain | High |
-| **Product Catalog** | Sync products from Merch Studio | High |
-| **Shopping Cart** | Full e-commerce checkout experience | High |
-| **Payment Processing** | Stripe integration for payments | High |
-| **Order Management** | Track and manage customer orders | High |
-| **Customer Accounts** | Fan accounts with order history | Medium |
-| **Wishlist & Favorites** | Save products for later | Medium |
-| **Reviews & Ratings** | Customer feedback on products | Medium |
-| **Promotions** | Discount codes, flash sales | Medium |
-| **Pre-Orders** | Accept orders before launch | Low |
-| **Limited Editions** | Scarcity and edition numbering | Low |
-
-### Store Themes
-- Minimalist (default)
-- Gaming Dark Mode
-- Collector's Edition
-- Custom (enterprise)
+| Feature | Use Case |
+|---------|----------|
+| SSO/SAML | Enterprise IT requirements |
+| Audit logging | Compliance needs |
+| Custom reporting | Executive dashboards |
+| API access | Integration with existing systems |
+| Multi-region | Data residency requirements |
 
 ---
 
-## Phase 5: Creators
+## Future Opportunities (Post-PMF)
 
-**Influencer & Creator Partnership Platform**
+These represent larger bets that build on top of the IP Asset Graph. Each is a potential company-sized opportunity. We will evaluate these **only after** the Intelligence Platform achieves PMF.
 
-Enable publishers to work with content creators for merchandise collaborations.
+### Merch Studio
 
-### Features
+**AI-powered merchandise design generation**
 
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **Creator Marketplace** | Discover and connect with gaming creators | High |
-| **Collaboration Tools** | Manage creator partnerships and approvals | High |
-| **Revenue Sharing** | Automated royalty tracking and payouts | High |
-| **Creator Storefronts** | Branded stores for creator merchandise | High |
-| **Affiliate Program** | Track referrals and commissions | Medium |
-| **Campaign Management** | Coordinate product launches with creators | Medium |
-| **Performance Analytics** | Track creator-driven sales | Medium |
-| **Contract Management** | Digital agreements and terms | Low |
+Transform IP assets into merchandise designs using generative AI. Select a character, choose a product type, generate designs.
 
-### Creator Types
-- **Streamers** - Twitch, YouTube Gaming
-- **Content Creators** - YouTube, TikTok
-- **Esports Athletes** - Professional players
-- **Community Artists** - Fan artists and designers
-- **Cosplayers** - Costume creators
+*Dependency: Requires robust IP asset library with imagery*
 
----
+### Production
 
-## Phase 6: Additional Connectors
+**Order routing and fulfillment orchestration**
 
-**Expand Data Source Integrations**
+Connect to print-on-demand (Printful, Printify) and manufacturers. Route orders based on cost, speed, quality.
 
-Connect to more e-commerce platforms and data sources.
+*Dependency: Requires Merch Studio or external design source*
 
-### E-Commerce Platforms
+### Storefront
 
-| Connector | Status | Priority |
-|-----------|--------|----------|
-| Shopify | Complete | - |
-| CSV Import | Complete | - |
-| Amazon Seller Central | Planned | High |
-| Amazon Vendor Central | Planned | High |
-| WooCommerce | Planned | Medium |
-| BigCommerce | Planned | Medium |
-| Etsy | Planned | Medium |
-| eBay | Planned | Low |
-| Walmart Marketplace | Planned | Low |
+**Direct-to-consumer e-commerce**
 
-### Licensing Partners
+Hosted storefronts at phantom.store/{publisher}. Full checkout, payments, order management.
 
-| Connector | Description | Priority |
-|-----------|-------------|----------|
-| **Licensing Portal** | Connect to major licensees | High |
-| **Royalty Reports** | Import royalty statements | Medium |
-| **Partner Dashboard** | Shared analytics with partners | Medium |
+*Dependency: Requires production or existing fulfillment*
 
-### Marketing & Analytics
+### Creators
 
-| Connector | Description | Priority |
-|-----------|-------------|----------|
-| **Google Analytics** | Import traffic and conversion data | Medium |
-| **Meta Ads** | Facebook/Instagram ad performance | Medium |
-| **Google Ads** | Search and display ad metrics | Low |
-| **Social Media** | Twitter, TikTok, Instagram metrics | Low |
+**Influencer partnership platform**
+
+Match publishers with gaming creators. Revenue sharing, campaign management, performance tracking.
+
+*Dependency: Requires storefront or significant publisher network*
 
 ---
 
-## Phase 7: Advanced AI
+## What We're NOT Building Right Now
 
-**Next-Generation AI Capabilities**
+To maintain focus, we are explicitly **not** pursuing:
 
-Enhance AI features for deeper insights and automation.
+- [ ] Merch design generation
+- [ ] Print-on-demand integration
+- [ ] E-commerce storefronts
+- [ ] Creator marketplace
+- [ ] WooCommerce/BigCommerce connectors
+- [ ] White-label solutions
 
-### Features
-
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **Image Recognition** | Automatically identify assets in product images | High |
-| **Natural Language Queries** | "Which character sold best in Q4?" | High |
-| **Predictive Analytics** | Forecast demand and revenue | High |
-| **Anomaly Detection** | Alert on unusual patterns | Medium |
-| **Sentiment Analysis** | Analyze fan reception from reviews/social | Medium |
-| **Automated Tagging** | Zero-touch product categorization | Medium |
-| **Trend Prediction** | Identify emerging asset popularity | Low |
+**These are all good ideas. They're just not the right ideas for today.**
 
 ---
 
-## Phase 8: Enterprise
+## Decision Framework
 
-**Enterprise-Grade Features**
+When evaluating new features or opportunities:
 
-Features for large publishers and studios.
-
-### Features
-
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| **SSO Integration** | SAML/OIDC single sign-on | High |
-| **Audit Logging** | Complete activity history | High |
-| **Custom Reporting** | Build custom dashboards and reports | High |
-| **API Access** | Full REST API for integrations | Medium |
-| **White Label** | Custom branding for the platform | Medium |
-| **Multi-Region** | Data residency options (US, EU, APAC) | Medium |
-| **SLA Guarantees** | Uptime and support commitments | Low |
-| **Dedicated Support** | Named account manager | Low |
-
----
-
-## Timeline (Tentative)
-
-| Phase | Target | Status |
-|-------|--------|--------|
-| MVP | Q4 2024 | **Complete** |
-| Pilot Launch | Q1 2025 | **Active** |
-| Merch Studio | Q2 2025 | Planning |
-| Production | Q2-Q3 2025 | Planning |
-| Storefront | Q3 2025 | Planning |
-| Creators | Q4 2025 | Planning |
-| Additional Connectors | Ongoing | In Progress |
-| Advanced AI | Q4 2025 - Q1 2026 | Planning |
-| Enterprise | 2026 | Planning |
+1. **Does it grow the IP Asset Graph?** → Prioritize
+2. **Does it improve AI tagging accuracy?** → Prioritize
+3. **Does it drive publisher engagement?** → Consider
+4. **Does it require the IP Asset Graph?** → Defer until graph is robust
+5. **Is it a distraction from core focus?** → Reject
 
 ---
 
 ## Recent Updates
 
 ### December 2025
-- Made Settings page fully functional:
-  - Profile: name and avatar changes now save to database
-  - Avatar upload with file picker and base64 storage
-  - Organization: name and website changes save to database
-  - Proper loading states, success/error feedback
-  - RBAC enforced (only owner/admin can edit org settings)
-- Redesigned Updates page with interactive features:
-  - Expandable cards (click to see details)
-  - Search functionality
-  - Year and category filters
-  - Category badges (Feature, Fix, Security, etc.)
+- Made Settings page fully functional with profile and org editing
+- Redesigned Updates page with interactive features
 - Added How It Works page with step-by-step user flow
-- Fixed demo mode bypassing real data throughout the app:
-  - Settings profile/organization APIs now return real user data for logged-in users
-  - All write endpoints check session before demo mode
-  - Demo data only shown for anonymous/unauthenticated access
-- Fixed RBAC bypass in demo mode - role checks now enforced for all logged-in users
-- Added write protection to all tagging and mapping routes
-- Updated hero CTA to link to How It Works page
-- Added How It Works to navbar navigation
+- Fixed demo mode data isolation throughout the app
+- Added RBAC enforcement for all write operations
+- Integrated Posthog analytics for engagement tracking
 
 ### November 2025
-- Added Role-Based Access Control (RBAC) system
-- Implemented team invitation system with role assignment
-- Added user management with owner/admin/member/analyst roles
-- Protected all write endpoints with role-based authorization
+- Launched Role-Based Access Control (RBAC)
+- Implemented team invitation system
+- Added user management with role assignments
+- Protected all write endpoints
 
 ### October 2025
-- Redesigned marketing pages with minimal black/white aesthetic
-- Added floating pill navbar with mega menu
-- Implemented SEO: sitemap, robots.txt, page metadata
-- Created feature-specific landing pages
+- Redesigned marketing site with minimal aesthetic
+- Implemented SEO (sitemap, robots.txt, metadata)
+- Created feature landing pages
 
 ---
 
-## Feedback
+## The Bottom Line
 
-This roadmap is shaped by user feedback. To request features or reprioritize items, contact the PhantomOS team.
+**We are building one thing: the IP Asset Graph.**
+
+Everything else — the dashboard, the AI, the integrations — exists to accumulate more product-to-character mappings. That data is our moat. It doesn't exist anywhere else. And every publisher who uses PhantomOS makes it more valuable.
+
+The future phases are exciting. They're also dependent on building the best IP Asset Graph in the world first.
 
 ---
 
-*Building the future of gaming merchandise, one feature at a time.*
+*Focus wins. Data compounds. The moat deepens.*
