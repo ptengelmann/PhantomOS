@@ -2,24 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Brain, Sparkles, TrendingUp, AlertCircle, TrendingDown, Target, DollarSign, RefreshCw, ChevronRight, Globe, Zap, Loader2, Upload, ShoppingBag, Plug, Package, Lightbulb, ArrowRight, Tag } from 'lucide-react';
+import {
+  Brain, Sparkles, TrendingUp, AlertCircle, Target, RefreshCw, ChevronRight,
+  ChevronDown, Zap, Loader2, Upload, ShoppingBag, Plug, Package, Lightbulb,
+  ArrowRight, Tag, Check, Clock, History, CheckCircle2
+} from 'lucide-react';
 import Link from 'next/link';
 import { Header, StatsCard } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@/components/ui';
 
-interface AIInsight {
-  type: 'opportunity' | 'warning' | 'trend' | 'recommendation';
+interface StoredInsight {
+  id: string;
+  type: string;
   title: string;
   description: string;
-  recommendations?: string[];
-  confidence?: number;
+  confidence: string | null;
+  data: {
+    recommendations?: string[];
+    generatedAt?: string;
+  };
+  isRead: boolean;
+  isActioned: boolean;
+  actionedAt: string | null;
+  batchId: string | null;
+  createdAt: string;
 }
 
-interface APIInsight {
-  title: string;
-  description: string;
-  confidence: number;
-  recommendations: string[];
+interface InsightBatch {
+  batchId: string;
+  createdAt: string;
+  insights: StoredInsight[];
+  insightCount: number;
 }
 
 // Analysis step component for loading state
@@ -41,9 +54,7 @@ function AnalysisStep({
         ${status === 'pending' ? 'bg-[#f5f5f5] border-[#e5e5e5] text-[#a3a3a3]' : ''}
       `}>
         {status === 'complete' ? (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+          <Check className="w-4 h-4" />
         ) : status === 'active' ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
@@ -60,17 +71,40 @@ function AnalysisStep({
 // Interactive insight card component
 function InsightCard({
   insight,
-  icon,
-  badge
+  onAction,
 }: {
-  insight: AIInsight;
-  icon: React.ReactNode;
-  badge: React.ReactNode;
+  insight: StoredInsight;
+  onAction: (id: string, actioned: boolean) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const router = useRouter();
 
-  // Determine action button based on insight type/content
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'opportunity':
+        return <Sparkles className="w-5 h-5 text-[#22c55e]" />;
+      case 'warning':
+        return <AlertCircle className="w-5 h-5 text-[#f59e0b]" />;
+      case 'trend':
+        return <TrendingUp className="w-5 h-5 text-[#3b82f6]" />;
+      default:
+        return <Lightbulb className="w-5 h-5 text-[#8b5cf6]" />;
+    }
+  };
+
+  const getInsightBadge = (type: string) => {
+    switch (type) {
+      case 'opportunity':
+        return <Badge variant="success">Opportunity</Badge>;
+      case 'warning':
+        return <Badge variant="warning">Alert</Badge>;
+      case 'trend':
+        return <Badge variant="outline">Trend</Badge>;
+      default:
+        return <Badge>Recommendation</Badge>;
+    }
+  };
+
   const getActionButton = () => {
     const text = `${insight.title} ${insight.description}`.toLowerCase();
 
@@ -102,10 +136,11 @@ function InsightCard({
   };
 
   const actionButton = getActionButton();
-  const hasRecommendations = insight.recommendations && insight.recommendations.length > 0;
+  const hasRecommendations = insight.data?.recommendations && insight.data.recommendations.length > 0;
+  const confidence = insight.confidence ? parseFloat(insight.confidence) : 0.7;
 
   return (
-    <div className="border border-[#e5e5e5] transition-all hover:border-[#a3a3a3]">
+    <div className={`border transition-all ${insight.isActioned ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#e5e5e5] hover:border-[#a3a3a3]'}`}>
       {/* Main content - clickable to expand */}
       <button
         onClick={() => hasRecommendations && setExpanded(!expanded)}
@@ -113,20 +148,29 @@ function InsightCard({
       >
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 mt-0.5">
-            {icon}
+            {insight.isActioned ? (
+              <CheckCircle2 className="w-5 h-5 text-[#22c55e]" />
+            ) : (
+              getInsightIcon(insight.type)
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <p className="font-medium text-[#0a0a0a]">{insight.title}</p>
-              {badge}
-              {insight.confidence && (
-                <span className="text-[10px] px-1.5 py-0.5 bg-[#f5f5f5] text-[#737373]">
-                  {Math.round(insight.confidence * 100)}% confidence
+              <p className={`font-medium ${insight.isActioned ? 'text-[#737373] line-through' : 'text-[#0a0a0a]'}`}>
+                {insight.title}
+              </p>
+              {getInsightBadge(insight.type)}
+              <span className="text-[10px] px-1.5 py-0.5 bg-[#f5f5f5] text-[#737373]">
+                {Math.round(confidence * 100)}% confidence
+              </span>
+              {insight.isActioned && (
+                <span className="text-[10px] px-1.5 py-0.5 bg-[#22c55e] text-white">
+                  Actioned
                 </span>
               )}
             </div>
             {insight.description && (
-              <p className="text-sm text-[#737373] mt-1">
+              <p className={`text-sm mt-1 ${insight.isActioned ? 'text-[#a3a3a3]' : 'text-[#737373]'}`}>
                 {insight.description}
               </p>
             )}
@@ -149,7 +193,7 @@ function InsightCard({
               Recommended Actions
             </p>
             <div className="space-y-2">
-              {insight.recommendations?.map((rec, idx) => (
+              {insight.data.recommendations?.map((rec, idx) => (
                 <div key={idx} className="flex items-start gap-2">
                   <div className="w-5 h-5 bg-[#f5f5f5] flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-xs text-[#737373]">{idx + 1}</span>
@@ -158,19 +202,86 @@ function InsightCard({
                 </div>
               ))}
             </div>
-            {actionButton && (
-              <div className="mt-4 pt-3 border-t border-[#f5f5f5]">
-                {actionButton}
-              </div>
-            )}
+            <div className="mt-4 pt-3 border-t border-[#f5f5f5] flex items-center gap-3">
+              {actionButton}
+              {!insight.isActioned ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAction(insight.id, true);
+                  }}
+                >
+                  <Check className="w-3 h-3 mr-1" />
+                  Mark as Actioned
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAction(insight.id, false);
+                  }}
+                >
+                  Undo
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* Action button for non-expandable insights */}
-      {!hasRecommendations && actionButton && (
-        <div className="px-4 pb-4">
+      {!hasRecommendations && !insight.isActioned && (
+        <div className="px-4 pb-4 flex items-center gap-3">
           {actionButton}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onAction(insight.id, true)}
+          >
+            <Check className="w-3 h-3 mr-1" />
+            Mark as Actioned
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// History batch component
+function HistoryBatch({ batch, onAction }: { batch: InsightBatch; onAction: (id: string, actioned: boolean) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const date = new Date(batch.createdAt);
+  const actionedCount = batch.insights.filter(i => i.isActioned).length;
+
+  return (
+    <div className="border border-[#e5e5e5]">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-4 flex items-center justify-between hover:bg-[#fafafa] transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Clock className="w-4 h-4 text-[#a3a3a3]" />
+          <div className="text-left">
+            <p className="font-medium text-[#0a0a0a]">
+              {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </p>
+            <p className="text-xs text-[#737373]">
+              {batch.insightCount} insights • {actionedCount} actioned
+            </p>
+          </div>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-[#a3a3a3] transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-[#e5e5e5] p-4 space-y-3 bg-[#fafafa]">
+          {batch.insights.map((insight) => (
+            <InsightCard key={insight.id} insight={insight} onAction={onAction} />
+          ))}
         </div>
       )}
     </div>
@@ -181,23 +292,26 @@ export default function IntelligencePage() {
   const [loading, setLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [insights, setInsights] = useState<AIInsight[]>([]);
+  const [currentInsights, setCurrentInsights] = useState<StoredInsight[]>([]);
+  const [historyBatches, setHistoryBatches] = useState<InsightBatch[]>([]);
   const [insightsError, setInsightsError] = useState('');
-  const [lastAnalyzed, setLastAnalyzed] = useState<Date | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
-    checkData();
+    checkDataAndLoadInsights();
   }, []);
 
-  const checkData = async () => {
+  const checkDataAndLoadInsights = async () => {
     try {
-      const response = await fetch('/api/dashboard/stats');
-      if (response.ok) {
-        const data = await response.json();
+      // Check if we have data
+      const statsResponse = await fetch('/api/dashboard/stats');
+      if (statsResponse.ok) {
+        const data = await statsResponse.json();
         setHasData(data.hasData);
+
         if (data.hasData) {
-          // Auto-load insights if we have data
-          await fetchInsights();
+          // Load existing insights
+          await loadStoredInsights();
         }
       }
     } catch (error) {
@@ -207,7 +321,20 @@ export default function IntelligencePage() {
     }
   };
 
-  const fetchInsights = async () => {
+  const loadStoredInsights = async () => {
+    try {
+      const response = await fetch('/api/ai/insights?history=true&limit=100');
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentInsights(data.current || []);
+        setHistoryBatches(data.history || []);
+      }
+    } catch (error) {
+      console.error('Failed to load insights:', error);
+    }
+  };
+
+  const generateNewInsights = async () => {
     setRefreshing(true);
     setInsightsError('');
 
@@ -219,117 +346,57 @@ export default function IntelligencePage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // The API returns an array of InsightResult objects
-        const parsedInsights = parseAPIInsights(data.insights);
-        setInsights(parsedInsights);
-        setLastAnalyzed(new Date());
+        // Reload all insights to get the new batch
+        await loadStoredInsights();
       } else {
         const errorData = await response.json().catch(() => ({}));
         setInsightsError(errorData.error || 'Failed to generate insights. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to fetch insights:', error);
+      console.error('Failed to generate insights:', error);
       setInsightsError('Failed to connect to AI service. Please try again later.');
     } finally {
       setRefreshing(false);
     }
   };
 
-  // Parse the API response (array of InsightResult objects)
-  const parseAPIInsights = (rawInsights: APIInsight[] | string | null | unknown): AIInsight[] => {
-    if (!rawInsights) return [];
+  const handleActionInsight = async (insightId: string, actioned: boolean) => {
+    try {
+      await fetch('/api/ai/insights', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ insightId, isActioned: actioned }),
+      });
 
-    // Handle string input (try to parse as JSON, or use as plain text)
-    let insightsArray: APIInsight[];
-
-    if (typeof rawInsights === 'string') {
-      // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
-      let cleanedString = rawInsights.trim();
-      if (cleanedString.startsWith('```')) {
-        // Remove opening code fence (```json or ```)
-        cleanedString = cleanedString.replace(/^```(?:json)?\s*\n?/, '');
-        // Remove closing code fence
-        cleanedString = cleanedString.replace(/\n?```\s*$/, '');
-      }
-
-      try {
-        const parsed = JSON.parse(cleanedString);
-        insightsArray = Array.isArray(parsed) ? parsed : [parsed];
-      } catch {
-        // If it's just text, create a single insight
-        return [{
-          type: 'recommendation',
-          title: 'AI Analysis',
-          description: rawInsights.substring(0, 500), // Limit length
-          confidence: 0.7,
-        }];
-      }
-    } else if (Array.isArray(rawInsights)) {
-      insightsArray = rawInsights;
-    } else if (typeof rawInsights === 'object') {
-      insightsArray = [rawInsights as APIInsight];
-    } else {
-      return [];
-    }
-
-    return insightsArray.map((insight) => {
-      // Determine type based on keywords in title/description
-      let type: AIInsight['type'] = 'recommendation';
-      const insightData = insight as APIInsight;
-      const text = `${insightData.title || ''} ${insightData.description || ''}`.toLowerCase();
-
-      if (text.includes('opportunity') || text.includes('growth') || text.includes('increase') || text.includes('potential')) {
-        type = 'opportunity';
-      } else if (text.includes('warning') || text.includes('decline') || text.includes('concern') || text.includes('risk') || text.includes('drop')) {
-        type = 'warning';
-      } else if (text.includes('trend') || text.includes('pattern') || text.includes('consistent')) {
-        type = 'trend';
-      }
-
-      return {
-        type,
-        title: insightData.title || 'Insight',
-        description: insightData.description || '',
-        recommendations: insightData.recommendations || [],
-        confidence: insightData.confidence || 0.7,
-      };
-    }).slice(0, 5);
-  };
-
-  const getInsightIcon = (type: AIInsight['type']) => {
-    switch (type) {
-      case 'opportunity':
-        return <Sparkles className="w-5 h-5 text-[#22c55e]" />;
-      case 'warning':
-        return <AlertCircle className="w-5 h-5 text-[#f59e0b]" />;
-      case 'trend':
-        return <TrendingUp className="w-5 h-5 text-[#3b82f6]" />;
-      case 'recommendation':
-        return <Lightbulb className="w-5 h-5 text-[#8b5cf6]" />;
+      // Update local state
+      setCurrentInsights(prev =>
+        prev.map(i => i.id === insightId ? { ...i, isActioned: actioned, actionedAt: actioned ? new Date().toISOString() : null } : i)
+      );
+      setHistoryBatches(prev =>
+        prev.map(batch => ({
+          ...batch,
+          insights: batch.insights.map(i =>
+            i.id === insightId ? { ...i, isActioned: actioned, actionedAt: actioned ? new Date().toISOString() : null } : i
+          ),
+        }))
+      );
+    } catch (error) {
+      console.error('Failed to update insight:', error);
     }
   };
 
-  const getInsightBadge = (type: AIInsight['type']) => {
-    switch (type) {
-      case 'opportunity':
-        return <Badge variant="success">Opportunity</Badge>;
-      case 'warning':
-        return <Badge variant="warning">Alert</Badge>;
-      case 'trend':
-        return <Badge variant="outline">Trend</Badge>;
-      case 'recommendation':
-        return <Badge>Recommendation</Badge>;
-    }
-  };
+  const currentBatchDate = currentInsights[0]?.createdAt
+    ? new Date(currentInsights[0].createdAt)
+    : null;
 
-  // Loading state with skeleton UI
+  const actionedCount = currentInsights.filter(i => i.isActioned).length;
+
+  // Loading state
   if (loading) {
     return (
       <div>
         <Header title="Fan Intelligence Hub" description="AI-powered demand intelligence" />
         <div className="p-6 space-y-6">
-          {/* Skeleton Stats Grid */}
           <div className="grid grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
               <Card key={i}>
@@ -342,56 +409,14 @@ export default function IntelligencePage() {
               </Card>
             ))}
           </div>
-
-          {/* Skeleton AI Insights Card */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Brain className="w-5 h-5 text-[#a3a3a3] animate-pulse" />
-                <div>
-                  <div className="h-5 w-32 bg-[#e5e5e5] animate-pulse mb-2"></div>
-                  <div className="h-3 w-48 bg-[#f5f5f5] animate-pulse"></div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="p-4 border border-[#e5e5e5]">
-                    <div className="flex items-start gap-4">
-                      <div className="w-5 h-5 bg-[#e5e5e5] animate-pulse flex-shrink-0"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 w-48 bg-[#e5e5e5] animate-pulse"></div>
-                        <div className="h-3 w-full bg-[#f5f5f5] animate-pulse"></div>
-                        <div className="h-3 w-3/4 bg-[#f5f5f5] animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 flex items-center justify-center gap-3 text-[#737373]">
+            <CardContent className="py-12">
+              <div className="flex items-center justify-center gap-3 text-[#737373]">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm">Connecting to AI engine...</span>
+                <span>Loading insights...</span>
               </div>
             </CardContent>
           </Card>
-
-          {/* Skeleton Quick Actions */}
-          <div className="grid grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-4 animate-pulse">
-                    <div className="w-10 h-10 bg-[#f5f5f5]"></div>
-                    <div className="flex-1">
-                      <div className="h-4 w-24 bg-[#e5e5e5] mb-2"></div>
-                      <div className="h-3 w-32 bg-[#f5f5f5]"></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
       </div>
     );
@@ -406,7 +431,6 @@ export default function IntelligencePage() {
           description="AI-powered demand intelligence"
         />
         <div className="p-6 space-y-6">
-          {/* Welcome Card */}
           <Card>
             <CardContent className="py-12">
               <div className="text-center max-w-xl mx-auto">
@@ -417,7 +441,7 @@ export default function IntelligencePage() {
                   AI Intelligence Awaits
                 </h2>
                 <p className="text-[#737373] mb-8">
-                  Connect your sales data to unlock AI-powered insights about fan demand, revenue opportunities, and hidden market signals. Our AI analyzes your merchandise data to reveal actionable intelligence.
+                  Connect your sales data to unlock AI-powered insights about fan demand, revenue opportunities, and hidden market signals.
                 </p>
                 <div className="flex gap-4 justify-center">
                   <Link href="/connectors">
@@ -436,86 +460,36 @@ export default function IntelligencePage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* What You'll Get */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-5 h-5 text-[#737373]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[#0a0a0a] mb-1">Demand Signals</h3>
-                    <p className="text-sm text-[#737373]">
-                      Identify which characters and IPs are trending before they peak.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="w-5 h-5 text-[#737373]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[#0a0a0a] mb-1">Revenue Opportunities</h3>
-                    <p className="text-sm text-[#737373]">
-                      Discover untapped markets and product gaps.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center flex-shrink-0">
-                    <Target className="w-5 h-5 text-[#737373]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[#0a0a0a] mb-1">Regional Insights</h3>
-                    <p className="text-sm text-[#737373]">
-                      Understand which markets love which characters.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     );
   }
 
-  // Dashboard with data - Show real AI insights
+  // Dashboard with data
   return (
     <div>
       <Header
         title="Fan Intelligence Hub"
         description="AI-powered demand intelligence"
-        action={{ label: 'Refresh Analysis', onClick: fetchInsights }}
       />
 
       <div className="p-6 space-y-6">
-        {/* Stats - Summary */}
+        {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           <StatsCard
-            title="Active Insights"
-            value={insights.length.toString()}
+            title="Current Insights"
+            value={currentInsights.length.toString()}
             icon={<Sparkles className="w-5 h-5" />}
           />
           <StatsCard
-            title="Opportunities"
-            value={insights.filter(i => i.type === 'opportunity').length.toString()}
-            icon={<TrendingUp className="w-5 h-5" />}
+            title="Actioned"
+            value={`${actionedCount}/${currentInsights.length}`}
+            icon={<CheckCircle2 className="w-5 h-5" />}
           />
           <StatsCard
-            title="Alerts"
-            value={insights.filter(i => i.type === 'warning').length.toString()}
-            icon={<AlertCircle className="w-5 h-5" />}
+            title="History"
+            value={`${historyBatches.length} batches`}
+            icon={<History className="w-5 h-5" />}
           />
           <StatsCard
             title="AI Confidence"
@@ -524,62 +498,44 @@ export default function IntelligencePage() {
           />
         </div>
 
-        {/* AI Insights */}
+        {/* Current Insights */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="w-5 h-5" />
-                AI Insights
+                Current Insights
               </CardTitle>
               <CardDescription>
-                {lastAnalyzed ? (
-                  <>Last analyzed: {lastAnalyzed.toLocaleTimeString()}</>
+                {currentBatchDate ? (
+                  <>Generated: {currentBatchDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {currentBatchDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</>
                 ) : (
-                  <>Powered by Claude AI</>
+                  <>No insights yet - click Generate to analyze your data</>
                 )}
               </CardDescription>
             </div>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchInsights}
+              onClick={generateNewInsights}
               disabled={refreshing}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Analyzing...' : 'Refresh'}
+              {refreshing ? 'Analyzing...' : 'Generate New'}
             </Button>
           </CardHeader>
           <CardContent>
-            {refreshing && insights.length === 0 ? (
+            {refreshing && currentInsights.length === 0 ? (
               <div className="py-8">
                 <div className="max-w-md mx-auto">
-                  {/* AI Brain Animation */}
                   <div className="relative w-16 h-16 mx-auto mb-6">
                     <div className="absolute inset-0 bg-[#0a0a0a] animate-pulse"></div>
                     <Brain className="absolute inset-0 w-16 h-16 p-4 text-white" />
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#22c55e] animate-ping"></div>
                   </div>
-
-                  {/* Progress Steps */}
                   <div className="space-y-3 mb-6">
-                    <AnalysisStep
-                      icon={<TrendingUp className="w-4 h-4" />}
-                      label="Scanning sales patterns"
-                      status="complete"
-                    />
-                    <AnalysisStep
-                      icon={<Package className="w-4 h-4" />}
-                      label="Analyzing product performance"
-                      status="active"
-                    />
-                    <AnalysisStep
-                      icon={<Sparkles className="w-4 h-4" />}
-                      label="Generating insights"
-                      status="pending"
-                    />
+                    <AnalysisStep icon={<TrendingUp className="w-4 h-4" />} label="Scanning sales patterns" status="complete" />
+                    <AnalysisStep icon={<Package className="w-4 h-4" />} label="Analyzing product performance" status="active" />
+                    <AnalysisStep icon={<Sparkles className="w-4 h-4" />} label="Generating insights" status="pending" />
                   </div>
-
                   <p className="text-center text-sm text-[#a3a3a3]">
                     AI is analyzing your data to find opportunities...
                   </p>
@@ -589,33 +545,68 @@ export default function IntelligencePage() {
               <div className="py-8 text-center">
                 <AlertCircle className="w-8 h-8 text-[#f59e0b] mx-auto mb-4" />
                 <p className="text-[#737373]">{insightsError}</p>
-                <Button variant="outline" size="sm" className="mt-4" onClick={fetchInsights}>
+                <Button variant="outline" size="sm" className="mt-4" onClick={generateNewInsights}>
                   Try Again
                 </Button>
               </div>
-            ) : insights.length === 0 ? (
+            ) : currentInsights.length === 0 ? (
               <div className="py-8 text-center">
                 <Brain className="w-8 h-8 text-[#e5e5e5] mx-auto mb-4" />
                 <p className="text-[#737373]">No insights generated yet</p>
-                <p className="text-sm text-[#a3a3a3] mt-1">Click Refresh to analyze your data</p>
-                <Button size="sm" className="mt-4" onClick={fetchInsights}>
+                <p className="text-sm text-[#a3a3a3] mt-1">Click "Generate New" to analyze your data</p>
+                <Button size="sm" className="mt-4" onClick={generateNewInsights}>
                   Generate Insights
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
-                {insights.map((insight, idx) => (
+                {currentInsights.map((insight) => (
                   <InsightCard
-                    key={idx}
+                    key={insight.id}
                     insight={insight}
-                    icon={getInsightIcon(insight.type)}
-                    badge={getInsightBadge(insight.type)}
+                    onAction={handleActionInsight}
                   />
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* History Section */}
+        {historyBatches.length > 0 && (
+          <Card>
+            <CardHeader>
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="w-full flex items-center justify-between"
+              >
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="w-5 h-5" />
+                    Insight History
+                  </CardTitle>
+                  <CardDescription>
+                    {historyBatches.length} previous analysis {historyBatches.length === 1 ? 'batch' : 'batches'}
+                  </CardDescription>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-[#a3a3a3] transition-transform ${showHistory ? 'rotate-180' : ''}`} />
+              </button>
+            </CardHeader>
+            {showHistory && (
+              <CardContent>
+                <div className="space-y-3">
+                  {historyBatches.map((batch) => (
+                    <HistoryBatch
+                      key={batch.batchId}
+                      batch={batch}
+                      onAction={handleActionInsight}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-4">
@@ -678,7 +669,7 @@ export default function IntelligencePage() {
                 <p className="text-sm font-medium text-[#0a0a0a]">How PhantomOS AI Works</p>
                 <p className="text-sm text-[#737373]">
                   Our AI analyzes your sales data, product categories, and IP asset mappings to identify patterns,
-                  opportunities, and risks. The more data you connect and products you tag, the more accurate our insights become.
+                  opportunities, and risks. Insights are saved so you can track recommendations over time and see which ones you've actioned.
                 </p>
               </div>
             </div>

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateInsights } from '@/lib/ai';
 import { db } from '@/lib/db';
-import { sql, eq, desc } from 'drizzle-orm';
+import { sql, eq, desc, isNull, and } from 'drizzle-orm';
 import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
 import { aiInsights, gameIps } from '@/lib/db/schema';
+import { v4 as uuidv4 } from 'uuid';
 
-// GET: Retrieve stored insights
+// GET: Retrieve stored insights with history support
 export async function GET(request: NextRequest) {
   try {
     let publisherId: string;
@@ -22,11 +23,11 @@ export async function GET(request: NextRequest) {
 
     // Get query params
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const unreadOnly = searchParams.get('unread') === 'true';
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const includeHistory = searchParams.get('history') === 'true';
 
-    // Fetch insights from database
-    let query = db
+    // Fetch all insights from database
+    const insights = await db
       .select({
         id: aiInsights.id,
         type: aiInsights.type,
@@ -35,6 +36,9 @@ export async function GET(request: NextRequest) {
         confidence: aiInsights.confidence,
         data: aiInsights.data,
         isRead: aiInsights.isRead,
+        isActioned: aiInsights.isActioned,
+        actionedAt: aiInsights.actionedAt,
+        batchId: aiInsights.batchId,
         createdAt: aiInsights.createdAt,
         gameIpId: aiInsights.gameIpId,
         assetId: aiInsights.assetId,
@@ -44,11 +48,44 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(aiInsights.createdAt))
       .limit(limit);
 
-    const insights = await query;
+    // Group insights by batchId for history view
+    const batches: Record<string, typeof insights> = {};
+    let currentBatch: typeof insights = [];
+    let latestBatchId: string | null = null;
+
+    for (const insight of insights) {
+      const batchKey = insight.batchId || insight.createdAt.toISOString().split('T')[0]; // Fallback to date for legacy
+
+      if (!latestBatchId) {
+        latestBatchId = batchKey;
+      }
+
+      if (!batches[batchKey]) {
+        batches[batchKey] = [];
+      }
+      batches[batchKey].push(insight);
+
+      // Current batch is the most recent one
+      if (batchKey === latestBatchId) {
+        currentBatch.push(insight);
+      }
+    }
+
+    // Convert batches to array sorted by date
+    const historyBatches = Object.entries(batches)
+      .map(([batchId, batchInsights]) => ({
+        batchId,
+        createdAt: batchInsights[0]?.createdAt,
+        insights: batchInsights,
+        insightCount: batchInsights.length,
+      }))
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
 
     return NextResponse.json({
-      insights,
+      current: currentBatch,
+      history: includeHistory ? historyBatches.slice(1) : [], // Exclude current from history
       total: insights.length,
+      batchCount: historyBatches.length,
     });
   } catch (error) {
     console.error('Get insights error:', error);
@@ -180,8 +217,12 @@ Focus on practical merchandising opportunities.`;
 Be SPECIFIC - mention actual product names and categories from the data. No generic advice.`,
     });
 
-    // Persist insights to database if requested
+    // Persist insights to database if requested (no longer deletes old ones - keeps history)
+    let batchId: string | null = null;
     if (persist && rawInsights.length > 0) {
+      // Generate a unique batch ID for this set of insights
+      batchId = uuidv4();
+
       // Get the first game IP for this publisher
       const [gameIp] = await db
         .select({ id: gameIps.id })
@@ -191,10 +232,11 @@ Be SPECIFIC - mention actual product names and categories from the data. No gene
 
       const gameIpId = gameIp?.id;
 
-      // Transform and insert insights
+      // Transform and insert insights with batch ID
       const insightsToInsert = rawInsights.map((insight) => ({
         publisherId,
         gameIpId,
+        batchId,
         type: mapInsightType(insight.title),
         title: insight.title,
         description: insight.description,
@@ -205,13 +247,10 @@ Be SPECIFIC - mention actual product names and categories from the data. No gene
           analysisType: type || 'general',
         },
         isRead: false,
+        isActioned: false,
       }));
 
-      // Clear old insights and insert new ones
-      await db
-        .delete(aiInsights)
-        .where(eq(aiInsights.publisherId, publisherId));
-
+      // Insert new insights (keeps old ones for history)
       await db.insert(aiInsights).values(insightsToInsert);
     }
 
@@ -219,6 +258,7 @@ Be SPECIFIC - mention actual product names and categories from the data. No gene
       insights: rawInsights,
       persisted: persist,
       count: rawInsights.length,
+      batchId,
     });
   } catch (error) {
     console.error('AI insights error:', error);
@@ -226,7 +266,7 @@ Be SPECIFIC - mention actual product names and categories from the data. No gene
   }
 }
 
-// PATCH: Mark insight as read
+// PATCH: Mark insight as read or actioned
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession();
@@ -235,15 +275,31 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { insightId, isRead = true } = body;
+    const { insightId, isRead, isActioned } = body;
 
     if (!insightId) {
       return NextResponse.json({ error: 'insightId required' }, { status: 400 });
     }
 
+    // Build update object based on what was provided
+    const updateData: { isRead?: boolean; isActioned?: boolean; actionedAt?: Date | null } = {};
+
+    if (isRead !== undefined) {
+      updateData.isRead = isRead;
+    }
+
+    if (isActioned !== undefined) {
+      updateData.isActioned = isActioned;
+      updateData.actionedAt = isActioned ? new Date() : null;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'No update fields provided' }, { status: 400 });
+    }
+
     await db
       .update(aiInsights)
-      .set({ isRead })
+      .set(updateData)
       .where(eq(aiInsights.id, insightId));
 
     return NextResponse.json({ success: true });

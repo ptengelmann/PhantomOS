@@ -160,6 +160,9 @@ export const aiInsights = pgTable('ai_insights', {
   confidence: decimal('confidence', { precision: 5, scale: 2 }),
   data: jsonb('data').default({}),
   isRead: boolean('is_read').default(false),
+  isActioned: boolean('is_actioned').default(false),
+  actionedAt: timestamp('actioned_at'),
+  batchId: uuid('batch_id'), // Groups insights generated together (nullable for legacy data)
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

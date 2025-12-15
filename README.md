@@ -30,7 +30,7 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 | Feature | Description |
 |---------|-------------|
 | **Dashboard** | Revenue metrics, growth trends, category breakdown, asset performance charts |
-| **Fan Intelligence Hub** | AI-powered insights using Claude - opportunities, warnings, recommendations |
+| **Fan Intelligence Hub** | AI-powered insights with history tracking - mark recommendations as actioned, view past analyses |
 | **Asset Tagging** | Map products to game IPs and characters with AI suggestions |
 | **Data Connectors** | Shopify OAuth, CSV import for products and sales |
 | **Settings** | Account management, team invites with secure tokens |

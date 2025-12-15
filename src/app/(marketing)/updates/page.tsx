@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter } from 'lucide-react';
+import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type UpdateCategory = 'feature' | 'improvement' | 'fix' | 'security' | 'announcement';
@@ -28,6 +28,23 @@ const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg:
 };
 
 const updates: Update[] = [
+  {
+    id: 'dec-2025-ai-insights-history',
+    date: 'December 15, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'AI Insights History & Action Tracking',
+    summary: 'Full history of AI recommendations with the ability to track which insights you\'ve actioned. Prove AI value over time.',
+    category: 'feature',
+    icon: History,
+    content: [
+      'AI insights now persist across sessions. Return to the Intelligence Hub and see your last generated insights without regenerating.',
+      'New "Mark as Actioned" feature lets you track which AI recommendations you\'ve acted on. Green checkmarks show completed items.',
+      'Collapsible history view shows all previous insight batches with timestamps. Compare what AI recommended last month vs today.',
+      'Perfect for proving AI value to stakeholders: "Here\'s what AI recommended, here\'s what we did, here\'s the result."',
+    ],
+    highlights: ['Persistent insights', 'Action tracking', 'History view', 'Batch grouping'],
+  },
   {
     id: 'dec-2025-analytics-system',
     date: 'December 15, 2025',

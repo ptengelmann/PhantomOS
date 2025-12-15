@@ -14,6 +14,7 @@
 - [x] AI Insights page (Fan Intelligence Hub)
 - [x] AI auto-tagging with Claude integration
 - [x] AI insights persistence to database
+- [x] AI insights history with action tracking (prove AI value over time)
 - [x] Settings page with working profile/organization forms
 - [x] Role-based access control (owner/admin/member/analyst)
 
