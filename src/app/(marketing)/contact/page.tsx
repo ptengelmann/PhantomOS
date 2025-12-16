@@ -1,6 +1,32 @@
-import { Mail, MessageSquare, Building2 } from 'lucide-react';
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { Mail, MessageSquare, Building2, ChevronDown } from 'lucide-react';
+
+const subjectOptions = [
+  { value: 'general', label: 'General Inquiry' },
+  { value: 'enterprise', label: 'Enterprise Sales' },
+  { value: 'support', label: 'Technical Support' },
+  { value: 'partnership', label: 'Partnership Opportunity' },
+  { value: 'other', label: 'Other' },
+];
 
 export default function ContactPage() {
+  const [subject, setSubject] = useState('general');
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+  const subjectDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(event.target as Node)) {
+        setShowSubjectDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20" />
@@ -101,16 +127,37 @@ export default function ContactPage() {
                 <label htmlFor="subject" className="block text-sm font-medium text-[#0a0a0a] mb-2">
                   Subject
                 </label>
-                <select
-                  id="subject"
-                  className="w-full px-4 py-3 border border-[#e5e5e5] text-[#0a0a0a] focus:outline-none focus:border-[#0a0a0a] transition-colors"
-                >
-                  <option>General Inquiry</option>
-                  <option>Enterprise Sales</option>
-                  <option>Technical Support</option>
-                  <option>Partnership Opportunity</option>
-                  <option>Other</option>
-                </select>
+                <div className="relative" ref={subjectDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+                    className="w-full px-4 py-3 flex items-center justify-between border border-[#e5e5e5] text-[#0a0a0a] hover:border-[#a3a3a3] focus:outline-none focus:border-[#0a0a0a] transition-colors bg-white"
+                  >
+                    <span>{subjectOptions.find(o => o.value === subject)?.label}</span>
+                    <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showSubjectDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showSubjectDropdown && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                      {subjectOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setSubject(option.value);
+                            setShowSubjectDropdown(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left transition-colors ${
+                            subject === option.value
+                              ? 'bg-[#0a0a0a] text-white'
+                              : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>

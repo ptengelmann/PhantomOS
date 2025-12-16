@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Loader2, Check } from 'lucide-react';
+import { ArrowRight, Loader2, Check, ChevronDown } from 'lucide-react';
 
 const revenueRanges = [
   { value: 'under_100k', label: 'Under $100K' },
@@ -31,6 +31,24 @@ export default function WaitlistPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [showRevenueDropdown, setShowRevenueDropdown] = useState(false);
+  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+  const revenueDropdownRef = useRef<HTMLDivElement>(null);
+  const channelDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (revenueDropdownRef.current && !revenueDropdownRef.current.contains(event.target as Node)) {
+        setShowRevenueDropdown(false);
+      }
+      if (channelDropdownRef.current && !channelDropdownRef.current.contains(event.target as Node)) {
+        setShowChannelDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,38 +204,78 @@ export default function WaitlistPage() {
                   <label htmlFor="revenue" className="block text-sm font-medium text-[#0a0a0a] mb-2">
                     Annual Merchandise Revenue
                   </label>
-                  <select
-                    id="revenue"
-                    value={revenueRange}
-                    onChange={(e) => setRevenueRange(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-[#e5e5e5] text-[#0a0a0a] focus:outline-none focus:border-[#0a0a0a] transition-colors"
-                  >
-                    <option value="">Select a range</option>
-                    {revenueRanges.map((range) => (
-                      <option key={range.value} value={range.value}>
-                        {range.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative" ref={revenueDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowRevenueDropdown(!showRevenueDropdown)}
+                      className="w-full px-4 py-3 flex items-center justify-between bg-white border border-[#e5e5e5] hover:border-[#a3a3a3] focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                    >
+                      <span className={revenueRange ? 'text-[#0a0a0a]' : 'text-[#a3a3a3]'}>
+                        {revenueRange ? revenueRanges.find(r => r.value === revenueRange)?.label : 'Select a range'}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showRevenueDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showRevenueDropdown && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                        {revenueRanges.map((range) => (
+                          <button
+                            key={range.value}
+                            type="button"
+                            onClick={() => {
+                              setRevenueRange(range.value);
+                              setShowRevenueDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left transition-colors ${
+                              revenueRange === range.value
+                                ? 'bg-[#0a0a0a] text-white'
+                                : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                            }`}
+                          >
+                            {range.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <label htmlFor="channel" className="block text-sm font-medium text-[#0a0a0a] mb-2">
                     Primary Sales Channel
                   </label>
-                  <select
-                    id="channel"
-                    value={primaryChannel}
-                    onChange={(e) => setPrimaryChannel(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-[#e5e5e5] text-[#0a0a0a] focus:outline-none focus:border-[#0a0a0a] transition-colors"
-                  >
-                    <option value="">Select a channel</option>
-                    {salesChannels.map((channel) => (
-                      <option key={channel.value} value={channel.value}>
-                        {channel.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative" ref={channelDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowChannelDropdown(!showChannelDropdown)}
+                      className="w-full px-4 py-3 flex items-center justify-between bg-white border border-[#e5e5e5] hover:border-[#a3a3a3] focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                    >
+                      <span className={primaryChannel ? 'text-[#0a0a0a]' : 'text-[#a3a3a3]'}>
+                        {primaryChannel ? salesChannels.find(c => c.value === primaryChannel)?.label : 'Select a channel'}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showChannelDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showChannelDropdown && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                        {salesChannels.map((channel) => (
+                          <button
+                            key={channel.value}
+                            type="button"
+                            onClick={() => {
+                              setPrimaryChannel(channel.value);
+                              setShowChannelDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left transition-colors ${
+                              primaryChannel === channel.value
+                                ? 'bg-[#0a0a0a] text-white'
+                                : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                            }`}
+                          >
+                            {channel.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <button

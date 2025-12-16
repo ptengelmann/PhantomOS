@@ -8,6 +8,7 @@ import {
   Sparkles,
   X,
   ChevronRight,
+  ChevronDown,
   Search,
   Upload,
   DollarSign,
@@ -17,7 +18,8 @@ import {
   ShoppingBag,
   Plug,
   ArrowRight,
-  Keyboard
+  Keyboard,
+  Filter
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/dashboard';
@@ -57,6 +59,28 @@ export default function ProductsPage() {
   const [autoTagging, setAutoTagging] = useState(false);
   const [autoTagResult, setAutoTagResult] = useState<{ tagged: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Dropdown state
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  const filterOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'mapped', label: 'Mapped' },
+    { value: 'unmapped', label: 'Unmapped' },
+  ];
+
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setShowFilterDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     loadProducts();
@@ -483,15 +507,36 @@ export default function ProductsPage() {
               className="w-full h-9 pl-9 pr-3 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a]"
             />
           </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="h-9 px-3 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a]"
-          >
-            <option value="all">All Status</option>
-            <option value="mapped">Mapped</option>
-            <option value="unmapped">Unmapped</option>
-          </select>
+          <div className="relative" ref={filterDropdownRef}>
+            <button
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="h-9 px-3 flex items-center gap-2 bg-white border border-[#e5e5e5] text-sm hover:bg-[#fafafa] transition-colors"
+            >
+              <Filter className="w-3.5 h-3.5 text-[#737373]" />
+              <span>{filterOptions.find(o => o.value === filterStatus)?.label}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${showFilterDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            {showFilterDropdown && (
+              <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                {filterOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setFilterStatus(option.value);
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                      filterStatus === option.value
+                        ? 'bg-[#0a0a0a] text-white'
+                        : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {stats.unmapped > 0 && (
             <Button
               variant="default"
@@ -657,6 +702,20 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [autoLoadedForProduct, setAutoLoadedForProduct] = useState<string | null>(null);
   const [tagSuccess, setTagSuccess] = useState<{ assetName: string } | null>(null);
+  const [showGameIpDropdown, setShowGameIpDropdown] = useState(false);
+  const gameIpDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close Game/IP dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (gameIpDropdownRef.current && !gameIpDropdownRef.current.contains(event.target as Node)) {
+        setShowGameIpDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     loadAssets();
@@ -1217,16 +1276,57 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
                   {availableGameIps.length > 0 ? (
                     <div>
                       <label className="block text-xs text-[#737373] mb-1">Game/IP Franchise</label>
-                      <select
-                        value={selectedGameIp}
-                        onChange={(e) => { setSelectedGameIp(e.target.value); setNewGameIpName(''); }}
-                        className="w-full h-9 px-3 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a]"
-                      >
-                        <option value="">Select existing or create new...</option>
-                        {availableGameIps.map(gip => (
-                          <option key={gip.id} value={gip.id}>{gip.name}</option>
-                        ))}
-                      </select>
+                      <div className="relative" ref={gameIpDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setShowGameIpDropdown(!showGameIpDropdown)}
+                          className="w-full h-9 px-3 flex items-center justify-between bg-white border border-[#e5e5e5] text-sm hover:bg-[#fafafa] transition-colors"
+                        >
+                          <span className={selectedGameIp ? 'text-[#0a0a0a]' : 'text-[#a3a3a3]'}>
+                            {selectedGameIp
+                              ? availableGameIps.find(g => g.id === selectedGameIp)?.name
+                              : 'Select existing or create new...'}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showGameIpDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showGameIpDropdown && (
+                          <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50 max-h-48 overflow-y-auto">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedGameIp('');
+                                setNewGameIpName('');
+                                setShowGameIpDropdown(false);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                !selectedGameIp
+                                  ? 'bg-[#0a0a0a] text-white'
+                                  : 'text-[#a3a3a3] hover:bg-[#f5f5f5]'
+                              }`}
+                            >
+                              Create new...
+                            </button>
+                            {availableGameIps.map(gip => (
+                              <button
+                                key={gip.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedGameIp(gip.id);
+                                  setNewGameIpName('');
+                                  setShowGameIpDropdown(false);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                  selectedGameIp === gip.id
+                                    ? 'bg-[#0a0a0a] text-white'
+                                    : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                                }`}
+                              >
+                                {gip.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : null}
                   {!selectedGameIp && (

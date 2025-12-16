@@ -174,6 +174,14 @@ When evaluating new features or opportunities:
 - Fixed demo mode data isolation throughout the app
 - Added RBAC enforcement for all write operations
 - Integrated Posthog analytics for engagement tracking
+- Added collapsible sidebar with localStorage persistence
+- Fixed revenue formatting (shows $230K instead of $0.23M)
+- Added keyboard shortcuts discovery in dashboard header
+- Added onboarding step indicators across dashboard pages
+- Improved tagging feedback with success toasts and "Next unmapped" button
+- Added stats refresh button with loading state
+- Added team member role editing and removal in Settings
+- Styled all dropdowns consistently across dashboard and marketing pages
 
 ### November 2025
 - Launched Role-Based Access Control (RBAC)

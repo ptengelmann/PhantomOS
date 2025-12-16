@@ -494,8 +494,8 @@ SK-001,5,149.95,2025-06-15,North America
 
 | Component | Description |
 |-----------|-------------|
-| `Sidebar` | Fixed left navigation with user section |
-| `Header` | Page title, search, notifications, action button |
+| `Sidebar` | Collapsible left navigation with user section, persists state to localStorage |
+| `Header` | Page title, search, notifications, keyboard shortcuts help, action button |
 | `StatsCard` | Metric display with trend indicator |
 | `ConnectorWizard` | 4-step connection flow modal |
 

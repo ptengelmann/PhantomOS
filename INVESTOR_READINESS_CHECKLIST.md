@@ -19,6 +19,12 @@
 - [x] AI insights history with action tracking (prove AI value over time)
 - [x] Settings page with working profile/organization forms
 - [x] Role-based access control (owner/admin/member/analyst)
+- [x] Collapsible sidebar with localStorage persistence
+- [x] Keyboard shortcuts discovery in header
+- [x] Stats refresh button with loading state
+- [x] Team member role editing and removal
+- [x] Onboarding step indicators across pages
+- [x] Styled custom dropdowns (consistent UX)
 
 ### Data Connectors
 - [x] Shopify OAuth integration

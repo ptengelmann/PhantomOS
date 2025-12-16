@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart, Map, List } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart, Map, List, RefreshCw, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Header, StatsCard } from '@/components/dashboard';
 import { RevenueChart, AssetPerformanceChart, CategoryBreakdown, SalesMap } from '@/components/charts';
@@ -109,10 +109,33 @@ export default function OverviewPage() {
   const [ordersViewType, setOrdersViewType] = useState<OrdersViewType>('table');
   const [regionalData, setRegionalData] = useState<RegionalSalesData[]>([]);
   const [regionalTotalRevenue, setRegionalTotalRevenue] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
+  const dateDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close date dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target as Node)) {
+        setShowDateDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     loadDashboardData();
   }, [dateRange]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadDashboardData();
+    setLastUpdated(new Date());
+    setRefreshing(false);
+  };
 
   const handleExportReport = () => {
     if (!stats || !categoryData) return;
@@ -511,6 +534,26 @@ export default function OverviewPage() {
       />
 
       <div className="p-6 space-y-6">
+        {/* Stats Header with Refresh */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-medium text-[#0a0a0a]">Key Metrics</h2>
+            {lastUpdated && (
+              <p className="text-xs text-[#a3a3a3]">
+                Updated {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-[#737373] hover:text-[#0a0a0a] hover:bg-[#f5f5f5] transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-4">
           <StatsCard
@@ -560,18 +603,37 @@ export default function OverviewPage() {
                     </div>
                     {/* Chart Controls */}
                     <div className="flex items-center gap-2">
-                      {/* Date Range */}
-                      <select
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value as DateRange)}
-                        className="h-8 px-2 text-xs border border-[#e5e5e5] bg-white text-[#0a0a0a] focus:outline-none focus:ring-1 focus:ring-[#0a0a0a]"
-                      >
-                        {dateRangeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                      {/* Date Range Dropdown */}
+                      <div className="relative" ref={dateDropdownRef}>
+                        <button
+                          onClick={() => setShowDateDropdown(!showDateDropdown)}
+                          className="h-8 px-3 flex items-center gap-2 text-xs border border-[#e5e5e5] bg-white text-[#0a0a0a] hover:bg-[#fafafa] transition-colors"
+                        >
+                          <Calendar className="w-3.5 h-3.5 text-[#737373]" />
+                          <span>{dateRangeOptions.find(o => o.value === dateRange)?.label}</span>
+                          <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${showDateDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showDateDropdown && (
+                          <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                            {dateRangeOptions.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() => {
+                                  setDateRange(option.value);
+                                  setShowDateDropdown(false);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-xs transition-colors ${
+                                  dateRange === option.value
+                                    ? 'bg-[#0a0a0a] text-white'
+                                    : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       {/* Data Type Toggle */}
                       <div className="flex border border-[#e5e5e5]">
                         {chartDataOptions.map((option) => (

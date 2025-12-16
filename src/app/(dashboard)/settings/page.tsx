@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { User, Building, Bell, Shield, CreditCard, Key, X, Copy, Check, UserPlus, Mail, Trash2, Loader2, Camera, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Building, Bell, Shield, CreditCard, Key, X, Copy, Check, UserPlus, Mail, Trash2, Loader2, Camera, AlertCircle, CheckCircle, MoreVertical, Pencil, ChevronDown } from 'lucide-react';
 import { Header } from '@/components/dashboard';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Input, Badge } from '@/components/ui';
 
@@ -75,9 +75,40 @@ export default function SettingsPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
+  const [editingMember, setEditingMember] = useState<string | null>(null);
+  const [removingMember, setRemovingMember] = useState<TeamMember | null>(null);
+  const [memberActionLoading, setMemberActionLoading] = useState(false);
 
   // Avatar upload
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Role dropdown state
+  const [showRoleDropdown, setShowRoleDropdown] = useState<string | null>(null);
+  const [showInviteRoleDropdown, setShowInviteRoleDropdown] = useState(false);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
+  const inviteRoleDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Role options
+  const roleOptions = [
+    { value: 'admin', label: 'Admin', description: 'Full access, can invite others' },
+    { value: 'member', label: 'Member', description: 'Can view and edit data' },
+    { value: 'analyst', label: 'Analyst', description: 'View-only access' },
+  ];
+
+  // Close role dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+        setShowRoleDropdown(null);
+      }
+      if (inviteRoleDropdownRef.current && !inviteRoleDropdownRef.current.contains(event.target as Node)) {
+        setShowInviteRoleDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Load profile data
   useEffect(() => {
@@ -117,6 +148,44 @@ export default function SettingsPage() {
       console.error('Failed to load team:', error);
     } finally {
       setLoadingTeam(false);
+    }
+  };
+
+  const handleUpdateMemberRole = async (memberId: string, newRole: string) => {
+    setMemberActionLoading(true);
+    try {
+      const response = await fetch(`/api/settings/team/${memberId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      });
+      if (response.ok) {
+        setTeamMembers(prev => prev.map(m =>
+          m.id === memberId ? { ...m, role: newRole } : m
+        ));
+        setEditingMember(null);
+      }
+    } catch (error) {
+      console.error('Failed to update member:', error);
+    } finally {
+      setMemberActionLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    setMemberActionLoading(true);
+    try {
+      const response = await fetch(`/api/settings/team/${memberId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setTeamMembers(prev => prev.filter(m => m.id !== memberId));
+        setRemovingMember(null);
+      }
+    } catch (error) {
+      console.error('Failed to remove member:', error);
+    } finally {
+      setMemberActionLoading(false);
     }
   };
 
@@ -556,7 +625,60 @@ export default function SettingsPage() {
                                 <p className="text-xs text-[#737373]">{member.email}</p>
                               </div>
                             </div>
-                            <Badge variant={member.role === 'owner' ? 'default' : 'outline'} className="capitalize">{member.role}</Badge>
+                            <div className="flex items-center gap-2">
+                              {editingMember === member.id ? (
+                                <div className="relative" ref={showRoleDropdown === member.id ? roleDropdownRef : undefined}>
+                                  <button
+                                    onClick={() => setShowRoleDropdown(showRoleDropdown === member.id ? null : member.id)}
+                                    disabled={memberActionLoading}
+                                    className="h-7 px-2 flex items-center gap-1.5 text-xs border border-[#e5e5e5] bg-white hover:bg-[#fafafa] transition-colors disabled:opacity-50"
+                                  >
+                                    <span className="capitalize">{member.role}</span>
+                                    <ChevronDown className={`w-3 h-3 text-[#737373] transition-transform ${showRoleDropdown === member.id ? 'rotate-180' : ''}`} />
+                                  </button>
+                                  {showRoleDropdown === member.id && (
+                                    <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                                      {roleOptions.map((option) => (
+                                        <button
+                                          key={option.value}
+                                          onClick={() => {
+                                            handleUpdateMemberRole(member.id, option.value);
+                                            setShowRoleDropdown(null);
+                                          }}
+                                          className={`w-full px-3 py-2 text-left text-xs transition-colors ${
+                                            member.role === option.value
+                                              ? 'bg-[#0a0a0a] text-white'
+                                              : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                                          }`}
+                                        >
+                                          {option.label}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <Badge variant={member.role === 'owner' ? 'default' : 'outline'} className="capitalize">{member.role}</Badge>
+                              )}
+                              {member.role !== 'owner' && profile?.role === 'owner' && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => setEditingMember(editingMember === member.id ? null : member.id)}
+                                    className="p-1 text-[#a3a3a3] hover:text-[#0a0a0a] transition-colors"
+                                    title="Edit role"
+                                  >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setRemovingMember(member)}
+                                    className="p-1 text-[#a3a3a3] hover:text-red-500 transition-colors"
+                                    title="Remove member"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -673,15 +795,38 @@ export default function SettingsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-[#0a0a0a] mb-2">Role</label>
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as 'admin' | 'member' | 'analyst')}
-                    className="w-full h-10 px-3 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a]"
-                  >
-                    <option value="admin">Admin - Full access, can invite others</option>
-                    <option value="member">Member - Can view and edit data</option>
-                    <option value="analyst">Analyst - View-only access</option>
-                  </select>
+                  <div className="relative" ref={inviteRoleDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowInviteRoleDropdown(!showInviteRoleDropdown)}
+                      className="w-full h-10 px-3 flex items-center justify-between bg-white border border-[#e5e5e5] text-sm hover:bg-[#fafafa] transition-colors"
+                    >
+                      <span>{roleOptions.find(r => r.value === inviteRole)?.label} - {roleOptions.find(r => r.value === inviteRole)?.description}</span>
+                      <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showInviteRoleDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showInviteRoleDropdown && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                        {roleOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                              setInviteRole(option.value as 'admin' | 'member' | 'analyst');
+                              setShowInviteRoleDropdown(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm transition-colors ${
+                              inviteRole === option.value
+                                ? 'bg-[#0a0a0a] text-white'
+                                : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'
+                            }`}
+                          >
+                            <span className="font-medium">{option.label}</span>
+                            <span className={inviteRole === option.value ? 'text-white/70' : 'text-[#737373]'}> - {option.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-2">
@@ -701,6 +846,42 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Confirmation Modal */}
+      {removingMember && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setRemovingMember(null)}>
+          <div className="bg-white p-6 max-w-sm w-full mx-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-[#0a0a0a] mb-2">Remove Team Member</h3>
+              <p className="text-sm text-[#737373] mb-6">
+                Are you sure you want to remove <span className="font-medium text-[#0a0a0a]">{removingMember.name}</span> from your organization? They will lose access immediately.
+              </p>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setRemovingMember(null)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => handleRemoveMember(removingMember.id)}
+                  disabled={memberActionLoading}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  {memberActionLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Removing...
+                    </>
+                  ) : (
+                    'Remove'
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}

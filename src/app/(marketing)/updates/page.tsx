@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -366,6 +366,34 @@ export default function UpdatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<UpdateCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showMobileYearDropdown, setShowMobileYearDropdown] = useState(false);
+  const [showMobileCategoryDropdown, setShowMobileCategoryDropdown] = useState(false);
+  const yearDropdownRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileYearDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileCategoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+        setShowYearDropdown(false);
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
+      }
+      if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
+        setShowMobileYearDropdown(false);
+      }
+      if (mobileCategoryDropdownRef.current && !mobileCategoryDropdownRef.current.contains(event.target as Node)) {
+        setShowMobileCategoryDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredUpdates = useMemo(() => {
     return updates.filter(update => {
@@ -448,28 +476,64 @@ export default function UpdatesPage() {
               {/* Desktop Filters */}
               <div className="hidden md:flex items-center gap-2">
                 {/* Year Filter */}
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a] cursor-pointer"
-                >
-                  <option value="all">All Years</option>
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
+                <div className="relative" ref={yearDropdownRef}>
+                  <button
+                    onClick={() => setShowYearDropdown(!showYearDropdown)}
+                    className="px-4 py-2.5 flex items-center gap-2 bg-white border border-[#e5e5e5] text-sm hover:border-[#a3a3a3] transition-colors"
+                  >
+                    <span>{selectedYear === 'all' ? 'All Years' : selectedYear}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${showYearDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showYearDropdown && (
+                    <div className="absolute left-0 top-full mt-1 w-32 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                      <button
+                        onClick={() => { setSelectedYear('all'); setShowYearDropdown(false); }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${selectedYear === 'all' ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                      >
+                        All Years
+                      </button>
+                      {years.map(year => (
+                        <button
+                          key={year}
+                          onClick={() => { setSelectedYear(year); setShowYearDropdown(false); }}
+                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${selectedYear === year ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Category Filter */}
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value as UpdateCategory | 'all')}
-                  className="px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm focus:outline-none focus:border-[#0a0a0a] cursor-pointer"
-                >
-                  <option value="all">All Types</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
-                  ))}
-                </select>
+                <div className="relative" ref={categoryDropdownRef}>
+                  <button
+                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    className="px-4 py-2.5 flex items-center gap-2 bg-white border border-[#e5e5e5] text-sm hover:border-[#a3a3a3] transition-colors"
+                  >
+                    <span>{selectedCategory === 'all' ? 'All Types' : categoryConfig[selectedCategory].label}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-[#737373] transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showCategoryDropdown && (
+                    <div className="absolute left-0 top-full mt-1 w-36 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                      <button
+                        onClick={() => { setSelectedCategory('all'); setShowCategoryDropdown(false); }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${selectedCategory === 'all' ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                      >
+                        All Types
+                      </button>
+                      {categories.map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => { setSelectedCategory(cat); setShowCategoryDropdown(false); }}
+                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${selectedCategory === cat ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                        >
+                          {categoryConfig[cat].label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {hasActiveFilters && (
                   <button
@@ -499,26 +563,62 @@ export default function UpdatesPage() {
             {/* Mobile Filters Dropdown */}
             {showFilters && (
               <div className="md:hidden mt-4 pt-4 border-t border-[#e5e5e5] space-y-3">
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm"
-                >
-                  <option value="all">All Years</option>
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value as UpdateCategory | 'all')}
-                  className="w-full px-4 py-2.5 bg-white border border-[#e5e5e5] text-sm"
-                >
-                  <option value="all">All Types</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{categoryConfig[cat].label}</option>
-                  ))}
-                </select>
+                <div className="relative" ref={mobileYearDropdownRef}>
+                  <button
+                    onClick={() => setShowMobileYearDropdown(!showMobileYearDropdown)}
+                    className="w-full px-4 py-2.5 flex items-center justify-between bg-white border border-[#e5e5e5] text-sm"
+                  >
+                    <span>{selectedYear === 'all' ? 'All Years' : selectedYear}</span>
+                    <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showMobileYearDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showMobileYearDropdown && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                      <button
+                        onClick={() => { setSelectedYear('all'); setShowMobileYearDropdown(false); }}
+                        className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${selectedYear === 'all' ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                      >
+                        All Years
+                      </button>
+                      {years.map(year => (
+                        <button
+                          key={year}
+                          onClick={() => { setSelectedYear(year); setShowMobileYearDropdown(false); }}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${selectedYear === year ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="relative" ref={mobileCategoryDropdownRef}>
+                  <button
+                    onClick={() => setShowMobileCategoryDropdown(!showMobileCategoryDropdown)}
+                    className="w-full px-4 py-2.5 flex items-center justify-between bg-white border border-[#e5e5e5] text-sm"
+                  >
+                    <span>{selectedCategory === 'all' ? 'All Types' : categoryConfig[selectedCategory].label}</span>
+                    <ChevronDown className={`w-4 h-4 text-[#737373] transition-transform ${showMobileCategoryDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showMobileCategoryDropdown && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#e5e5e5] shadow-lg z-50">
+                      <button
+                        onClick={() => { setSelectedCategory('all'); setShowMobileCategoryDropdown(false); }}
+                        className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${selectedCategory === 'all' ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                      >
+                        All Types
+                      </button>
+                      {categories.map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => { setSelectedCategory(cat); setShowMobileCategoryDropdown(false); }}
+                          className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${selectedCategory === cat ? 'bg-[#0a0a0a] text-white' : 'text-[#0a0a0a] hover:bg-[#f5f5f5]'}`}
+                        >
+                          {categoryConfig[cat].label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
