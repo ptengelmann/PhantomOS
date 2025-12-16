@@ -33,7 +33,8 @@
       "Bash(npm i:*)",
       "Bash(timeout 15 npm run dev:*)",
       "Bash(git branch:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

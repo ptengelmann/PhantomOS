@@ -1,4 +1,21 @@
+import { Metadata } from 'next';
 import { Rocket, Users, Code, Target, Zap, Heart } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Careers',
+  description: 'Join PhantomOS and help build the future of merchandise intelligence for gaming publishers. Early stage, ambitious vision, remote-first.',
+  keywords: ['careers', 'jobs', 'PhantomOS careers', 'gaming startup jobs', 'remote work'],
+  openGraph: {
+    title: 'Careers | PhantomOS',
+    description: 'Join PhantomOS and help build the future of merchandise intelligence for gaming publishers.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Careers | PhantomOS',
+    description: 'Join PhantomOS and help build the future of merchandise intelligence for gaming publishers.',
+  },
+};
 
 export default function CareersPage() {
   return (
