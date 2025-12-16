@@ -40,7 +40,7 @@ export default withAuth(
         const { pathname } = req.nextUrl;
 
         // Marketing routes are always public
-        const marketingRoutes = ['/', '/features', '/pricing', '/roadmap', '/waitlist', '/contact', '/about', '/careers', '/faq', '/privacy', '/terms', '/security'];
+        const marketingRoutes = ['/', '/features', '/pricing', '/roadmap', '/waitlist', '/contact', '/about', '/careers', '/faq', '/privacy', '/terms', '/security', '/how-it-works', '/updates'];
         const isMarketingRoute = marketingRoutes.some((route) =>
           pathname === route || pathname.startsWith('/features/')
         );
@@ -81,8 +81,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder files
+     * - public folder files (images, logos, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|logo.png|PhantomOSIcon.svg|logos/|demo/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|logo.png|PhantomOSIcon.svg|logos/|demo/|og-image.png|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$).*)',
   ],
 };

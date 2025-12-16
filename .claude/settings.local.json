@@ -34,7 +34,8 @@
       "Bash(timeout 15 npm run dev:*)",
       "Bash(git branch:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "WebFetch(domain:phantom-os.vercel.app)"
     ],
     "deny": [],
     "ask": []
