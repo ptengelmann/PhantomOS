@@ -53,6 +53,7 @@ export default function ProductsPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ imported: number; total: number } | null>(null);
+  const [importError, setImportError] = useState<{ message: string; details?: string[] } | null>(null);
   const [autoTagging, setAutoTagging] = useState(false);
   const [autoTagResult, setAutoTagResult] = useState<{ tagged: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +83,7 @@ export default function ProductsPage() {
 
     setImportLoading(true);
     setImportResult(null);
+    setImportError(null);
 
     try {
       const formData = new FormData();
@@ -97,10 +99,17 @@ export default function ProductsPage() {
         setImportResult({ imported: result.imported, total: result.total });
         loadProducts();
       } else {
-        alert(`Import failed: ${result.error}`);
+        // Show detailed error in modal instead of alert
+        setImportError({
+          message: result.error || 'Import failed',
+          details: result.details || undefined,
+        });
       }
     } catch (error) {
-      alert('Failed to import CSV file');
+      setImportError({
+        message: 'Failed to connect to server',
+        details: ['Please check your internet connection and try again.'],
+      });
     } finally {
       setImportLoading(false);
       if (fileInputRef.current) {
@@ -308,14 +317,23 @@ export default function ProductsPage() {
             <Card>
               <CardContent className="py-12">
                 <div className="text-center max-w-xl mx-auto">
-                  <div className="w-20 h-20 bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-6">
-                    <Package className="w-10 h-10 text-[#a3a3a3]" />
+                  {/* Step indicator */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f5f5f5] border border-[#e5e5e5] text-xs text-[#737373] mb-6">
+                    <span className="w-5 h-5 bg-[#0a0a0a] text-white flex items-center justify-center text-[10px] font-bold">1</span>
+                    <span>Import products</span>
+                    <span className="text-[#a3a3a3]">→</span>
+                    <span className="text-[#a3a3a3]">Tag with IPs</span>
+                    <span className="text-[#a3a3a3]">→</span>
+                    <span className="text-[#a3a3a3]">Get insights</span>
+                  </div>
+                  <div className="w-20 h-20 bg-[#0a0a0a] flex items-center justify-center mx-auto mb-6">
+                    <Package className="w-10 h-10 text-white" />
                   </div>
                   <h2 className="text-xl font-semibold text-[#0a0a0a] mb-3">
-                    No products yet
+                    Import Your Products
                   </h2>
                   <p className="text-[#737373] mb-8">
-                    Import your product catalog to start tracking merchandise performance and mapping IP assets. Connect your Shopify store or upload a CSV file.
+                    Start by importing your product catalog. Connect your Shopify store for automatic sync, or upload a CSV file.
                   </p>
                   <div className="flex gap-4 justify-center">
                     <Link href="/connectors">
@@ -369,10 +387,11 @@ export default function ProductsPage() {
           {/* Import Modal */}
           {showImportModal && (
             <ImportModal
-              onClose={() => { setShowImportModal(false); setImportResult(null); }}
+              onClose={() => { setShowImportModal(false); setImportResult(null); setImportError(null); }}
               onFileSelect={handleFileImport}
               loading={importLoading}
               result={importResult}
+              error={importError}
               fileInputRef={fileInputRef}
             />
           )}
@@ -439,12 +458,14 @@ export default function ProductsPage() {
 
         {/* Auto-Tag Result Toast */}
         {autoTagResult && (
-          <div className="absolute top-4 right-4 z-50 p-4 bg-green-50 border border-green-200 shadow-lg">
-            <div className="flex items-center gap-2">
-              <Check className="w-5 h-5 text-green-600" />
+          <div className="fixed top-20 right-6 z-50 p-4 bg-white border border-[#e5e5e5] shadow-lg max-w-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                <Check className="w-4 h-4 text-white" />
+              </div>
               <div>
-                <p className="font-medium text-green-800">Auto-tagging complete</p>
-                <p className="text-sm text-green-600">Tagged {autoTagResult.tagged} of {autoTagResult.total} products</p>
+                <p className="font-medium text-[#0a0a0a]">Auto-tagging complete</p>
+                <p className="text-sm text-[#737373]">Tagged {autoTagResult.tagged} of {autoTagResult.total} products</p>
               </div>
             </div>
           </div>
@@ -579,10 +600,11 @@ export default function ProductsPage() {
       {/* Import Modal */}
       {showImportModal && (
         <ImportModal
-          onClose={() => { setShowImportModal(false); setImportResult(null); }}
+          onClose={() => { setShowImportModal(false); setImportResult(null); setImportError(null); }}
           onFileSelect={handleFileImport}
           loading={importLoading}
           result={importResult}
+          error={importError}
           fileInputRef={fileInputRef}
         />
       )}
@@ -634,6 +656,7 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
   const [loadingAI, setLoadingAI] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [autoLoadedForProduct, setAutoLoadedForProduct] = useState<string | null>(null);
+  const [tagSuccess, setTagSuccess] = useState<{ assetName: string } | null>(null);
 
   useEffect(() => {
     loadAssets();
@@ -806,7 +829,7 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
   };
 
   const handleAcceptSuggestion = async (suggestion: AISuggestion) => {
-    await handleAddAsset(suggestion.assetId);
+    await handleAddAsset(suggestion.assetId, suggestion.assetName);
     // Remove from suggestions
     setAiSuggestions(prev => prev.filter(s => s.assetId !== suggestion.assetId));
   };
@@ -815,7 +838,7 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
     setAiSuggestions(prev => prev.filter(s => s.assetId !== assetId));
   };
 
-  const handleAddAsset = async (assetId: string) => {
+  const handleAddAsset = async (assetId: string, assetName?: string) => {
     setSaving(true);
     try {
       const response = await fetch(`/api/products/${product.id}/assets`, {
@@ -827,6 +850,12 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
       if (response.ok) {
         await loadAssets();
         onUpdate();
+        // Show success feedback
+        if (assetName) {
+          setTagSuccess({ assetName });
+          // Auto-dismiss after 3 seconds
+          setTimeout(() => setTagSuccess(null), 3000);
+        }
       }
     } catch (error) {
       console.error('Failed to add asset:', error);
@@ -894,7 +923,21 @@ function ProductDetailPanel({ product, onUpdate, onNextUnmapped }: { product: Pr
   );
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      {/* Tag Success Toast */}
+      {tagSuccess && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-[#0a0a0a] text-white shadow-lg">
+          <Check className="w-4 h-4" />
+          <span className="text-sm font-medium">Tagged with {tagSuccess.assetName}</span>
+          <button
+            onClick={onNextUnmapped}
+            className="ml-2 px-2 py-1 bg-white/20 hover:bg-white/30 text-xs transition-colors"
+          >
+            Next unmapped →
+          </button>
+        </div>
+      )}
+
       <div className="p-6 bg-white border-b border-[#e5e5e5]">
         <div className="flex items-start gap-4">
           <div className="w-20 h-20 bg-[#e5e5e5] border border-[#d4d4d4] flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -1234,17 +1277,19 @@ function ImportModal({
   onFileSelect,
   loading,
   result,
+  error,
   fileInputRef,
 }: {
   onClose: () => void;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   loading: boolean;
   result: { imported: number; total: number } | null;
+  error: { message: string; details?: string[] } | null;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 max-w-md w-full mx-4 shadow-lg">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white p-6 max-w-md w-full mx-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-[#0a0a0a]">Import Products</h3>
           <button onClick={onClose} className="text-[#737373] hover:text-[#0a0a0a]">
@@ -1252,14 +1297,37 @@ function ImportModal({
           </button>
         </div>
 
-        {result ? (
+        {error ? (
           <div className="space-y-4">
-            <div className="p-4 bg-green-50 border border-green-200">
+            <div className="p-4 bg-[#fef2f2] border border-[#fecaca]">
               <div className="flex items-center gap-2 mb-2">
-                <Check className="w-5 h-5 text-green-600" />
-                <span className="font-medium text-green-800">Import Complete</span>
+                <X className="w-5 h-5 text-[#dc2626]" />
+                <span className="font-medium text-[#991b1b]">Import Failed</span>
               </div>
-              <p className="text-sm text-green-700">
+              <p className="text-sm text-[#b91c1c] mb-2">{error.message}</p>
+              {error.details && error.details.length > 0 && (
+                <ul className="text-xs text-[#991b1b] space-y-1 ml-5 list-disc">
+                  {error.details.slice(0, 5).map((detail, i) => (
+                    <li key={i}>{detail}</li>
+                  ))}
+                  {error.details.length > 5 && (
+                    <li className="text-[#a3a3a3]">...and {error.details.length - 5} more errors</li>
+                  )}
+                </ul>
+              )}
+            </div>
+            <Button className="w-full" variant="outline" onClick={onClose}>
+              Try Again
+            </Button>
+          </div>
+        ) : result ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-[#f5f5f5] border border-[#e5e5e5]">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="w-5 h-5 text-[#0a0a0a]" />
+                <span className="font-medium text-[#0a0a0a]">Import Complete</span>
+              </div>
+              <p className="text-sm text-[#737373]">
                 Successfully imported {result.imported} of {result.total} products.
               </p>
             </div>

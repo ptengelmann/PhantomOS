@@ -64,6 +64,17 @@ type ChartDataType = 'revenue' | 'orders' | 'aov';
 type ChartViewType = 'line' | 'bar' | 'area';
 type OrdersViewType = 'table' | 'map';
 
+// Format currency with appropriate suffix (K for thousands, M for millions)
+function formatRevenue(amount: number): string {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`;
+  } else if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(0)}K`;
+  } else {
+    return `$${amount.toFixed(0)}`;
+  }
+}
+
 const dateRangeOptions: { value: DateRange; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },
   { value: '30d', label: 'Last 30 days' },
@@ -504,7 +515,7 @@ export default function OverviewPage() {
         <div className="grid grid-cols-4 gap-4">
           <StatsCard
             title="Total Revenue"
-            value={stats ? `$${(stats.totalRevenue / 1000000).toFixed(2)}M` : '$0'}
+            value={stats ? formatRevenue(stats.totalRevenue) : '$0'}
             change={stats?.revenueGrowth || 0}
             changePeriod="vs last month"
             icon={<DollarSign className="w-5 h-5" />}

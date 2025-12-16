@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, Plus, X, Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { Bell, Search, Plus, X, Sparkles, TrendingUp, AlertCircle, Keyboard } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 interface HeaderProps {
@@ -41,18 +41,32 @@ const sampleNotifications = [
   },
 ];
 
+// Keyboard shortcuts
+const keyboardShortcuts = [
+  { keys: ['↑', '↓'], description: 'Navigate products' },
+  { keys: ['J', 'K'], description: 'Navigate (vim-style)' },
+  { keys: ['N'], description: 'Next unmapped product' },
+  { keys: ['A'], description: 'Accept AI suggestion' },
+  { keys: ['S'], description: 'Skip AI suggestion' },
+];
+
 export function Header({ title, description, action }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [notifications, setNotifications] = useState(sampleNotifications);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const shortcutsRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
+      }
+      if (shortcutsRef.current && !shortcutsRef.current.contains(event.target as Node)) {
+        setShowShortcuts(false);
       }
     }
 
@@ -95,6 +109,41 @@ export function Header({ title, description, action }: HeaderProps) {
             placeholder="Search..."
             className="w-64 h-9 pl-9 pr-3 bg-[#f5f5f5] border border-transparent text-sm text-[#0a0a0a] placeholder:text-[#a3a3a3] transition-colors focus:outline-none focus:border-[#0a0a0a] focus:bg-white"
           />
+        </div>
+
+        {/* Keyboard Shortcuts */}
+        <div className="relative" ref={shortcutsRef}>
+          <button
+            onClick={() => setShowShortcuts(!showShortcuts)}
+            className="p-2 text-[#737373] hover:text-[#0a0a0a] hover:bg-[#f5f5f5] transition-colors"
+            title="Keyboard shortcuts"
+          >
+            <Keyboard className="w-5 h-5" />
+          </button>
+
+          {/* Shortcuts Dropdown */}
+          {showShortcuts && (
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-[#e5e5e5] shadow-lg z-50">
+              <div className="px-4 py-3 border-b border-[#e5e5e5]">
+                <h3 className="font-medium text-[#0a0a0a]">Keyboard Shortcuts</h3>
+                <p className="text-xs text-[#737373] mt-0.5">Available on Asset Tagging page</p>
+              </div>
+              <div className="p-2">
+                {keyboardShortcuts.map((shortcut, i) => (
+                  <div key={i} className="flex items-center justify-between px-2 py-2 hover:bg-[#fafafa]">
+                    <span className="text-sm text-[#737373]">{shortcut.description}</span>
+                    <div className="flex gap-1">
+                      {shortcut.keys.map((key, j) => (
+                        <span key={j} className="px-1.5 py-0.5 bg-[#f5f5f5] border border-[#e5e5e5] text-xs font-mono text-[#0a0a0a]">
+                          {key}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Notifications */}

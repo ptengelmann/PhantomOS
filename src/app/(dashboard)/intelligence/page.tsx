@@ -434,26 +434,36 @@ export default function IntelligencePage() {
           <Card>
             <CardContent className="py-12">
               <div className="text-center max-w-xl mx-auto">
+                {/* Step indicator */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#f5f5f5] border border-[#e5e5e5] text-xs text-[#737373] mb-6">
+                  <span className="w-5 h-5 bg-[#e5e5e5] text-[#737373] flex items-center justify-center text-[10px] font-bold">1</span>
+                  <span className="text-[#a3a3a3]">Import products</span>
+                  <span className="text-[#a3a3a3]">→</span>
+                  <span className="text-[#a3a3a3]">Tag with IPs</span>
+                  <span className="text-[#a3a3a3]">→</span>
+                  <span className="w-5 h-5 bg-[#0a0a0a] text-white flex items-center justify-center text-[10px] font-bold">3</span>
+                  <span>Get insights</span>
+                </div>
                 <div className="w-20 h-20 bg-[#0a0a0a] flex items-center justify-center mx-auto mb-6">
                   <Brain className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-2xl font-semibold text-[#0a0a0a] mb-3">
-                  AI Intelligence Awaits
+                  Complete Steps 1 & 2 First
                 </h2>
                 <p className="text-[#737373] mb-8">
-                  Connect your sales data to unlock AI-powered insights about fan demand, revenue opportunities, and hidden market signals.
+                  Import your products and tag them with IP assets to unlock AI-powered insights about fan demand and revenue opportunities.
                 </p>
                 <div className="flex gap-4 justify-center">
-                  <Link href="/connectors">
+                  <Link href="/products">
                     <Button size="lg">
-                      <ShoppingBag className="w-5 h-5 mr-2" />
-                      Connect Shopify
+                      <Package className="w-5 h-5 mr-2" />
+                      Go to Products
                     </Button>
                   </Link>
                   <Link href="/connectors">
                     <Button variant="outline" size="lg">
-                      <Upload className="w-5 h-5 mr-2" />
-                      Import CSV
+                      <Plug className="w-5 h-5 mr-2" />
+                      Connect Data
                     </Button>
                   </Link>
                 </div>
