@@ -29,6 +29,29 @@ const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg:
 
 const updates: Update[] = [
   {
+    id: 'dec-2025-platform-polish',
+    date: 'December 21, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Platform Polish & Reliability',
+    summary: '10 UX improvements including error handling, better notifications, chart persistence, and improved data display consistency.',
+    category: 'improvement',
+    icon: Zap,
+    content: [
+      'Added dashboard error state with retry button — no more infinite loading spinners when API calls fail.',
+      'Fixed forecast confidence bar visibility at 60-79% range (was white on white, now visible gray).',
+      'Improved AI JSON parsing with better error handling and structured fallbacks instead of showing raw text.',
+      'Growth metrics now show context-aware comparison periods: "vs previous 7 days" instead of always "vs last month".',
+      'Increased notification auto-dismiss from 5 seconds to 15 seconds for better readability.',
+      'Added progress indicator during bulk AI tagging with count of products being analyzed.',
+      'Improved low confidence forecast messages to show exactly how much more data is needed.',
+      'Standardized currency formatting across dashboard (consistent $XX.XX format).',
+      'Chart type preference (line/bar/area) now persists when changing date ranges.',
+      'Added "Download all" button for unmatched products during CSV import instead of showing only first 5.',
+    ],
+    highlights: ['Error handling', 'Notification timing', 'Chart persistence', 'CSV import UX'],
+  },
+  {
     id: 'dec-2025-demand-forecast',
     date: 'December 21, 2025',
     month: 'December',

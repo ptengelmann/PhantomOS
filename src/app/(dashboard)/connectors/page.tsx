@@ -238,8 +238,8 @@ export default function ConnectorsPage() {
       });
     } finally {
       setSyncing(null);
-      // Auto-dismiss success message after 5 seconds
-      setTimeout(() => setSyncResult(null), 5000);
+      // Auto-dismiss success message after 15 seconds (increased for better readability)
+      setTimeout(() => setSyncResult(null), 15000);
     }
   };
 
@@ -772,13 +772,32 @@ export default function ConnectorsPage() {
 
                 {importResult.unmatchedProducts && importResult.unmatchedProducts.length > 0 && (
                   <div className="p-4 bg-yellow-50 border border-yellow-200">
-                    <p className="text-sm font-medium text-yellow-800 mb-2">Unmatched Products:</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-yellow-800">Unmatched Products ({importResult.unmatchedProducts.length}):</p>
+                      <button
+                        onClick={() => {
+                          // Download all unmatched products as CSV
+                          const csvContent = 'product_name\n' + importResult.unmatchedProducts!.map(p => `"${p}"`).join('\n');
+                          const blob = new Blob([csvContent], { type: 'text/csv' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'unmatched-products.csv';
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="text-xs text-yellow-700 hover:text-yellow-900 underline flex items-center gap-1"
+                      >
+                        <Download className="w-3 h-3" />
+                        Download all
+                      </button>
+                    </div>
                     <ul className="text-xs text-yellow-700 space-y-1 max-h-24 overflow-y-auto">
                       {importResult.unmatchedProducts.slice(0, 5).map((p, i) => (
                         <li key={i}>{p}</li>
                       ))}
                       {importResult.unmatchedProducts.length > 5 && (
-                        <li>...and {importResult.unmatchedProducts.length - 5} more</li>
+                        <li className="text-yellow-600">...and {importResult.unmatchedProducts.length - 5} more</li>
                       )}
                     </ul>
                     <p className="text-xs text-yellow-600 mt-2">

@@ -116,8 +116,25 @@ const chartViewOptions: { value: ChartViewType; label: string; icon: React.React
   { value: 'area', label: 'Area', icon: <AreaChart className="w-4 h-4" /> },
 ];
 
+// Get comparison period text based on date range
+function getComparisonPeriod(dateRange: DateRange): string {
+  switch (dateRange) {
+    case '7d':
+      return 'vs previous 7 days';
+    case '30d':
+      return 'vs previous 30 days';
+    case '90d':
+      return 'vs previous 90 days';
+    case '12m':
+      return 'vs previous 12 months';
+    default:
+      return 'vs previous period';
+  }
+}
+
 export default function OverviewPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [hasData, setHasData] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenueData, setRevenueData] = useState<RevenueDataPoint[]>([]);
@@ -127,7 +144,14 @@ export default function OverviewPage() {
   const [connectorCount, setConnectorCount] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [chartDataType, setChartDataType] = useState<ChartDataType>('revenue');
-  const [chartViewType, setChartViewType] = useState<ChartViewType>('line');
+  const [chartViewType, setChartViewType] = useState<ChartViewType>(() => {
+    // Persist chart type preference in localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('phantomos-chart-type');
+      if (saved === 'line' || saved === 'bar' || saved === 'area') return saved;
+    }
+    return 'line';
+  });
   const [ordersViewType, setOrdersViewType] = useState<OrdersViewType>('table');
   const [regionalData, setRegionalData] = useState<RegionalSalesData[]>([]);
   const [regionalTotalRevenue, setRegionalTotalRevenue] = useState(0);
@@ -138,6 +162,13 @@ export default function OverviewPage() {
   const [forecastData, setForecastData] = useState<ForecastData | null>(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [trendAlerts, setTrendAlerts] = useState<TrendAlert[]>([]);
+
+  // Persist chart type preference
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('phantomos-chart-type', chartViewType);
+    }
+  }, [chartViewType]);
 
   // Close date dropdown when clicking outside
   useEffect(() => {
@@ -218,6 +249,7 @@ export default function OverviewPage() {
   };
 
   const loadDashboardData = async () => {
+    setError(null);
     try {
       // Calculate date range
       const now = new Date();
@@ -267,9 +299,12 @@ export default function OverviewPage() {
           setAssetData(data.assetData || []);
           setRecentOrders(data.recentOrders || []);
         }
+      } else {
+        setError('Failed to load dashboard data. Please try again.');
       }
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+      setError('Unable to connect to server. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -415,6 +450,32 @@ export default function OverviewPage() {
 
     setTrendAlerts(alerts.slice(0, 4)); // Max 4 alerts, prioritized by order above
   }, [assetData, stats]);
+
+  // Error state
+  if (error && !loading) {
+    return (
+      <div>
+        <Header title="Overview" description="Your merchandise command center" />
+        <div className="p-6">
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center max-w-md mx-auto">
+                <div className="w-16 h-16 bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-8 h-8 text-[#dc2626]" />
+                </div>
+                <h2 className="text-xl font-semibold text-[#0a0a0a] mb-2">Unable to Load Dashboard</h2>
+                <p className="text-[#737373] mb-6">{error}</p>
+                <Button onClick={() => { setLoading(true); loadDashboardData(); }}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state with skeleton UI
   if (loading) {
@@ -726,21 +787,21 @@ export default function OverviewPage() {
             title="Total Revenue"
             value={stats ? formatRevenue(stats.totalRevenue) : '$0'}
             change={stats?.revenueGrowth || 0}
-            changePeriod="vs last month"
+            changePeriod={getComparisonPeriod(dateRange)}
             icon={<DollarSign className="w-5 h-5" />}
           />
           <StatsCard
             title="Total Orders"
             value={stats?.totalOrders.toLocaleString() || '0'}
             change={stats?.ordersGrowth || 0}
-            changePeriod="vs last month"
+            changePeriod={getComparisonPeriod(dateRange)}
             icon={<Package className="w-5 h-5" />}
           />
           <StatsCard
             title="Avg Order Value"
             value={stats ? `$${stats.avgOrderValue.toFixed(2)}` : '$0'}
             change={stats?.aovGrowth || 0}
-            changePeriod="vs last month"
+            changePeriod={getComparisonPeriod(dateRange)}
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
@@ -1028,7 +1089,7 @@ export default function OverviewPage() {
                             <div
                               className={`h-full transition-all duration-700 ${
                                 forecastData.forecast.confidence >= 0.8 ? 'bg-[#22c55e]' :
-                                forecastData.forecast.confidence >= 0.6 ? 'bg-white' :
+                                forecastData.forecast.confidence >= 0.6 ? 'bg-[#a3a3a3]' :
                                 'bg-[#f59e0b]'
                               }`}
                               style={{ width: `${forecastData.forecast.confidence * 100}%` }}
@@ -1045,7 +1106,7 @@ export default function OverviewPage() {
                         <div className="text-[10px] text-[#525252] mt-1">
                           {forecastData.forecast.confidence >= 0.8 ? 'High confidence' :
                            forecastData.forecast.confidence >= 0.6 ? 'Moderate confidence' :
-                           'Low confidence - more data needed'}
+                           `Based on ${forecastData.historical?.length || 0} periods. Add ${Math.max(4 - (forecastData.historical?.length || 0), 2)}+ weeks for higher confidence.`}
                         </div>
                       </div>
                     </div>
@@ -1263,7 +1324,7 @@ export default function OverviewPage() {
                         <TableCell>
                           <Badge variant="outline">{order.region}</Badge>
                         </TableCell>
-                        <TableCell className="font-medium">${order.amount}</TableCell>
+                        <TableCell className="font-medium">${typeof order.amount === 'number' ? order.amount.toFixed(2) : order.amount}</TableCell>
                         <TableCell className="text-[#737373] text-xs">{order.date}</TableCell>
                       </TableRow>
                     ))}

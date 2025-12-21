@@ -167,6 +167,9 @@ When evaluating new features or opportunities:
 ## Recent Updates
 
 ### December 2025
+- Platform Polish & Reliability: 10 UX improvements including dashboard error handling, chart persistence, better notifications
+- AI Demand Forecasting and Trend Alerts on dashboard
+- Forecast persistence with timestamp display
 - Enhanced Asset Tagging UX with auto-loading AI suggestions, progress bar, keyboard shortcuts
 - Made Settings page fully functional with profile and org editing
 - Redesigned Updates page with interactive features

@@ -62,14 +62,33 @@ Only return valid JSON, no other text.`,
   }
 
   try {
-    return JSON.parse(text);
-  } catch {
-    // If parsing fails, return the text as a single insight
+    const parsed = JSON.parse(text);
+    // Validate the response structure
+    if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title) {
+      return parsed;
+    }
+    throw new Error('Invalid response structure');
+  } catch (parseError) {
+    // Try to extract JSON from markdown code blocks or text
+    const jsonMatch = text.match(/\[[\s\S]*?\]/);
+    if (jsonMatch) {
+      try {
+        const extracted = JSON.parse(jsonMatch[0]);
+        if (Array.isArray(extracted) && extracted.length > 0 && extracted[0].title) {
+          return extracted;
+        }
+      } catch {
+        // Continue to fallback
+      }
+    }
+
+    // If all parsing fails, return a structured error response
+    console.error('AI response parsing failed:', parseError);
     return [{
-      title: 'Analysis Complete',
-      description: text.substring(0, 1000), // Limit length
-      confidence: 0.7,
-      recommendations: [],
+      title: 'Analysis Error',
+      description: 'Unable to parse AI response. Please try again or check your data format.',
+      confidence: 0.5,
+      recommendations: ['Try generating insights again', 'Ensure you have sufficient data connected'],
     }];
   }
 }

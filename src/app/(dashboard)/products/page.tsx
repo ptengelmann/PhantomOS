@@ -157,8 +157,8 @@ export default function ProductsPage() {
       if (response.ok) {
         setAutoTagResult({ tagged: result.tagged, total: result.total });
         loadProducts();
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => setAutoTagResult(null), 5000);
+        // Auto-dismiss after 15 seconds (increased from 5s for better readability)
+        setTimeout(() => setAutoTagResult(null), 15000);
       } else {
         alert(result.error || 'Auto-tagging failed');
       }
@@ -480,8 +480,24 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Auto-Tag Result Toast */}
-        {autoTagResult && (
+        {/* Auto-Tag Progress/Result Toast */}
+        {autoTagging && (
+          <div className="fixed top-20 right-6 z-50 p-4 bg-white border border-[#e5e5e5] shadow-lg max-w-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                <Loader2 className="w-4 h-4 text-white animate-spin" />
+              </div>
+              <div>
+                <p className="font-medium text-[#0a0a0a]">AI tagging in progress...</p>
+                <p className="text-sm text-[#737373]">Analyzing {stats.unmapped} products with AI. This may take a few minutes.</p>
+              </div>
+            </div>
+            <div className="mt-3 h-1 bg-[#e5e5e5] overflow-hidden">
+              <div className="h-full bg-[#0a0a0a] animate-pulse" style={{ width: '60%' }} />
+            </div>
+          </div>
+        )}
+        {autoTagResult && !autoTagging && (
           <div className="fixed top-20 right-6 z-50 p-4 bg-white border border-[#e5e5e5] shadow-lg max-w-sm">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
@@ -491,6 +507,9 @@ export default function ProductsPage() {
                 <p className="font-medium text-[#0a0a0a]">Auto-tagging complete</p>
                 <p className="text-sm text-[#737373]">Tagged {autoTagResult.tagged} of {autoTagResult.total} products</p>
               </div>
+              <button onClick={() => setAutoTagResult(null)} className="ml-auto text-[#a3a3a3] hover:text-[#0a0a0a]">
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
