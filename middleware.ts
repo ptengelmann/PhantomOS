@@ -83,6 +83,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder files (images, logos, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|logo.png|PhantomOSIcon.svg|logos/|demo/|og-image.png|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|logo.png|PhantomOSIcon.svg|logos/|demo/|og-image.png|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$|.*\\.xml$|.*\\.txt$).*)',
   ],
 };
