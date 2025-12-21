@@ -225,7 +225,7 @@ export default function LandingPage() {
           {/* Dashboard Preview - Hidden on mobile, shown on tablet+ */}
           <div className="relative pb-0 hidden md:block">
             {/* Dashboard Container with Browser Chrome */}
-            <div className="bg-[#0a0a0a] border-2 border-[#0a0a0a] shadow-2xl">
+            <div className="bg-[#0a0a0a] rounded-t-xl shadow-2xl overflow-hidden">
               {/* Browser Chrome */}
               <div className="flex items-center gap-3 px-4 py-3 bg-[#171717] border-b border-[#333]">
                 <div className="flex gap-1.5">
@@ -241,119 +241,123 @@ export default function LandingPage() {
                 <div className="w-16" />
               </div>
 
-              {/* Dashboard Content - Bento Grid */}
-              <div className="p-3 lg:p-4 bg-[#fafafa]">
+              {/* Dashboard Content - Character Revenue First */}
+              <div className="p-3 lg:p-4 pb-8 lg:pb-10 bg-gradient-to-b from-[#fafafa] from-80% to-white">
                 <div className="grid grid-cols-12 gap-2 lg:gap-3">
-                  {/* Stats Row */}
-                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
-                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Total Revenue</div>
-                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">$227,849</div>
-                    <div className="text-[10px] lg:text-xs text-[#22c55e] font-medium mt-1">+24.5% ↑</div>
-                  </div>
-                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
-                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Total Orders</div>
-                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">2,847</div>
-                    <div className="text-[10px] lg:text-xs text-[#22c55e] font-medium mt-1">+18.2% ↑</div>
-                  </div>
-                  <div className="col-span-6 lg:col-span-3 bg-white border border-[#e5e5e5] p-3 lg:p-4">
-                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">Products Mapped</div>
-                    <div className="text-lg lg:text-2xl font-bold text-[#0a0a0a]">156</div>
-                    <div className="text-[10px] lg:text-xs text-[#737373] font-medium mt-1">of 164 total</div>
-                  </div>
-                  <div className="col-span-6 lg:col-span-3 bg-[#0a0a0a] p-3 lg:p-4">
-                    <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide mb-1 lg:mb-2">AI Insights</div>
-                    <div className="text-lg lg:text-2xl font-bold text-white">12 New</div>
-                    <div className="text-[10px] lg:text-xs text-[#a3a3a3] font-medium mt-1">View recommendations →</div>
-                  </div>
-
-                  {/* Main Chart - Bar Chart */}
-                  <div className="col-span-12 lg:col-span-8 row-span-2 bg-white border border-[#e5e5e5] p-4 lg:p-5 flex flex-col">
-                    <div className="flex items-center justify-between mb-3 lg:mb-4">
+                  {/* HERO: Character Revenue Chart - Full Width, Primary Visual */}
+                  <div className="col-span-12 bg-white border border-[#e5e5e5] p-4 lg:p-6">
+                    <div className="flex items-center justify-between mb-4 lg:mb-5">
                       <div>
-                        <div className="text-xs lg:text-sm font-semibold text-[#0a0a0a]">Revenue by Character</div>
-                        <div className="text-[10px] lg:text-xs text-[#737373]">Which IP assets drive your sales</div>
+                        <div className="text-sm lg:text-base font-bold text-[#0a0a0a]">Revenue by Character</div>
+                        <div className="text-[10px] lg:text-xs text-[#737373]">Which IP assets drive your merchandise sales</div>
                       </div>
-                      <div className="flex gap-1">
-                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#0a0a0a] text-white text-[10px] lg:text-xs">30D</div>
-                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">90D</div>
-                        <div className="px-1.5 lg:px-2 py-0.5 lg:py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">1Y</div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right hidden sm:block">
+                          <div className="text-lg lg:text-xl font-bold text-[#0a0a0a]">$267,847</div>
+                          <div className="text-[10px] lg:text-xs text-[#22c55e] font-medium">+24.5% vs last period</div>
+                        </div>
+                        <div className="flex gap-1">
+                          <div className="px-2 py-1 bg-[#0a0a0a] text-white text-[10px] lg:text-xs font-medium">30D</div>
+                          <div className="px-2 py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">90D</div>
+                          <div className="px-2 py-1 bg-[#f5f5f5] text-[#737373] text-[10px] lg:text-xs">1Y</div>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1 flex items-end gap-2 lg:gap-3">
+                    {/* Large Bar Chart with Character Labels */}
+                    <div className="flex items-end gap-3 lg:gap-4">
                       {[
-                        { pct: 95, label: 'Shadow', value: '$89.4K' },
-                        { pct: 72, label: 'Pixel', value: '$67.2K' },
-                        { pct: 58, label: 'Luna', value: '$45.8K' },
-                        { pct: 42, label: 'Iron', value: '$24.1K' },
-                        { pct: 35, label: 'Nova', value: '$18.3K' },
-                        { pct: 28, label: 'Echo', value: '$12.7K' },
-                        { pct: 22, label: 'Other', value: '$10.2K' },
+                        { pct: 100, label: 'Shadow Knight', value: '$89.4K', share: '33%' },
+                        { pct: 75, label: 'Pixel', value: '$67.2K', share: '25%' },
+                        { pct: 51, label: 'Luna Starfire', value: '$45.8K', share: '17%' },
+                        { pct: 27, label: 'Iron Fang', value: '$24.1K', share: '9%' },
+                        { pct: 20, label: 'Nova', value: '$18.3K', share: '7%' },
+                        { pct: 14, label: 'Echo', value: '$12.7K', share: '5%' },
+                        { pct: 11, label: 'Other', value: '$10.2K', share: '4%' },
                       ].map((bar, i) => (
                         <div key={i} className="flex-1 flex flex-col items-center group">
-                          <div className="w-full flex flex-col items-center justify-end h-24 lg:h-32">
-                            <div className="text-[8px] lg:text-[10px] text-[#737373] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">{bar.value}</div>
+                          <div className="w-full flex flex-col items-center justify-end h-28 lg:h-36">
+                            <div className="text-[9px] lg:text-xs text-[#0a0a0a] font-semibold mb-1">{bar.value}</div>
                             <div
-                              className="w-full bg-[#0a0a0a] group-hover:bg-[#333] transition-colors"
+                              className={`w-full transition-colors ${i === 0 ? 'bg-[#0a0a0a]' : 'bg-[#525252] group-hover:bg-[#0a0a0a]'}`}
                               style={{ height: `${bar.pct}%` }}
                             />
                           </div>
-                          <span className="text-[8px] lg:text-[9px] text-[#a3a3a3] mt-1 lg:mt-2 truncate w-full text-center">{bar.label}</span>
+                          <div className="mt-2 text-center">
+                            <div className="text-[9px] lg:text-[11px] font-medium text-[#0a0a0a] truncate max-w-[60px] lg:max-w-[80px]">{bar.label}</div>
+                            <div className="text-[8px] lg:text-[10px] text-[#737373]">{bar.share}</div>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Top Performer */}
-                  <div className="col-span-6 lg:col-span-4 bg-white border border-[#e5e5e5] p-3 lg:p-5">
-                    <div className="flex items-center justify-between mb-2 lg:mb-4">
-                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">Top Performer</div>
-                      <Sparkles className="w-3 h-3 lg:w-4 lg:h-4 text-[#a3a3a3]" />
+                  {/* Secondary Row: AI Insight + Top Performer */}
+                  <div className="col-span-12 lg:col-span-7 bg-[#0a0a0a] p-4 lg:p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Brain className="w-4 h-4 text-white" />
+                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">AI Insight</div>
+                      <div className="ml-auto text-[10px] px-2 py-0.5 bg-white text-[#0a0a0a] font-medium">94% confidence</div>
                     </div>
-                    <div className="flex items-center gap-2 lg:gap-3 mb-2 lg:mb-4">
-                      <div className="w-8 h-8 lg:w-12 lg:h-12 bg-[#0a0a0a] flex items-center justify-center text-white font-bold text-xs lg:text-base">
+                    <div className="text-sm lg:text-base font-semibold text-white mb-2">
+                      Shadow Knight products convert 34% higher than catalog average
+                    </div>
+                    <div className="text-xs lg:text-sm text-[#a3a3a3] leading-relaxed">
+                      Based on 2,847 orders this month. Consider expanding the Shadow Knight product line — hoodies and collectibles show strongest performance.
+                    </div>
+                  </div>
+
+                  <div className="col-span-12 lg:col-span-5 bg-white border border-[#e5e5e5] p-4 lg:p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">Top Performer This Month</div>
+                      <Sparkles className="w-4 h-4 text-[#0a0a0a]" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 lg:w-14 lg:h-14 bg-[#0a0a0a] flex items-center justify-center text-white font-bold text-base lg:text-lg">
                         SK
                       </div>
-                      <div>
-                        <div className="font-semibold text-[#0a0a0a] text-xs lg:text-base">Shadow Knight</div>
-                        <div className="text-[10px] lg:text-xs text-[#737373]">40% of revenue</div>
-                      </div>
-                    </div>
-                    <div className="space-y-1 lg:space-y-2">
-                      <div className="flex justify-between text-[10px] lg:text-xs">
-                        <span className="text-[#737373]">Revenue</span>
-                        <span className="font-medium text-[#0a0a0a]">$89,423</span>
-                      </div>
-                      <div className="h-1 lg:h-1.5 bg-[#e5e5e5]">
-                        <div className="h-full bg-[#0a0a0a] w-[92%]" />
+                      <div className="flex-1">
+                        <div className="font-semibold text-[#0a0a0a] text-sm lg:text-base">Shadow Knight</div>
+                        <div className="text-xs text-[#737373]">33% of total revenue · 847 orders</div>
+                        <div className="mt-2 h-1.5 bg-[#e5e5e5] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#0a0a0a] w-[33%]" />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* AI Insight Card */}
-                  <div className="col-span-6 lg:col-span-4 bg-white border border-[#e5e5e5] p-3 lg:p-5">
-                    <div className="flex items-center gap-2 mb-2 lg:mb-3">
-                      <Brain className="w-3 h-3 lg:w-4 lg:h-4 text-[#0a0a0a]" />
-                      <div className="text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">AI Insight</div>
-                      <div className="ml-auto text-[8px] lg:text-[10px] px-1 lg:px-1.5 py-0.5 bg-[#0a0a0a] text-white">94%</div>
+                  {/* Connector Strip - Earns the "OS" label */}
+                  <div className="col-span-12 bg-white border-t border-x border-[#e5e5e5] px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-[10px] lg:text-xs text-[#737373] uppercase tracking-wide">
+                      <Plug className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span>Connected Sources</span>
                     </div>
-                    <div className="text-xs lg:text-sm font-medium text-[#0a0a0a] mb-1 lg:mb-2">
-                      Shadow Knight +34% conversion
-                    </div>
-                    <div className="text-[10px] lg:text-xs text-[#737373] leading-relaxed hidden lg:block">
-                      Consider expanding the Shadow Knight product line.
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 px-2 py-1 bg-[#fafafa] border border-[#e5e5e5]">
+                        <Image src="/logos/shopify.svg" alt="Shopify" width={16} height={16} />
+                        <span className="text-[10px] lg:text-xs font-medium text-[#0a0a0a]">Shopify</span>
+                        <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full" />
+                      </div>
+                      <div className="flex items-center gap-2 px-2 py-1 bg-[#fafafa] border border-[#e5e5e5]">
+                        <FileSpreadsheet className="w-4 h-4 text-[#737373]" />
+                        <span className="text-[10px] lg:text-xs font-medium text-[#0a0a0a]">CSV Import</span>
+                        <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full" />
+                      </div>
+                      <div className="hidden sm:flex items-center gap-1 text-[10px] lg:text-xs text-[#a3a3a3]">
+                        <span>+3 more coming</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Fade to white at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+            {/* Gentle fade to mask the edge */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none" />
           </div>
 
-          {/* Mobile Dashboard Preview - Simplified version for mobile */}
-          <div className="relative pb-8 md:hidden">
-            <div className="bg-[#0a0a0a] border-2 border-[#0a0a0a] shadow-xl">
+          {/* Mobile Dashboard Preview - Character Revenue First */}
+          <div className="relative pb-0 md:hidden">
+            <div className="bg-[#0a0a0a] rounded-t-lg shadow-xl overflow-hidden">
               {/* Browser Chrome */}
               <div className="flex items-center gap-2 px-3 py-2 bg-[#171717] border-b border-[#333]">
                 <div className="flex gap-1">
@@ -368,34 +372,58 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Simplified Mobile Dashboard */}
-              <div className="p-3 bg-[#fafafa]">
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="bg-white border border-[#e5e5e5] p-3">
-                    <div className="text-[10px] text-[#737373] uppercase mb-1">Revenue</div>
-                    <div className="text-lg font-bold text-[#0a0a0a]">$227K</div>
-                    <div className="text-[10px] text-[#22c55e]">+24.5%</div>
+              {/* Mobile Dashboard - Character Revenue First */}
+              <div className="p-3 pb-6 bg-gradient-to-b from-[#fafafa] from-70% to-white space-y-2">
+                {/* Character Revenue Chart - Primary */}
+                <div className="bg-white border border-[#e5e5e5] p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-semibold text-[#0a0a0a]">Revenue by Character</div>
+                    <div className="text-xs font-bold text-[#0a0a0a]">$267K</div>
                   </div>
-                  <div className="bg-[#0a0a0a] p-3">
-                    <div className="text-[10px] text-[#737373] uppercase mb-1">AI Insights</div>
-                    <div className="text-lg font-bold text-white">12 New</div>
-                    <div className="text-[10px] text-[#a3a3a3]">View all →</div>
+                  <div className="flex items-end gap-1.5 h-20">
+                    {[
+                      { pct: 100, label: 'SK' },
+                      { pct: 75, label: 'PX' },
+                      { pct: 51, label: 'LS' },
+                      { pct: 27, label: 'IF' },
+                      { pct: 20, label: '+3' },
+                    ].map((bar, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center">
+                        <div className={`w-full ${i === 0 ? 'bg-[#0a0a0a]' : 'bg-[#525252]'}`} style={{ height: `${bar.pct}%` }} />
+                        <span className="text-[8px] text-[#737373] mt-1">{bar.label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Mini Bar Chart */}
-                <div className="bg-white border border-[#e5e5e5] p-3">
-                  <div className="text-xs font-medium text-[#0a0a0a] mb-3">Revenue by Character</div>
-                  <div className="flex items-end gap-2 h-20">
-                    {[95, 72, 58, 42, 35].map((pct, i) => (
-                      <div key={i} className="flex-1 bg-[#0a0a0a]" style={{ height: `${pct}%` }} />
-                    ))}
+                {/* AI Insight */}
+                <div className="bg-[#0a0a0a] p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Brain className="w-3 h-3 text-white" />
+                    <span className="text-[10px] text-[#737373] uppercase">AI Insight</span>
+                    <span className="ml-auto text-[9px] px-1.5 py-0.5 bg-white text-[#0a0a0a]">94%</span>
+                  </div>
+                  <div className="text-xs text-white font-medium">Shadow Knight +34% conversion</div>
+                </div>
+
+                {/* Connector Strip */}
+                <div className="bg-white border-t border-x border-[#e5e5e5] px-3 py-2 flex items-center justify-between">
+                  <span className="text-[9px] text-[#737373] uppercase">Connected</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#fafafa] border border-[#e5e5e5]">
+                      <Image src="/logos/shopify.svg" alt="Shopify" width={12} height={12} />
+                      <span className="w-1 h-1 bg-[#22c55e] rounded-full" />
+                    </div>
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#fafafa] border border-[#e5e5e5]">
+                      <FileSpreadsheet className="w-3 h-3 text-[#737373]" />
+                      <span className="w-1 h-1 bg-[#22c55e] rounded-full" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Fade to white at bottom */}
+            {/* Gentle fade */}
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
           </div>
         </div>
