@@ -68,6 +68,7 @@ interface ForecastData {
     factors: string[];
     recommendation: string;
   };
+  generatedAt?: string; // ISO timestamp
 }
 
 interface TrendAlert {
@@ -274,6 +275,19 @@ export default function OverviewPage() {
     }
   };
 
+  // Load saved forecast from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('phantomos-forecast');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setForecastData(parsed);
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, []);
+
   // Load demand forecast
   const loadForecast = useCallback(async () => {
     if (forecastLoading) return;
@@ -286,7 +300,17 @@ export default function OverviewPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setForecastData(data);
+        const forecastWithTimestamp = {
+          ...data,
+          generatedAt: new Date().toISOString(),
+        };
+        setForecastData(forecastWithTimestamp);
+        // Persist to localStorage
+        try {
+          localStorage.setItem('phantomos-forecast', JSON.stringify(forecastWithTimestamp));
+        } catch {
+          // Ignore localStorage errors
+        }
       }
     } catch (error) {
       console.error('Failed to load forecast:', error);
@@ -920,7 +944,14 @@ export default function OverviewPage() {
                   <Brain className="w-5 h-5" />
                   AI Demand Forecast
                 </CardTitle>
-                <CardDescription>Predicting next period based on your sales patterns</CardDescription>
+                <CardDescription>
+                  Predicting next period based on your sales patterns
+                  {forecastData?.generatedAt && (
+                    <span className="ml-2 text-[#a3a3a3]">
+                      · Generated {new Date(forecastData.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {new Date(forecastData.generatedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                  )}
+                </CardDescription>
               </div>
               <Button
                 variant={forecastData ? "outline" : "default"}
