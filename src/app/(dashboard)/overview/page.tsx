@@ -295,98 +295,101 @@ export default function OverviewPage() {
     }
   }, [forecastLoading]);
 
-  // Generate trend alerts from asset and revenue data
+  // Generate trend alerts from stats and asset data
   useEffect(() => {
-    if (!assetData.length || !stats) return;
+    // Only need stats to generate alerts - assetData is optional
+    if (!stats) return;
 
     const alerts: TrendAlert[] = [];
 
-    // Check for significant asset performance changes
-    assetData.forEach((asset, index) => {
-      if (asset.growth >= 25) {
-        alerts.push({
-          id: `surge-${index}`,
-          type: 'surge',
-          title: `${asset.name} is surging`,
-          description: `Revenue up ${asset.growth}% this period`,
-          metric: 'Revenue',
-          change: asset.growth,
-          asset: asset.name,
-        });
-      } else if (asset.growth <= -20) {
-        alerts.push({
-          id: `drop-${index}`,
-          type: 'drop',
-          title: `${asset.name} declining`,
-          description: `Revenue down ${Math.abs(asset.growth)}% — consider promotions`,
-          metric: 'Revenue',
-          change: asset.growth,
-          asset: asset.name,
-        });
-      }
-    });
-
-    // Check for overall growth opportunities
-    if (stats.revenueGrowth >= 20) {
-      alerts.push({
-        id: 'opportunity-revenue',
-        type: 'opportunity',
-        title: 'Strong momentum',
-        description: `Overall revenue up ${stats.revenueGrowth.toFixed(1)}% — capitalize on demand`,
-        metric: 'Total Revenue',
-        change: stats.revenueGrowth,
-      });
-    }
-
-    // Check for significant revenue decline
+    // PRIORITY 1: Check for significant revenue decline (most critical)
     if (stats.revenueGrowth <= -20) {
       alerts.push({
         id: 'drop-revenue',
         type: 'drop',
         title: 'Revenue declining',
-        description: `Revenue down ${Math.abs(stats.revenueGrowth).toFixed(1)}% vs last period — investigate cause`,
+        description: `Down ${Math.abs(stats.revenueGrowth).toFixed(1)}% vs previous period. Review marketing spend and inventory.`,
         metric: 'Total Revenue',
         change: stats.revenueGrowth,
       });
     }
 
-    // Check for significant orders decline
+    // PRIORITY 2: Check for significant orders decline
     if (stats.ordersGrowth <= -25) {
       alerts.push({
         id: 'warning-orders',
         type: 'warning',
-        title: 'Orders dropping',
-        description: `Order volume down ${Math.abs(stats.ordersGrowth).toFixed(1)}% — may need promotion`,
+        title: 'Order volume dropping',
+        description: `${Math.abs(stats.ordersGrowth).toFixed(1)}% fewer orders. Consider promotions or ads.`,
         metric: 'Orders',
         change: stats.ordersGrowth,
       });
     }
 
-    // Check for AOV decline (concerning)
+    // PRIORITY 3: Check for AOV increase (positive signal worth noting)
+    if (stats.aovGrowth >= 15) {
+      alerts.push({
+        id: 'opportunity-aov',
+        type: 'opportunity',
+        title: 'Customers spending more',
+        description: `AOV up ${stats.aovGrowth.toFixed(1)}%. Upselling or bundles working — double down.`,
+        metric: 'AOV',
+        change: stats.aovGrowth,
+      });
+    }
+
+    // PRIORITY 4: Check for overall growth opportunities
+    if (stats.revenueGrowth >= 20) {
+      alerts.push({
+        id: 'opportunity-revenue',
+        type: 'surge',
+        title: 'Revenue surging',
+        description: `Up ${stats.revenueGrowth.toFixed(1)}%! Capitalize on momentum with inventory.`,
+        metric: 'Total Revenue',
+        change: stats.revenueGrowth,
+      });
+    }
+
+    // PRIORITY 5: Check for AOV decline (concerning)
     if (stats.aovGrowth <= -15) {
       alerts.push({
         id: 'warning-aov',
         type: 'warning',
         title: 'AOV declining',
-        description: `Average order value down ${Math.abs(stats.aovGrowth).toFixed(1)}% — consider bundles`,
+        description: `Down ${Math.abs(stats.aovGrowth).toFixed(1)}%. Try bundles or minimum order incentives.`,
         metric: 'AOV',
         change: stats.aovGrowth,
       });
     }
 
-    // Check for AOV increase (positive signal)
-    if (stats.aovGrowth >= 15) {
-      alerts.push({
-        id: 'opportunity-aov',
-        type: 'opportunity',
-        title: 'AOV increasing',
-        description: `Customers spending ${stats.aovGrowth.toFixed(1)}% more per order`,
-        metric: 'AOV',
-        change: stats.aovGrowth,
+    // PRIORITY 6: Check for significant asset performance changes (if data available)
+    if (assetData.length > 0) {
+      assetData.forEach((asset, index) => {
+        if (asset.growth >= 25) {
+          alerts.push({
+            id: `surge-${index}`,
+            type: 'surge',
+            title: `${asset.name} is surging`,
+            description: `Revenue up ${asset.growth}% — expand this product line.`,
+            metric: 'Asset Revenue',
+            change: asset.growth,
+            asset: asset.name,
+          });
+        } else if (asset.growth <= -20) {
+          alerts.push({
+            id: `drop-${index}`,
+            type: 'drop',
+            title: `${asset.name} declining`,
+            description: `Revenue down ${Math.abs(asset.growth)}% — consider promotions.`,
+            metric: 'Asset Revenue',
+            change: asset.growth,
+            asset: asset.name,
+          });
+        }
       });
     }
 
-    setTrendAlerts(alerts.slice(0, 4)); // Max 4 alerts
+    setTrendAlerts(alerts.slice(0, 4)); // Max 4 alerts, prioritized by order above
   }, [assetData, stats]);
 
   // Loading state with skeleton UI
@@ -909,134 +912,218 @@ export default function OverviewPage() {
 
         {/* Demand Forecast & Trend Alerts Row */}
         <div className="grid grid-cols-3 gap-4">
-          {/* Demand Forecast */}
+          {/* Demand Forecast - Enhanced with methodology explanation */}
           <Card className="col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="w-5 h-5" />
-                  Demand Forecast
+                  AI Demand Forecast
                 </CardTitle>
-                <CardDescription>AI-powered prediction for next period</CardDescription>
+                <CardDescription>Predicting next period based on your sales patterns</CardDescription>
               </div>
-              {!forecastData && !forecastLoading && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={loadForecast}
-                  disabled={forecastLoading}
-                >
-                  {forecastLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 mr-2" />
-                      Generate Forecast
-                    </>
-                  )}
-                </Button>
-              )}
+              <Button
+                variant={forecastData ? "outline" : "default"}
+                size="sm"
+                onClick={loadForecast}
+                disabled={forecastLoading}
+              >
+                {forecastLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : forecastData ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Generate Forecast
+                  </>
+                )}
+              </Button>
             </CardHeader>
             <CardContent>
               {forecastLoading ? (
-                <div className="h-[200px] flex items-center justify-center">
-                  <div className="text-center">
-                    <Loader2 className="w-8 h-8 text-[#0a0a0a] mx-auto mb-3 animate-spin" />
-                    <p className="text-[#737373]">Analyzing historical data...</p>
+                <div className="space-y-4">
+                  <div className="h-4 w-3/4 bg-[#f5f5f5] animate-pulse" />
+                  <div className="p-6 bg-[#fafafa] border border-[#e5e5e5]">
+                    <div className="flex items-center gap-4">
+                      <Loader2 className="w-8 h-8 text-[#0a0a0a] animate-spin" />
+                      <div>
+                        <p className="font-medium text-[#0a0a0a]">Claude is analyzing your data...</p>
+                        <p className="text-sm text-[#737373]">Looking at sales trends, seasonality, and patterns</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="h-16 bg-[#f5f5f5] animate-pulse" />
+                    ))}
                   </div>
                 </div>
               ) : forecastData ? (
-                <div className="space-y-6">
-                  {/* Prediction Header */}
-                  <div className="flex items-start justify-between p-4 bg-[#0a0a0a]">
-                    <div>
-                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-1">Next Period Prediction</div>
-                      <div className="text-3xl font-bold text-white">
-                        {forecastData.forecast.prediction.toLocaleString()} units
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-1">Confidence</div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24 h-2 bg-[#333] overflow-hidden">
-                          <div
-                            className="h-full bg-white transition-all duration-500"
-                            style={{ width: `${forecastData.forecast.confidence * 100}%` }}
-                          />
+                <div className="space-y-5">
+                  {/* How it works - collapsible explanation */}
+                  <div className="text-xs text-[#737373] bg-[#fafafa] p-3 border-l-2 border-[#0a0a0a]">
+                    <span className="font-medium text-[#0a0a0a]">How this works:</span> Claude analyzed {forecastData.historical?.length || 0} weeks of your sales data, identified patterns, and predicted demand for the upcoming period.
+                  </div>
+
+                  {/* Main Prediction Card */}
+                  <div className="bg-[#0a0a0a] p-5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="text-xs text-[#737373] uppercase tracking-wider">Predicted Demand</div>
+                          <div className="group relative">
+                            <div className="w-4 h-4 rounded-full bg-[#333] flex items-center justify-center text-[10px] text-[#737373] cursor-help">?</div>
+                            <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-white text-xs text-[#525252] border border-[#e5e5e5] shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                              Based on historical sales velocity and detected trends
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-white font-medium">
-                          {Math.round(forecastData.forecast.confidence * 100)}%
-                        </span>
+                        <div className="text-4xl font-bold text-white mb-1">
+                          {forecastData.forecast.prediction.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-[#a3a3a3]">units next period</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-[#737373] uppercase tracking-wider mb-2">AI Confidence</div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-20 h-3 bg-[#333] overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-700 ${
+                                forecastData.forecast.confidence >= 0.8 ? 'bg-[#22c55e]' :
+                                forecastData.forecast.confidence >= 0.6 ? 'bg-white' :
+                                'bg-[#f59e0b]'
+                              }`}
+                              style={{ width: `${forecastData.forecast.confidence * 100}%` }}
+                            />
+                          </div>
+                          <span className={`text-lg font-bold ${
+                            forecastData.forecast.confidence >= 0.8 ? 'text-[#22c55e]' :
+                            forecastData.forecast.confidence >= 0.6 ? 'text-white' :
+                            'text-[#f59e0b]'
+                          }`}>
+                            {Math.round(forecastData.forecast.confidence * 100)}%
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-[#525252] mt-1">
+                          {forecastData.forecast.confidence >= 0.8 ? 'High confidence' :
+                           forecastData.forecast.confidence >= 0.6 ? 'Moderate confidence' :
+                           'Low confidence - more data needed'}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Factors & Recommendation */}
+                  {/* Factors & Recommendation in cards */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-2">Contributing Factors</div>
+                    <div className="border border-[#e5e5e5] p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 bg-[#f5f5f5] flex items-center justify-center">
+                          <TrendingUp className="w-3.5 h-3.5 text-[#737373]" />
+                        </div>
+                        <div className="text-xs text-[#737373] uppercase tracking-wider font-medium">What AI Detected</div>
+                      </div>
                       <div className="space-y-2">
                         {forecastData.forecast.factors.map((factor, i) => (
-                          <div key={i} className="flex items-center gap-2 text-sm">
-                            <div className="w-1.5 h-1.5 bg-[#0a0a0a]" />
+                          <div key={i} className="flex items-start gap-2 text-sm">
+                            <div className="w-1.5 h-1.5 bg-[#0a0a0a] mt-1.5 flex-shrink-0" />
                             <span className="text-[#525252]">{factor}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-2">AI Recommendation</div>
-                      <p className="text-sm text-[#525252] leading-relaxed">
+                    <div className="border border-[#0a0a0a] bg-[#fafafa] p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 bg-[#0a0a0a] flex items-center justify-center">
+                          <Sparkles className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <div className="text-xs text-[#0a0a0a] uppercase tracking-wider font-medium">Recommended Action</div>
+                      </div>
+                      <p className="text-sm text-[#0a0a0a] leading-relaxed font-medium">
                         {forecastData.forecast.recommendation}
                       </p>
                     </div>
                   </div>
 
-                  {/* Refresh button */}
-                  <button
-                    onClick={loadForecast}
-                    className="text-xs text-[#a3a3a3] hover:text-[#0a0a0a] transition-colors"
-                  >
-                    ↻ Refresh forecast
-                  </button>
+                  {/* Historical context mini-chart placeholder */}
+                  {forecastData.historical && forecastData.historical.length > 0 && (
+                    <div className="pt-3 border-t border-[#e5e5e5]">
+                      <div className="text-xs text-[#737373] mb-2">Historical Data Used ({forecastData.historical.length} periods)</div>
+                      <div className="flex items-end gap-1 h-12">
+                        {forecastData.historical.slice(-8).map((period, i) => {
+                          const maxRevenue = Math.max(...forecastData.historical!.map(p => Number(p.revenue) || 0));
+                          const height = maxRevenue > 0 ? ((Number(period.revenue) || 0) / maxRevenue) * 100 : 0;
+                          return (
+                            <div
+                              key={i}
+                              className="flex-1 bg-[#e5e5e5] hover:bg-[#0a0a0a] transition-colors group relative"
+                              style={{ height: `${Math.max(height, 5)}%` }}
+                            >
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-[#0a0a0a] text-white text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                ${Number(period.revenue || 0).toLocaleString()}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="flex-1 bg-[#0a0a0a] border-2 border-dashed border-[#22c55e]" style={{ height: '80%' }}>
+                          <div className="text-[8px] text-[#22c55e] text-center mt-1">AI</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-[10px] text-[#a3a3a3] mt-1">
+                        <span>Past</span>
+                        <span>Predicted →</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="h-[200px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
-                  <div className="text-center">
-                    <Brain className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
-                    <p className="text-[#737373] font-medium">No forecast generated</p>
-                    <p className="text-sm text-[#a3a3a3] mt-1 mb-4">
-                      AI will analyze your sales history
+                <div className="py-8">
+                  <div className="text-center max-w-sm mx-auto">
+                    <div className="w-16 h-16 bg-[#f5f5f5] flex items-center justify-center mx-auto mb-4">
+                      <Brain className="w-8 h-8 text-[#a3a3a3]" />
+                    </div>
+                    <h3 className="font-medium text-[#0a0a0a] mb-2">Demand Forecasting</h3>
+                    <p className="text-sm text-[#737373] mb-4">
+                      Let Claude analyze your sales patterns and predict future demand. Works best with 4+ weeks of data.
                     </p>
                     <Button variant="default" size="sm" onClick={loadForecast}>
                       <Zap className="w-4 h-4 mr-2" />
                       Generate Forecast
                     </Button>
+                    <p className="text-xs text-[#a3a3a3] mt-3">
+                      Uses your order history · Takes ~5 seconds
+                    </p>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Trend Alerts */}
+          {/* Trend Alerts - Enhanced with explanations */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
                 Trend Alerts
               </CardTitle>
-              <CardDescription>Notable changes this period</CardDescription>
+              <CardDescription>Auto-detected changes in your data</CardDescription>
             </CardHeader>
             <CardContent>
               {trendAlerts.length > 0 ? (
                 <div className="space-y-3">
+                  <div className="text-xs text-[#737373] bg-[#fafafa] p-2 border-l-2 border-[#737373]">
+                    {trendAlerts.length} alert{trendAlerts.length > 1 ? 's' : ''} detected comparing current vs previous period
+                  </div>
                   {trendAlerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className={`p-3 border transition-colors ${
+                      className={`p-3 border transition-all hover:shadow-md ${
                         alert.type === 'surge' ? 'border-[#22c55e] bg-[#f0fdf4]' :
                         alert.type === 'drop' ? 'border-[#ef4444] bg-[#fef2f2]' :
                         alert.type === 'opportunity' ? 'border-[#0a0a0a] bg-[#fafafa]' :
@@ -1056,27 +1143,32 @@ export default function OverviewPage() {
                           {alert.type === 'warning' && <AlertTriangle className="w-4 h-4 text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-medium text-sm text-[#0a0a0a] truncate">{alert.title}</p>
-                            <span className={`text-xs font-medium ${
-                              alert.change >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="font-medium text-sm text-[#0a0a0a]">{alert.title}</p>
+                            <span className={`text-xs font-bold px-1.5 py-0.5 ${
+                              alert.change >= 0 ? 'bg-[#dcfce7] text-[#16a34a]' : 'bg-[#fee2e2] text-[#dc2626]'
                             }`}>
-                              {alert.change >= 0 ? '+' : ''}{alert.change}%
+                              {alert.change >= 0 ? '↑' : '↓'} {Math.abs(alert.change).toFixed(1)}%
                             </span>
                           </div>
-                          <p className="text-xs text-[#737373] mt-0.5">{alert.description}</p>
+                          <p className="text-xs text-[#525252]">{alert.description}</p>
+                          <div className="mt-2 text-[10px] text-[#a3a3a3] uppercase tracking-wide">
+                            {alert.metric}
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="h-[200px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                <div className="py-8">
                   <div className="text-center">
-                    <AlertTriangle className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
-                    <p className="text-[#737373] font-medium">No alerts</p>
-                    <p className="text-sm text-[#a3a3a3] mt-1">
-                      Alerts appear when trends shift
+                    <div className="w-12 h-12 bg-[#f5f5f5] flex items-center justify-center mx-auto mb-3">
+                      <AlertTriangle className="w-6 h-6 text-[#a3a3a3]" />
+                    </div>
+                    <p className="font-medium text-[#737373] mb-1">No alerts right now</p>
+                    <p className="text-xs text-[#a3a3a3] max-w-[200px] mx-auto">
+                      Alerts trigger when revenue changes ±20%, orders change ±25%, or AOV shifts ±15%
                     </p>
                   </div>
                 </div>
