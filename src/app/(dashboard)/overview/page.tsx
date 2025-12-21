@@ -332,19 +332,55 @@ export default function OverviewPage() {
         id: 'opportunity-revenue',
         type: 'opportunity',
         title: 'Strong momentum',
-        description: `Overall revenue up ${stats.revenueGrowth}% — capitalize on demand`,
+        description: `Overall revenue up ${stats.revenueGrowth.toFixed(1)}% — capitalize on demand`,
         metric: 'Total Revenue',
         change: stats.revenueGrowth,
       });
     }
 
-    // Check for concerning trends
+    // Check for significant revenue decline
+    if (stats.revenueGrowth <= -20) {
+      alerts.push({
+        id: 'drop-revenue',
+        type: 'drop',
+        title: 'Revenue declining',
+        description: `Revenue down ${Math.abs(stats.revenueGrowth).toFixed(1)}% vs last period — investigate cause`,
+        metric: 'Total Revenue',
+        change: stats.revenueGrowth,
+      });
+    }
+
+    // Check for significant orders decline
+    if (stats.ordersGrowth <= -25) {
+      alerts.push({
+        id: 'warning-orders',
+        type: 'warning',
+        title: 'Orders dropping',
+        description: `Order volume down ${Math.abs(stats.ordersGrowth).toFixed(1)}% — may need promotion`,
+        metric: 'Orders',
+        change: stats.ordersGrowth,
+      });
+    }
+
+    // Check for AOV decline (concerning)
     if (stats.aovGrowth <= -15) {
       alerts.push({
         id: 'warning-aov',
         type: 'warning',
         title: 'AOV declining',
-        description: `Average order value down ${Math.abs(stats.aovGrowth)}% — consider bundles`,
+        description: `Average order value down ${Math.abs(stats.aovGrowth).toFixed(1)}% — consider bundles`,
+        metric: 'AOV',
+        change: stats.aovGrowth,
+      });
+    }
+
+    // Check for AOV increase (positive signal)
+    if (stats.aovGrowth >= 15) {
+      alerts.push({
+        id: 'opportunity-aov',
+        type: 'opportunity',
+        title: 'AOV increasing',
+        description: `Customers spending ${stats.aovGrowth.toFixed(1)}% more per order`,
         metric: 'AOV',
         change: stats.aovGrowth,
       });
