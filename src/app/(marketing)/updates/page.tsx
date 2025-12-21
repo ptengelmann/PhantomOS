@@ -40,7 +40,7 @@ const updates: Update[] = [
     content: [
       'Added AI-powered demand forecasting to the Overview dashboard. Click "Generate Forecast" to analyze your historical sales data and predict demand for the next period.',
       'Each forecast includes: predicted units, confidence score (displayed as a visual progress bar), contributing factors that influenced the prediction, and a specific AI recommendation.',
-      'Forecasts use Claude AI to analyze trends, seasonality, and product performance. The more historical data you have, the more accurate predictions become.',
+      'Forecasts use AI to analyze trends, seasonality, and product performance. The more historical data you have, the more accurate predictions become.',
       'Forecasting works at publisher-wide, product-specific, or asset-specific levels — helping you plan inventory and marketing spend with data-backed confidence.',
     ],
     highlights: ['AI-powered predictions', 'Confidence scoring', 'Contributing factors', 'Actionable recommendations'],

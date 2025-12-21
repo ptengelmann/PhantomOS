@@ -954,7 +954,7 @@ export default function OverviewPage() {
                     <div className="flex items-center gap-4">
                       <Loader2 className="w-8 h-8 text-[#0a0a0a] animate-spin" />
                       <div>
-                        <p className="font-medium text-[#0a0a0a]">Claude is analyzing your data...</p>
+                        <p className="font-medium text-[#0a0a0a]">AI is analyzing your data...</p>
                         <p className="text-sm text-[#737373]">Looking at sales trends, seasonality, and patterns</p>
                       </div>
                     </div>
@@ -969,7 +969,7 @@ export default function OverviewPage() {
                 <div className="space-y-5">
                   {/* How it works - collapsible explanation */}
                   <div className="text-xs text-[#737373] bg-[#fafafa] p-3 border-l-2 border-[#0a0a0a]">
-                    <span className="font-medium text-[#0a0a0a]">How this works:</span> Claude analyzed {forecastData.historical?.length || 0} weeks of your sales data, identified patterns, and predicted demand for the upcoming period.
+                    <span className="font-medium text-[#0a0a0a]">How this works:</span> AI analyzed {forecastData.historical?.length || 0} weeks of your sales data, identified patterns, and predicted demand for the upcoming period.
                   </div>
 
                   {/* Main Prediction Card */}
@@ -1090,7 +1090,7 @@ export default function OverviewPage() {
                     </div>
                     <h3 className="font-medium text-[#0a0a0a] mb-2">Demand Forecasting</h3>
                     <p className="text-sm text-[#737373] mb-4">
-                      Let Claude analyze your sales patterns and predict future demand. Works best with 4+ weeks of data.
+                      Let AI analyze your sales patterns and predict future demand. Works best with 4+ weeks of data.
                     </p>
                     <Button variant="default" size="sm" onClick={loadForecast}>
                       <Zap className="w-4 h-4 mr-2" />
