@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart, Map, List, RefreshCw, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { DollarSign, Package, TrendingUp, Users, Sparkles, ArrowUpRight, Globe, Plug, Upload, ShoppingBag, Loader2, Target, Calendar, BarChart3, LineChart as LineChartIcon, AreaChart, Map, List, RefreshCw, ChevronDown, Brain, AlertTriangle, TrendingDown, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Header, StatsCard } from '@/components/dashboard';
 import { RevenueChart, AssetPerformanceChart, CategoryBreakdown, SalesMap } from '@/components/charts';
@@ -59,6 +59,27 @@ interface RegionalSalesData {
   percentage: number;
 }
 
+interface ForecastData {
+  entity: { name: string; type?: string };
+  historical: { period: string; revenue: number; units: number }[];
+  forecast: {
+    prediction: number;
+    confidence: number;
+    factors: string[];
+    recommendation: string;
+  };
+}
+
+interface TrendAlert {
+  id: string;
+  type: 'surge' | 'drop' | 'opportunity' | 'warning';
+  title: string;
+  description: string;
+  metric: string;
+  change: number;
+  asset?: string;
+}
+
 type DateRange = '7d' | '30d' | '90d' | '12m';
 type ChartDataType = 'revenue' | 'orders' | 'aov';
 type ChartViewType = 'line' | 'bar' | 'area';
@@ -113,6 +134,9 @@ export default function OverviewPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const dateDropdownRef = useRef<HTMLDivElement>(null);
+  const [forecastData, setForecastData] = useState<ForecastData | null>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [trendAlerts, setTrendAlerts] = useState<TrendAlert[]>([]);
 
   // Close date dropdown when clicking outside
   useEffect(() => {
@@ -249,6 +273,85 @@ export default function OverviewPage() {
       setLoading(false);
     }
   };
+
+  // Load demand forecast
+  const loadForecast = useCallback(async () => {
+    if (forecastLoading) return;
+    setForecastLoading(true);
+    try {
+      const res = await fetch('/api/ai/forecast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}), // Publisher-wide forecast
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setForecastData(data);
+      }
+    } catch (error) {
+      console.error('Failed to load forecast:', error);
+    } finally {
+      setForecastLoading(false);
+    }
+  }, [forecastLoading]);
+
+  // Generate trend alerts from asset and revenue data
+  useEffect(() => {
+    if (!assetData.length || !stats) return;
+
+    const alerts: TrendAlert[] = [];
+
+    // Check for significant asset performance changes
+    assetData.forEach((asset, index) => {
+      if (asset.growth >= 25) {
+        alerts.push({
+          id: `surge-${index}`,
+          type: 'surge',
+          title: `${asset.name} is surging`,
+          description: `Revenue up ${asset.growth}% this period`,
+          metric: 'Revenue',
+          change: asset.growth,
+          asset: asset.name,
+        });
+      } else if (asset.growth <= -20) {
+        alerts.push({
+          id: `drop-${index}`,
+          type: 'drop',
+          title: `${asset.name} declining`,
+          description: `Revenue down ${Math.abs(asset.growth)}% — consider promotions`,
+          metric: 'Revenue',
+          change: asset.growth,
+          asset: asset.name,
+        });
+      }
+    });
+
+    // Check for overall growth opportunities
+    if (stats.revenueGrowth >= 20) {
+      alerts.push({
+        id: 'opportunity-revenue',
+        type: 'opportunity',
+        title: 'Strong momentum',
+        description: `Overall revenue up ${stats.revenueGrowth}% — capitalize on demand`,
+        metric: 'Total Revenue',
+        change: stats.revenueGrowth,
+      });
+    }
+
+    // Check for concerning trends
+    if (stats.aovGrowth <= -15) {
+      alerts.push({
+        id: 'warning-aov',
+        type: 'warning',
+        title: 'AOV declining',
+        description: `Average order value down ${Math.abs(stats.aovGrowth)}% — consider bundles`,
+        metric: 'AOV',
+        change: stats.aovGrowth,
+      });
+    }
+
+    setTrendAlerts(alerts.slice(0, 4)); // Max 4 alerts
+  }, [assetData, stats]);
 
   // Loading state with skeleton UI
   if (loading) {
@@ -767,6 +870,184 @@ export default function OverviewPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Demand Forecast & Trend Alerts Row */}
+        <div className="grid grid-cols-3 gap-4">
+          {/* Demand Forecast */}
+          <Card className="col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  Demand Forecast
+                </CardTitle>
+                <CardDescription>AI-powered prediction for next period</CardDescription>
+              </div>
+              {!forecastData && !forecastLoading && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadForecast}
+                  disabled={forecastLoading}
+                >
+                  {forecastLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Generate Forecast
+                    </>
+                  )}
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {forecastLoading ? (
+                <div className="h-[200px] flex items-center justify-center">
+                  <div className="text-center">
+                    <Loader2 className="w-8 h-8 text-[#0a0a0a] mx-auto mb-3 animate-spin" />
+                    <p className="text-[#737373]">Analyzing historical data...</p>
+                  </div>
+                </div>
+              ) : forecastData ? (
+                <div className="space-y-6">
+                  {/* Prediction Header */}
+                  <div className="flex items-start justify-between p-4 bg-[#0a0a0a]">
+                    <div>
+                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-1">Next Period Prediction</div>
+                      <div className="text-3xl font-bold text-white">
+                        {forecastData.forecast.prediction.toLocaleString()} units
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-1">Confidence</div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 h-2 bg-[#333] overflow-hidden">
+                          <div
+                            className="h-full bg-white transition-all duration-500"
+                            style={{ width: `${forecastData.forecast.confidence * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-white font-medium">
+                          {Math.round(forecastData.forecast.confidence * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Factors & Recommendation */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-2">Contributing Factors</div>
+                      <div className="space-y-2">
+                        {forecastData.forecast.factors.map((factor, i) => (
+                          <div key={i} className="flex items-center gap-2 text-sm">
+                            <div className="w-1.5 h-1.5 bg-[#0a0a0a]" />
+                            <span className="text-[#525252]">{factor}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-[#737373] uppercase tracking-wider mb-2">AI Recommendation</div>
+                      <p className="text-sm text-[#525252] leading-relaxed">
+                        {forecastData.forecast.recommendation}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Refresh button */}
+                  <button
+                    onClick={loadForecast}
+                    className="text-xs text-[#a3a3a3] hover:text-[#0a0a0a] transition-colors"
+                  >
+                    ↻ Refresh forecast
+                  </button>
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                  <div className="text-center">
+                    <Brain className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
+                    <p className="text-[#737373] font-medium">No forecast generated</p>
+                    <p className="text-sm text-[#a3a3a3] mt-1 mb-4">
+                      AI will analyze your sales history
+                    </p>
+                    <Button variant="default" size="sm" onClick={loadForecast}>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Generate Forecast
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Trend Alerts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Trend Alerts
+              </CardTitle>
+              <CardDescription>Notable changes this period</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {trendAlerts.length > 0 ? (
+                <div className="space-y-3">
+                  {trendAlerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className={`p-3 border transition-colors ${
+                        alert.type === 'surge' ? 'border-[#22c55e] bg-[#f0fdf4]' :
+                        alert.type === 'drop' ? 'border-[#ef4444] bg-[#fef2f2]' :
+                        alert.type === 'opportunity' ? 'border-[#0a0a0a] bg-[#fafafa]' :
+                        'border-[#f59e0b] bg-[#fffbeb]'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 ${
+                          alert.type === 'surge' ? 'bg-[#22c55e]' :
+                          alert.type === 'drop' ? 'bg-[#ef4444]' :
+                          alert.type === 'opportunity' ? 'bg-[#0a0a0a]' :
+                          'bg-[#f59e0b]'
+                        }`}>
+                          {alert.type === 'surge' && <TrendingUp className="w-4 h-4 text-white" />}
+                          {alert.type === 'drop' && <TrendingDown className="w-4 h-4 text-white" />}
+                          {alert.type === 'opportunity' && <Sparkles className="w-4 h-4 text-white" />}
+                          {alert.type === 'warning' && <AlertTriangle className="w-4 h-4 text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-medium text-sm text-[#0a0a0a] truncate">{alert.title}</p>
+                            <span className={`text-xs font-medium ${
+                              alert.change >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'
+                            }`}>
+                              {alert.change >= 0 ? '+' : ''}{alert.change}%
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#737373] mt-0.5">{alert.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center bg-[#fafafa] border border-dashed border-[#e5e5e5]">
+                  <div className="text-center">
+                    <AlertTriangle className="w-12 h-12 text-[#e5e5e5] mx-auto mb-3" />
+                    <p className="text-[#737373] font-medium">No alerts</p>
+                    <p className="text-sm text-[#a3a3a3] mt-1">
+                      Alerts appear when trends shift
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Recent Orders / Sales Map */}
         <Card>

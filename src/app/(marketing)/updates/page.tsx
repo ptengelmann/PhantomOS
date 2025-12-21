@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map, Tag } from 'lucide-react';
+import { CalendarDays, Sparkles, Users, Code, Shield, Zap, Bug, ChevronDown, ChevronRight, Search, X, Filter, History, Map, Tag, Brain, AlertTriangle, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type UpdateCategory = 'feature' | 'improvement' | 'fix' | 'security' | 'announcement';
@@ -28,6 +28,57 @@ const categoryConfig: Record<UpdateCategory, { label: string; color: string; bg:
 };
 
 const updates: Update[] = [
+  {
+    id: 'dec-2025-demand-forecast',
+    date: 'December 21, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'AI Demand Forecasting',
+    summary: 'Predict next period demand with AI-powered forecasting. See confidence levels, contributing factors, and actionable recommendations.',
+    category: 'feature',
+    icon: Brain,
+    content: [
+      'Added AI-powered demand forecasting to the Overview dashboard. Click "Generate Forecast" to analyze your historical sales data and predict demand for the next period.',
+      'Each forecast includes: predicted units, confidence score (displayed as a visual progress bar), contributing factors that influenced the prediction, and a specific AI recommendation.',
+      'Forecasts use Claude AI to analyze trends, seasonality, and product performance. The more historical data you have, the more accurate predictions become.',
+      'Forecasting works at publisher-wide, product-specific, or asset-specific levels — helping you plan inventory and marketing spend with data-backed confidence.',
+    ],
+    highlights: ['AI-powered predictions', 'Confidence scoring', 'Contributing factors', 'Actionable recommendations'],
+  },
+  {
+    id: 'dec-2025-trend-alerts',
+    date: 'December 21, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Trend Alerts Dashboard',
+    summary: 'Automatic alerts for surging characters, declining assets, and revenue opportunities. Never miss a trend again.',
+    category: 'feature',
+    icon: AlertTriangle,
+    content: [
+      'New Trend Alerts section on the Overview dashboard automatically detects and surfaces notable changes in your merchandise performance.',
+      'Four alert types: Surge (character revenue up 25%+), Drop (revenue down 20%+), Opportunity (strong overall momentum), and Warning (declining AOV or concerning patterns).',
+      'Each alert includes the affected asset, percentage change, and a suggested action. Color-coded for instant recognition — green for surges, red for drops, gold for warnings.',
+      'Alerts are generated automatically from your real data — no configuration needed. As your sales data updates, alerts refresh to show the latest trends.',
+    ],
+    highlights: ['4 alert types', 'Auto-generated', 'Actionable suggestions', 'Real-time updates'],
+  },
+  {
+    id: 'dec-2025-hero-redesign',
+    date: 'December 21, 2025',
+    month: 'December',
+    year: '2025',
+    title: 'Homepage Hero Redesign',
+    summary: 'Redesigned the landing page to lead with character revenue — the core value prop. Added connector strip to earn the "OS" label.',
+    category: 'improvement',
+    icon: BarChart3,
+    content: [
+      'Flipped the visual hierarchy on the homepage dashboard preview. Character revenue chart is now the primary visual — immediately showing what makes PhantomOS unique.',
+      'Removed generic stat cards that every analytics tool has. Now the hero shows: full-width character revenue breakdown with $ values and % share for each character.',
+      'Added "Connected Sources" strip at the bottom showing Shopify and CSV integrations with live status indicators. This earns the "Operating System" positioning by hinting at the data pipeline layer.',
+      'Improved the fade transition at the bottom of the dashboard preview for a smoother visual flow into the next section.',
+    ],
+    highlights: ['Character revenue first', 'Connector strip', 'Visual hierarchy', 'Smoother transitions'],
+  },
   {
     id: 'dec-2025-asset-tagging-ux',
     date: 'December 15, 2025',
