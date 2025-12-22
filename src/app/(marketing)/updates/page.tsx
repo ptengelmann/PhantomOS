@@ -86,23 +86,6 @@ const updates: Update[] = [
     highlights: ['4 alert types', 'Auto-generated', 'Actionable suggestions', 'Real-time updates'],
   },
   {
-    id: 'dec-2025-hero-redesign',
-    date: 'December 21, 2025',
-    month: 'December',
-    year: '2025',
-    title: 'Homepage Hero Redesign',
-    summary: 'Redesigned the landing page to lead with character revenue — the core value prop. Added connector strip to earn the "OS" label.',
-    category: 'improvement',
-    icon: BarChart3,
-    content: [
-      'Flipped the visual hierarchy on the homepage dashboard preview. Character revenue chart is now the primary visual — immediately showing what makes PhantomOS unique.',
-      'Removed generic stat cards that every analytics tool has. Now the hero shows: full-width character revenue breakdown with $ values and % share for each character.',
-      'Added "Connected Sources" strip at the bottom showing Shopify and CSV integrations with live status indicators. This earns the "Operating System" positioning by hinting at the data pipeline layer.',
-      'Improved the fade transition at the bottom of the dashboard preview for a smoother visual flow into the next section.',
-    ],
-    highlights: ['Character revenue first', 'Connector strip', 'Visual hierarchy', 'Smoother transitions'],
-  },
-  {
     id: 'dec-2025-asset-tagging-ux',
     date: 'December 15, 2025',
     month: 'December',
