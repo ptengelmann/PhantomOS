@@ -234,6 +234,26 @@ Registration tokens for approved users and team invites.
 | `expiresAt` | timestamp | Token expiration |
 | `createdAt` | timestamp | Creation time |
 
+#### audit_logs
+Compliance audit trail for all sensitive operations.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `publisherId` | uuid | FK to publishers (nullable for system events) |
+| `userId` | uuid | FK to users (nullable for anonymous events) |
+| `action` | varchar(100) | Action type (e.g., `product.tagged`, `connector.synced`) |
+| `resourceType` | varchar(50) | Resource type (product, connector, insight, etc.) |
+| `resourceId` | uuid | ID of affected resource |
+| `resourceName` | varchar(255) | Human-readable resource name |
+| `metadata` | jsonb | Additional context (changes, parameters) |
+| `ipAddress` | varchar(45) | Client IP address |
+| `userAgent` | text | Client user agent |
+| `status` | varchar(20) | `success`, `failed`, `blocked` |
+| `createdAt` | timestamp | Event timestamp |
+
+**Indexed columns:** `publisherId`, `userId`, `action`, `createdAt`
+
 ---
 
 ## Authentication Flow
@@ -623,10 +643,73 @@ This ensures:
 3. **CSRF:** Built into NextAuth
 4. **Input Validation:** Zod schemas on API routes
 5. **SQL Injection:** Prevented by Drizzle ORM parameterized queries
-6. **Connector Credentials:** Stored in encrypted JSONB
+6. **Connector Credentials:** AES-256-GCM encrypted (see below)
 7. **Role-Based Access:** Write operations require owner/admin role
 8. **Publisher Scoping:** All data queries filtered by publisherId from session
 9. **Demo Mode Isolation:** Session checked before demo fallback to prevent data leakage
+10. **Rate Limiting:** Upstash Redis-based rate limiting on all endpoints (see below)
+11. **Audit Logging:** All sensitive operations logged for compliance (see below)
+
+### Rate Limiting (`src/lib/rate-limit/`)
+
+Upstash Redis-based rate limiting with tiered limits:
+
+| Tier | Limit | Window | Use Case |
+|------|-------|--------|----------|
+| `ai` | 5 requests | 1 minute | AI endpoints (expensive) |
+| `write` | 20 requests | 1 minute | POST/PUT/DELETE operations |
+| `read` | 60 requests | 1 minute | GET operations |
+| `auth` | 5 requests | 5 minutes | Login/registration |
+| `public` | 3 requests | 1 minute | Waitlist, contact forms |
+
+**Implementation:**
+```typescript
+import { rateLimit } from '@/lib/rate-limit';
+
+// In API route
+const rateLimitResponse = await rateLimit('ai');
+if (rateLimitResponse) return rateLimitResponse;
+```
+
+### Credential Encryption (`src/lib/crypto/`)
+
+AES-256-GCM encryption for connector credentials (Shopify tokens, API keys).
+
+```typescript
+import { encryptCredentials, decryptCredentials } from '@/lib/crypto';
+
+// Encrypt before storing
+const encrypted = encryptCredentials({ accessToken: 'shpat_xxx', shop: 'store.myshopify.com' });
+
+// Decrypt when reading
+const credentials = decryptCredentials<ShopifyCredentials>(connector.config);
+```
+
+**Environment:** Requires `ENCRYPTION_KEY` (32-byte hex string)
+
+### Audit Logging (`src/lib/audit/`)
+
+Comprehensive audit trail for compliance:
+
+```typescript
+import { audit } from '@/lib/audit';
+
+// Log product tagging
+await audit.productTagged(session, productId, productName, ['Shadow Knight', 'Luna']);
+
+// Log connector sync
+await audit.connectorSynced(session, connectorId, 'Shopify Store', 150);
+
+// Log AI insights generation
+await audit.insightsGenerated(session, batchId, 5);
+```
+
+**Tracked Actions:**
+- `product.created`, `product.updated`, `product.deleted`, `product.tagged`
+- `connector.created`, `connector.synced`, `connector.deleted`
+- `insight.generated`, `insight.actioned`
+- `user.invited`, `user.role_changed`
+- `waitlist.submitted`, `waitlist.approved`
 
 ---
 

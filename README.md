@@ -51,6 +51,8 @@ PhantomOS aggregates, maps, and analyzes merchandise data:
 | ORM | Drizzle ORM |
 | Auth | NextAuth.js v4 (credentials, JWT) |
 | AI | Anthropic Claude API (claude-sonnet-4-20250514) |
+| Rate Limiting | Upstash Redis |
+| Encryption | AES-256-GCM (credential encryption) |
 | Analytics | Posthog (EU region) |
 | Charts | Recharts |
 | Icons | Lucide React |
@@ -117,6 +119,17 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com  # or https://us.i.posthog.com
 SHOPIFY_API_KEY=your-shopify-api-key
 SHOPIFY_API_SECRET=your-shopify-api-secret
 
+# Rate Limiting (Upstash Redis)
+UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+UPSTASH_REDIS_REST_TOKEN=xxx
+
+# Encryption (for connector credentials)
+ENCRYPTION_KEY=32-character-hex-string  # openssl rand -hex 32
+
+# Email (optional - Resend)
+RESEND_API_KEY=re_xxx
+EMAIL_FROM=noreply@yourdomain.com
+
 # App Config
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
@@ -145,9 +158,13 @@ phantomos/
 │   │   ├── marketing/        # Navbar, Footer
 │   │   └── providers/        # SessionProvider, AnalyticsProvider
 │   └── lib/
-│       ├── db/schema.ts      # Drizzle schema (12 tables)
+│       ├── db/schema.ts      # Drizzle schema (13 tables)
 │       ├── ai/index.ts       # Claude AI integration
-│       ├── auth/index.ts     # NextAuth config
+│       ├── auth/index.ts     # NextAuth config + session helpers
+│       ├── rate-limit/       # Upstash Redis rate limiting
+│       ├── crypto/           # AES-256-GCM encryption
+│       ├── audit/            # Compliance audit logging
+│       ├── email/            # Resend email integration
 │       ├── analytics/        # Posthog integration
 │       └── utils/index.ts    # Helpers
 ├── scripts/                   # Database scripts
@@ -171,6 +188,7 @@ phantomos/
 | `sales` | Order/revenue records |
 | `analytics_snapshots` | Pre-computed daily/weekly/monthly metrics |
 | `ai_insights` | Persisted AI-generated recommendations |
+| `audit_logs` | Compliance audit trail for all actions |
 | `waitlist` | Pilot program applications |
 | `invitations` | Registration tokens for approved users |
 
@@ -292,7 +310,13 @@ npx tsx scripts/check-user.ts email@example.com
 **Future Vision (Post-PMF):**
 - Advanced AI (image recognition, NL queries)
 - Additional connectors (Amazon, WooCommerce)
-- Enterprise features (SSO, audit logging)
+- Enterprise features (SSO, custom reporting)
+
+**Security Infrastructure (Complete):**
+- Rate limiting on all API endpoints
+- AES-256-GCM credential encryption
+- Audit logging for compliance
+- Session-first authentication pattern
 
 See `ROADMAP.md` for full details.
 

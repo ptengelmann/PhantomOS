@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { getServerSession, isDemoMode } from '@/lib/auth';
+import { resolvePublisher } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { rateLimit } from '@/lib/rate-limit';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -73,12 +74,14 @@ interface TagSuggestion {
 
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Verify user is authenticated
-    if (!isDemoMode()) {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+    // Rate limit AI endpoints
+    const rateLimitResponse = await rateLimit('ai');
+    if (rateLimitResponse) return rateLimitResponse;
+
+    // SECURITY: Session-first pattern
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -98,9 +101,9 @@ export async function POST(request: NextRequest) {
     // Fetch few-shot examples from confirmed mappings (the learning part!)
     const learnedExamples = await getConfirmedMappingExamples(product.category);
 
-    // Build the prompt for Claude
+    // Build the prompt for Claude - IMPORTANT: Include actual UUID so Claude returns it correctly
     const assetList = assets
-      .map((a, idx) => `${idx + 1}. ${a.name} (${a.type})${a.description ? `: ${a.description}` : ''}`)
+      .map((a) => `- ID: "${a.id}" | Name: ${a.name} (${a.type})${a.description ? `: ${a.description}` : ''}`)
       .join('\n');
 
     const prompt = `You are an AI assistant helping to tag gaming merchandise products with the correct IP assets (characters, logos, themes, etc.).
@@ -128,16 +131,18 @@ Consider:
 5. Patterns from the learned examples above
 
 Respond with a JSON array of suggested assets, ordered by confidence. For each suggestion include:
-- assetId: the asset's ID
+- assetId: MUST be the exact ID string from the "Available IP Assets" list above (UUID format)
 - assetName: the asset's name
 - confidence: a number from 0-100 representing your confidence
 - reason: a brief explanation of why this asset matches
+
+IMPORTANT: The assetId must be the exact UUID string shown after "ID:" in the asset list, not a number or index.
 
 Only suggest assets with confidence >= 50. If no assets match with high confidence, return an empty array.
 
 Response format (JSON only, no explanation):
 [
-  {"assetId": "...", "assetName": "...", "confidence": 85, "reason": "..."},
+  {"assetId": "uuid-string-here", "assetName": "...", "confidence": 85, "reason": "..."},
   ...
 ]`;
 
@@ -168,14 +173,18 @@ Response format (JSON only, no explanation):
       }
     }
 
-    // Validate and clean suggestions
+    // Build set of valid asset IDs for validation
+    const validAssetIds = new Set(assets.map(a => a.id));
+
+    // Validate and clean suggestions - MUST have valid UUID from asset list
     suggestions = suggestions
       .filter(
         (s) =>
           s.assetId &&
           s.assetName &&
           typeof s.confidence === 'number' &&
-          s.confidence >= 50
+          s.confidence >= 50 &&
+          validAssetIds.has(s.assetId) // Only accept IDs that exist in the asset list
       )
       .map((s) => ({
         assetId: s.assetId,
@@ -234,7 +243,7 @@ export async function PUT(request: NextRequest) {
         .join('\n\n');
 
       const assetList = assets
-        .map((a, idx) => `${idx + 1}. ID: ${a.id}, Name: ${a.name} (${a.type})`)
+        .map((a) => `- ID: "${a.id}" | Name: ${a.name} (${a.type})`)
         .join('\n');
 
       const prompt = `You are an AI assistant helping to tag gaming merchandise products with the correct IP assets.
@@ -249,11 +258,13 @@ ${productsList}
 
 For each product, analyze and suggest which assets it features. Use the learned patterns above to guide your suggestions - these are real examples of correct mappings.
 
+IMPORTANT: The assetId must be the exact UUID string shown after "ID:" in the asset list, not a number or index.
+
 Respond with a JSON object where keys are product IDs and values are arrays of suggestions.
 
 Response format (JSON only):
 {
-  "product-id-1": [{"assetId": "...", "assetName": "...", "confidence": 85, "reason": "..."}],
+  "product-id-1": [{"assetId": "uuid-from-asset-list", "assetName": "...", "confidence": 85, "reason": "..."}],
   "product-id-2": [...]
 }`;
 
@@ -276,11 +287,14 @@ Response format (JSON only):
           }
         }
 
+        // Build set of valid asset IDs for validation
+        const validAssetIds = new Set(assets.map(a => a.id));
+
         for (const [productId, suggestions] of Object.entries(batchResults)) {
           results.push({
             productId,
             suggestions: (suggestions as TagSuggestion[])
-              .filter((s) => s.confidence >= 50)
+              .filter((s) => s.confidence >= 50 && validAssetIds.has(s.assetId))
               .sort((a, b) => b.confidence - a.confidence),
           });
         }

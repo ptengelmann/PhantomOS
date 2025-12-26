@@ -2,29 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateInsights } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { sql, eq, desc, isNull, and } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { resolvePublisher, getServerSession } from '@/lib/auth';
 import { aiInsights, gameIps } from '@/lib/db/schema';
 import { v4 as uuidv4 } from 'uuid';
+import { rateLimit } from '@/lib/rate-limit';
+import { audit } from '@/lib/audit';
 
 // GET: Retrieve stored insights with history support
 export async function GET(request: NextRequest) {
   try {
-    let publisherId: string;
-
-    // Check session first for real user data
-    const session = await getServerSession();
-    if (session?.user?.publisherId) {
-      publisherId = session.user.publisherId;
-    } else if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
+    // SECURITY: Session-first pattern
+    const resolved = await resolvePublisher();
+    if (!resolved) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     // Get query params
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const includeHistory = searchParams.get('history') === 'true';
+    const compareBatchA = searchParams.get('compareA');
+    const compareBatchB = searchParams.get('compareB');
 
     // Fetch all insights from database
     const insights = await db
@@ -81,6 +80,45 @@ export async function GET(request: NextRequest) {
       }))
       .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
 
+    // Handle comparison mode
+    if (compareBatchA && compareBatchB) {
+      const batchA = batches[compareBatchA] || [];
+      const batchB = batches[compareBatchB] || [];
+
+      // Find insights unique to each batch and common ones
+      const titlesA = new Set(batchA.map((i) => i.title.toLowerCase()));
+      const titlesB = new Set(batchB.map((i) => i.title.toLowerCase()));
+
+      const newInBatchB = batchB.filter((i) => !titlesA.has(i.title.toLowerCase()));
+      const resolvedFromBatchA = batchA.filter((i) => !titlesB.has(i.title.toLowerCase()));
+      const recurring = batchB.filter((i) => titlesA.has(i.title.toLowerCase()));
+
+      return NextResponse.json({
+        comparison: {
+          batchA: {
+            batchId: compareBatchA,
+            createdAt: batchA[0]?.createdAt,
+            insights: batchA,
+            insightCount: batchA.length,
+          },
+          batchB: {
+            batchId: compareBatchB,
+            createdAt: batchB[0]?.createdAt,
+            insights: batchB,
+            insightCount: batchB.length,
+          },
+          newInsights: newInBatchB, // In newer batch but not older
+          resolvedInsights: resolvedFromBatchA, // In older batch but not newer
+          recurringInsights: recurring, // In both batches
+          summary: {
+            newCount: newInBatchB.length,
+            resolvedCount: resolvedFromBatchA.length,
+            recurringCount: recurring.length,
+          },
+        },
+      });
+    }
+
     return NextResponse.json({
       current: currentBatch,
       history: includeHistory ? historyBatches.slice(1) : [], // Exclude current from history
@@ -96,17 +134,16 @@ export async function GET(request: NextRequest) {
 // POST: Generate new insights using AI
 export async function POST(request: NextRequest) {
   try {
-    let publisherId: string;
+    // Rate limit AI endpoints (expensive operations)
+    const rateLimitResponse = await rateLimit('ai');
+    if (rateLimitResponse) return rateLimitResponse;
 
-    // Check session first for real user data
-    const session = await getServerSession();
-    if (session?.user?.publisherId) {
-      publisherId = session.user.publisherId;
-    } else if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
+    // SECURITY: Session-first pattern
+    const resolved = await resolvePublisher();
+    if (!resolved) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId, session } = resolved;
 
     const body = await request.json();
     const { type, persist = true } = body;
@@ -252,6 +289,11 @@ Be SPECIFIC - mention actual product names and categories from the data. No gene
 
       // Insert new insights (keeps old ones for history)
       await db.insert(aiInsights).values(insightsToInsert);
+
+      // Audit log the generation
+      if (batchId) {
+        await audit.insightsGenerated(session, batchId, rawInsights.length);
+      }
     }
 
     return NextResponse.json({

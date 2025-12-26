@@ -175,3 +175,76 @@ export async function requireWriteAccess() {
 
   return session;
 }
+
+/**
+ * Standardized session/demo mode resolution for API routes
+ * ALWAYS checks session first, then falls back to demo mode
+ * This ensures logged-in users always see their own data
+ *
+ * @returns Object with publisherId and session info, or null if unauthorized
+ */
+export async function resolvePublisher(): Promise<{
+  publisherId: string;
+  session: Awaited<ReturnType<typeof getServerSession>>;
+  isDemo: boolean;
+} | null> {
+  const session = await getServerSession();
+
+  // Session-first: Always check if user is logged in
+  if (session?.user?.publisherId) {
+    return {
+      publisherId: session.user.publisherId,
+      session,
+      isDemo: false,
+    };
+  }
+
+  // No session - check if demo mode is enabled
+  if (isDemoMode()) {
+    return {
+      publisherId: getDemoPublisherId(),
+      session: null,
+      isDemo: true,
+    };
+  }
+
+  // No session and no demo mode - unauthorized
+  return null;
+}
+
+/**
+ * Resolve publisher with write access check
+ * Returns null if unauthorized or if user doesn't have write permissions
+ */
+export async function resolvePublisherWithWriteAccess(): Promise<{
+  publisherId: string;
+  session: NonNullable<Awaited<ReturnType<typeof getServerSession>>>;
+  isDemo: boolean;
+} | null> {
+  const session = await getServerSession();
+
+  // Session-first: Always check if user is logged in
+  if (session?.user?.publisherId) {
+    // Check write permissions
+    if (!canWrite(session.user.role)) {
+      return null; // Has session but no write access
+    }
+    return {
+      publisherId: session.user.publisherId,
+      session,
+      isDemo: false,
+    };
+  }
+
+  // No session - check if demo mode is enabled for anonymous write access
+  if (isDemoMode()) {
+    return {
+      publisherId: getDemoPublisherId(),
+      session: null as unknown as NonNullable<Awaited<ReturnType<typeof getServerSession>>>,
+      isDemo: true,
+    };
+  }
+
+  // No session and no demo mode - unauthorized
+  return null;
+}

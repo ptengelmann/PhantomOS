@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { resolvePublisher } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 
@@ -12,17 +12,12 @@ interface RegionalSalesData {
 
 export async function GET() {
   try {
-    let publisherId: string;
-
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      publisherId = session.user.publisherId;
+    // SECURITY: Session-first pattern - always check auth before demo mode
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     // Get regional sales data
     const regionalData = await db.execute(sql`

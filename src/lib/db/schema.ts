@@ -200,6 +200,24 @@ export const invitations = pgTable('invitations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Audit Logs - Track all important actions for compliance
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  publisherId: uuid('publisher_id').references(() => publishers.id),
+  userId: uuid('user_id').references(() => users.id),
+  userEmail: varchar('user_email', { length: 255 }), // Denormalized for quick lookup
+  action: varchar('action', { length: 100 }).notNull(), // e.g., 'product.create', 'waitlist.approve'
+  resourceType: varchar('resource_type', { length: 50 }), // e.g., 'product', 'connector', 'user'
+  resourceId: uuid('resource_id'),
+  resourceName: varchar('resource_name', { length: 255 }), // Denormalized for readability
+  metadata: jsonb('metadata').default({}), // Additional context (before/after state, etc.)
+  ipAddress: varchar('ip_address', { length: 45 }), // IPv6 compatible
+  userAgent: text('user_agent'),
+  status: varchar('status', { length: 20 }).default('success'), // success, failure, error
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const publishersRelations = relations(publishers, ({ many }) => ({
   users: many(users),
@@ -210,6 +228,18 @@ export const publishersRelations = relations(publishers, ({ many }) => ({
   analyticsSnapshots: many(analyticsSnapshots),
   aiInsights: many(aiInsights),
   invitations: many(invitations),
+  auditLogs: many(auditLogs),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  publisher: one(publishers, {
+    fields: [auditLogs.publisherId],
+    references: [publishers.id],
+  }),
+  user: one(users, {
+    fields: [auditLogs.userId],
+    references: [users.id],
+  }),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({

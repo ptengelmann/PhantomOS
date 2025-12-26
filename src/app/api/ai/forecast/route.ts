@@ -2,22 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { predictDemand } from '@/lib/ai';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { resolvePublisher } from '@/lib/auth';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Get publisherId from session, not request body
-    let publisherId: string;
+    // Rate limit AI endpoints (expensive operations)
+    const rateLimitResponse = await rateLimit('ai');
+    if (rateLimitResponse) return rateLimitResponse;
 
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      publisherId = session.user.publisherId;
+    // SECURITY: Session-first pattern - always check auth before demo mode
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     const body = await request.json();
     const { productId, assetId } = body;

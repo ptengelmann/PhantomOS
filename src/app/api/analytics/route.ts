@@ -2,22 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sales, products, ipAssets, gameIps } from '@/lib/db/schema';
 import { sql, desc, eq, and, gte, lte } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { resolvePublisher } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // SECURITY: Get publisherId from session, not query params
-    let publisherId: string;
-
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      publisherId = session.user.publisherId;
+    // SECURITY: Session-first pattern - always check auth before demo mode
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get('startDate');

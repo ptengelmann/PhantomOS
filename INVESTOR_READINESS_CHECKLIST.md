@@ -111,7 +111,9 @@
 - [x] Environment variables for secrets
 - [x] Role-based access control (RBAC) for write operations
 - [x] Session-first pattern for demo mode security
-- [ ] Rate limiting on APIs
+- [x] Rate limiting on APIs (Upstash Redis with tiered limits)
+- [x] Credential encryption (AES-256-GCM for connector tokens)
+- [x] Audit logging for compliance (all sensitive actions tracked)
 - [ ] HTTPS enforced (Vercel handles)
 
 ---
@@ -190,7 +192,7 @@
 4. [ ] More testimonials/social proof on site
 
 ### Lower Priority (Can Wait)
-1. [ ] Rate limiting
+1. [x] Rate limiting (Complete)
 2. [ ] Sentry error monitoring
 3. [ ] Cookie consent banner
 
@@ -207,4 +209,4 @@
 
 ---
 
-*Last Updated: December 15, 2025*
+*Last Updated: December 23, 2025*

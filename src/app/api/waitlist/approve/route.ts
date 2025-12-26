@@ -3,7 +3,9 @@ import { db } from '@/lib/db';
 import { waitlist } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '@/lib/auth';
-import crypto from 'crypto';
+import { audit } from '@/lib/audit';
+import { sendWaitlistApprovalEmail, isEmailConfigured } from '@/lib/email';
+import { generateSecureToken } from '@/lib/crypto';
 
 // POST - Approve waitlist entry and generate invite token
 export async function POST(request: NextRequest) {
@@ -12,7 +14,7 @@ export async function POST(request: NextRequest) {
     let session;
     try {
       session = await requireAuth();
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Unauthorized - Please login' },
         { status: 401 }
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate secure invite token
-    const inviteToken = crypto.randomBytes(32).toString('hex');
+    const inviteToken = generateSecureToken(32);
 
     // Update entry
     await db
@@ -72,14 +74,31 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(waitlist.id, id));
 
-    // TODO: When you integrate Resend, send email here
-    // await sendInviteEmail(entry.email, inviteToken);
+    // Audit log the approval
+    await audit.waitlistApproved(session, id, entry.email);
+
+    // Send approval email if configured
+    let emailSent = false;
+    let emailError: string | undefined;
+
+    if (isEmailConfigured()) {
+      const result = await sendWaitlistApprovalEmail({
+        to: entry.email,
+        companyName: entry.companyName || undefined,
+        inviteToken,
+      });
+      emailSent = result.success;
+      emailError = result.error;
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Waitlist entry approved',
       inviteToken,
       inviteLink: `/register/${inviteToken}`,
+      emailSent,
+      emailError,
+      emailConfigured: isEmailConfigured(),
     });
   } catch (error) {
     console.error('Approve waitlist error:', error);

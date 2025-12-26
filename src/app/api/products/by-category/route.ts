@@ -2,21 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
 import { eq, and, sql, desc } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId } from '@/lib/auth';
+import { resolvePublisher } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    let publisherId: string;
-
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      publisherId = session.user.publisherId;
+    // SECURITY: Session-first pattern - always check auth before demo mode
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');

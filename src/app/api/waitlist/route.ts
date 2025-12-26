@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { waitlist } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { rateLimit } from '@/lib/rate-limit';
+import { createAuditLog } from '@/lib/audit';
+import { sendWaitlistNotificationToAdmin, isEmailConfigured } from '@/lib/email';
 
 // POST - Add to waitlist
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit public submissions (strict - 3 per minute)
+    const rateLimitResponse = await rateLimit('public');
+    if (rateLimitResponse) return rateLimitResponse;
+
     const body = await request.json();
     const { email, companyName, companyWebsite, revenueRange, primaryChannel } = body;
 
@@ -51,6 +58,31 @@ export async function POST(request: NextRequest) {
         status: 'pending',
       })
       .returning({ id: waitlist.id });
+
+    // Audit log the submission
+    await createAuditLog({
+      action: 'waitlist.submit',
+      resourceType: 'waitlist',
+      resourceId: entry.id,
+      resourceName: email.toLowerCase(),
+      metadata: {
+        companyName,
+        revenueRange,
+        primaryChannel,
+      },
+    });
+
+    // Notify admin of new submission (async, don't block response)
+    if (isEmailConfigured()) {
+      sendWaitlistNotificationToAdmin({
+        applicantEmail: email.toLowerCase(),
+        companyName: companyName || undefined,
+        revenueRange: revenueRange || undefined,
+        primaryChannel: primaryChannel || undefined,
+      }).catch((err) => {
+        console.error('Failed to send admin notification:', err);
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -2,22 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ipAssets, gameIps } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
-import { getServerSession, isDemoMode, getDemoPublisherId, canWrite } from '@/lib/auth';
+import { resolvePublisher, resolvePublisherWithWriteAccess } from '@/lib/auth';
 
 // GET - List all IP assets grouped by Game IP
 export async function GET() {
   try {
-    let publisherId: string;
-
-    if (isDemoMode()) {
-      publisherId = getDemoPublisherId();
-    } else {
-      const session = await getServerSession();
-      if (!session?.user?.publisherId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      publisherId = session.user.publisherId;
+    // SECURITY: Session-first pattern - always check auth before demo mode
+    const resolved = await resolvePublisher();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { publisherId } = resolved;
 
     // Get all game IPs with their assets
     const gameIpsWithAssets = await db
@@ -70,23 +65,12 @@ export async function GET() {
 // POST - Create a new IP asset (and optionally game IP)
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Require write access (owner/admin only)
-    let publisherId: string;
-
-    const session = await getServerSession();
-
-    if (session?.user?.publisherId) {
-      // User is logged in - always check RBAC regardless of demo mode
-      if (!canWrite(session.user.role)) {
-        return NextResponse.json({ error: 'Write access required' }, { status: 403 });
-      }
-      publisherId = session.user.publisherId;
-    } else if (isDemoMode()) {
-      // No session but demo mode - allow anonymous access
-      publisherId = getDemoPublisherId();
-    } else {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // SECURITY: Session-first pattern with write access check
+    const resolved = await resolvePublisherWithWriteAccess();
+    if (!resolved) {
+      return NextResponse.json({ error: 'Write access required' }, { status: 403 });
     }
+    const { publisherId } = resolved;
 
     const body = await request.json();
     const { gameIpId, gameIpName, assetName, assetType = 'character' } = body;

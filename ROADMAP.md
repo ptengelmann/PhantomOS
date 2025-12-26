@@ -89,13 +89,15 @@ The following phases represent our product vision after achieving PMF with the I
 
 **Unlock:** After landing first enterprise deal
 
-| Feature | Use Case |
-|---------|----------|
-| SSO/SAML | Enterprise IT requirements |
-| Audit logging | Compliance needs |
-| Custom reporting | Executive dashboards |
-| API access | Integration with existing systems |
-| Multi-region | Data residency requirements |
+| Feature | Status | Use Case |
+|---------|--------|----------|
+| Audit logging | **Complete** | Compliance needs |
+| Rate limiting | **Complete** | API protection |
+| Credential encryption | **Complete** | Security compliance |
+| SSO/SAML | Planned | Enterprise IT requirements |
+| Custom reporting | Planned | Executive dashboards |
+| API access | Planned | Integration with existing systems |
+| Multi-region | Planned | Data residency requirements |
 
 ---
 
@@ -167,6 +169,10 @@ When evaluating new features or opportunities:
 ## Recent Updates
 
 ### December 2025
+- **Security Infrastructure**: Rate limiting (Upstash Redis), credential encryption (AES-256-GCM), audit logging for compliance
+- **AI Tagging Accuracy Fix**: Resolved UUID parsing issue where AI returned indices instead of asset IDs
+- **AI Insight Batch Comparison**: Compare insights across time periods to track recurring vs resolved issues
+- **Session-First Pattern**: All API routes now check authentication before demo mode fallback
 - Platform Polish & Reliability: 10 UX improvements including dashboard error handling, chart persistence, better notifications
 - AI Demand Forecasting and Trend Alerts on dashboard
 - Forecast persistence with timestamp display
